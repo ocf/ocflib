@@ -6,7 +6,8 @@ except ImportError:
 
 from urllib import urlencode, urlopen
 from urlparse import urljoin
-from django.conf import settings
+
+import alib.constants
 
 
 def verify_ticket(ticket, service):
@@ -15,7 +16,7 @@ def verify_ticket(ticket, service):
     Returns CalNet UID on success and None on failure.
     """
     params = {'ticket': ticket, 'service': service}
-    url = (urljoin(settings.CALNET_SERVER_URL, 'serviceValidate') + '?' +
+    url = (urljoin(alib.constants.CAS_URL, 'serviceValidate') + '?' +
            urlencode(params))
     try:
         page = urlopen(url)
@@ -31,11 +32,11 @@ def verify_ticket(ticket, service):
 
 def _get_calnet_names(uid):
     """Returns CalNet LDAP entries relating to names"""
-    l = ldap.initialize(settings.CALNET_LDAP)
+    l = ldap.initialize(alib.constants.UCB_LDAP)
     l.simple_bind_s("", "")
     search_filter = "(uid=%s)" % uid
     attrs = ["givenName", "sn", "displayname"]
-    ldap_entries = l.search_st("ou=People,dc=Berkeley,dc=EDU",
+    ldap_entries = l.search_st(alib.constants.UCB_LDAP_BASE,
                                ldap.SCOPE_SUBTREE, search_filter, attrs)
     if len(ldap_entries):
         return ldap_entries[0][1]
