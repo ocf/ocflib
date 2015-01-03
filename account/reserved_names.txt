@@ -3,7 +3,9 @@ accounts
 admin
 announce
 approve
+archive
 arpwatch
+atool
 audit
 avahi
 backup
@@ -13,12 +15,14 @@ board
 bod
 boinc
 clamav
-cricket
 create
+cricket
+csgo
 daemon
 dca
 debmirror
 deforestation
+devnull
 donations
 dovecot
 dump
@@ -44,6 +48,7 @@ man
 manager
 messagebus
 minecraft
+mirrors
 mon
 mysql
 nagios
@@ -52,9 +57,13 @@ netsplit
 news
 nobody
 noc
+nomail
 nslcd
 ntp
+ocfcsgo
+ocfmail
 ocfstaff
+ocfstats
 officers
 openldap
 opersquad
