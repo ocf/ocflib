@@ -14,7 +14,7 @@ def validate_username_not_reserved(username):
                 raise ValidationError("Requested account name is a reserved system name.")
 
 def filter_real_name(name):
-    return filter(_valid_real_name_char, name)
+    return str(filter(_valid_real_name_char, name))
 
 def _valid_real_name_char(char):
     return char in " -.'" or char.isalpha()
@@ -102,7 +102,7 @@ def clean_password(password):
 def validate_crack_strength(value):
     try:
         crack.VeryFascistCheck(value)
-    except ValueError, e:
+    except ValueError as e:
         raise ValidationError("Password was too weak.")
 
 def _is_printable_ascii(char):

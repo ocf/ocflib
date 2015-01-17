@@ -4,8 +4,9 @@ try:
 except ImportError:
     from elementtree import ElementTree
 
-from urllib import urlencode, urlopen
-from urlparse import urljoin
+from urllib.parse import urlencode
+from urllib.request import urlopen
+from urllib.parse import urljoin
 
 import alib.constants
 
