@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 from urllib.parse import urljoin
 
-import alib.constants
+import ocflib.constants
 
 
 def verify_ticket(ticket, service):
@@ -17,7 +17,7 @@ def verify_ticket(ticket, service):
     Returns CalNet UID on success and None on failure.
     """
     params = {'ticket': ticket, 'service': service}
-    url = (urljoin(alib.constants.CAS_URL, 'serviceValidate') + '?' +
+    url = (urljoin(ocflib.constants.CAS_URL, 'serviceValidate') + '?' +
            urlencode(params))
     try:
         page = urlopen(url)
@@ -33,11 +33,11 @@ def verify_ticket(ticket, service):
 
 def _get_calnet_names(uid):
     """Returns CalNet LDAP entries relating to names"""
-    l = ldap.initialize(alib.constants.UCB_LDAP)
+    l = ldap.initialize(ocflib.constants.UCB_LDAP)
     l.simple_bind_s("", "")
     search_filter = "(uid=%s)" % uid
     attrs = ["givenName", "sn", "displayname"]
-    ldap_entries = l.search_st(alib.constants.UCB_LDAP_BASE,
+    ldap_entries = l.search_st(ocflib.constants.UCB_LDAP_BASE,
                                ldap.SCOPE_SUBTREE, search_filter, attrs)
     if len(ldap_entries):
         return ldap_entries[0][1]
