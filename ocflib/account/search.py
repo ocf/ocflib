@@ -13,7 +13,7 @@ def users_by_calnet_uid(calnet_uid):
         return [entry['attributes']['uid'][0] for entry in c.response]
 
 
-def user_attrs(uid):
+def user_attrs(uid, connection=ldap.ldap_ocf, base=constants.OCF_LDAP_PEOPLE):
     """Returns a dictionary of LDAP attributes for a given LDAP UID in
     the form:
 
@@ -25,12 +25,15 @@ def user_attrs(uid):
 
     Returns None if no account exists with uid=user_account.
     """
-    with ldap.ldap_ocf() as c:
-        c.search(constants.OCF_LDAP_PEOPLE,
-            "(uid={})".format(uid), attributes=ldap3.ALL_ATTRIBUTES)
+    with connection() as c:
+        c.search(base, "(uid={})".format(uid), attributes=ldap3.ALL_ATTRIBUTES)
 
         if len(c.response) > 0:
             return c.response[0]['attributes']
+
+def user_attrs_ucb(uid):
+    return user_attrs(uid, connection=ldap.ldap_ucb,
+                      base=constants.UCB_LDAP_PEOPLE)
 
 
 def user_exists(account):

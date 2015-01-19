@@ -8,6 +8,9 @@ if __name__ == '__main__':
     print("Attributes for user ckuehl:\n{}".format(
         search.user_attrs('ckuehl')))
 
+    print("Attributes for user 1034192 (from CalNet):\n{}".format(
+        search.user_attrs_ucb('1034192')))
+
     print("Attributes for user nonexist should be None:\n{}".format(
         search.user_attrs('nonexist')))
 
