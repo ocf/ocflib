@@ -1,5 +1,6 @@
 ocflib
 ======
+[![Build Status](https://travis-ci.org/ocf/ocflib.svg)](https://travis-ci.org/ocf/ocflib)
 
 ocflib is a Python library for working with [Open Computing Facility][ocf]
 services (in particular, accounts and server management).
