@@ -7,7 +7,6 @@ import getpass
 import paramiko
 import pexpect
 import socket
-import time
 from datetime import date
 
 from Crypto.Cipher import PKCS1_OAEP
@@ -126,7 +125,8 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
     ]
 
     # same as entry_record but without password
-    entry_log = entry_record[:6] + entry_record[7:] + [date.today().isoformat()]
+    entry_log = entry_record[:6] + entry_record[7:] + \
+                [date.today().isoformat(), getpass.getuser(), socket.getfqdn()]
 
     # write record to queue and log
     save = (
