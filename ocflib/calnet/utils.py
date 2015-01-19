@@ -37,7 +37,7 @@ def get_calnet_names(uid):
     attrs = search.user_attrs_ucb(uid)
     if attrs:
         return {key: attrs[key]
-            for key in ('givenName', 'sn', 'displayname') if attrs[key]}
+                for key in ('givenName', 'sn', 'displayname') if attrs[key]}
 
 
 def name_by_calnet_uid(uid):

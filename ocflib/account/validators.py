@@ -6,6 +6,7 @@ import cracklib
 
 import ocflib.constants as constants
 
+
 def validate_username(username):
     """Validate a username, raising a descriptive exception if problems are
     encountered."""

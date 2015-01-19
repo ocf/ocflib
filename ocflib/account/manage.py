@@ -29,16 +29,17 @@ def change_password(username, password, keytab, principal):
 
     # try changing using kadmin pexpect
     cmd = "{kadmin_path} -K {keytab} -p {principal} cpw {username}".format(
-            kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
-            keytab=shell.escape_arg(keytab),
-            principal=shell.escape_arg(principal),
-            username=shell.escape_arg(username))
+        kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
+        keytab=shell.escape_arg(keytab),
+        principal=shell.escape_arg(principal),
+        username=shell.escape_arg(username))
 
     child = pexpect.spawn(cmd, timeout=10)
 
     child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
     child.sendline(password)
-    child.expect("Verify password - {}@OCF.BERKELEY.EDU's Password:".format(username))
+    child.expect("Verify password - {}@OCF.BERKELEY.EDU's Password:"
+                 .format(username))
     child.sendline(password)
 
     child.expect(pexpect.EOF)
@@ -114,19 +115,19 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
     # TODO: replace this with a better format
     entry_record = [
         username,
-        full_name if calnet_uid else '(null)', # name IF not group
-        full_name if not calnet_uid else '(null)', # name IF group
+        full_name if calnet_uid else '(null)',  # name IF not group
+        full_name if not calnet_uid else '(null)',  # name IF group
         email,
         0,
         0 if calnet_uid else 1,
         password,
-        calnet_uid or callink_oid, # university ID
+        calnet_uid or callink_oid,  # university ID
         responsible or '(null)'
     ]
 
     # same as entry_record but without password
     entry_log = entry_record[:6] + entry_record[7:] + \
-                [date.today().isoformat(), getpass.getuser(), socket.getfqdn()]
+        [date.today().isoformat(), getpass.getuser(), socket.getfqdn()]
 
     # write record to queue and log
     save = (

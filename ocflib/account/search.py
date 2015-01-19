@@ -9,7 +9,7 @@ def users_by_calnet_uid(calnet_uid):
     """Get a list of users associated with a CalNet UID"""
     with ldap.ldap_ocf() as c:
         c.search(constants.OCF_LDAP_PEOPLE,
-            "(calnetUid={})".format(calnet_uid), attributes=('uid',))
+                 "(calnetUid={})".format(calnet_uid), attributes=('uid',))
         return [entry['attributes']['uid'][0] for entry in c.response]
 
 
@@ -30,6 +30,7 @@ def user_attrs(uid, connection=ldap.ldap_ocf, base=constants.OCF_LDAP_PEOPLE):
 
         if len(c.response) > 0:
             return c.response[0]['attributes']
+
 
 def user_attrs_ucb(uid):
     return user_attrs(uid, connection=ldap.ldap_ucb,
