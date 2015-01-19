@@ -8,6 +8,7 @@ import paramiko
 import pexpect
 import socket
 import time
+from datetime import date
 
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -16,6 +17,7 @@ import ocflib.account.validators as validators
 import ocflib.constants as constants
 import ocflib.misc.shell as shell
 import ocflib.misc.validators
+
 
 def change_password(username, password, keytab, principal):
     """Change a user's Kerberos password, subject to username and password
@@ -46,6 +48,7 @@ def change_password(username, password, keytab, principal):
     if "kadmin" in output:
         raise Exception("kadmin Error: {}".format(output))
 
+
 def trigger_create(ssh_key_path, host_keys_path):
     """Attempt to trigger a create run on the admin server."""
 
@@ -54,6 +57,7 @@ def trigger_create(ssh_key_path, host_keys_path):
     ssh.load_host_keys(host_keys_path)
     ssh.connect(hostname='admin.ocf.berkeley.edu', username='atool', pkey=key)
     ssh.exec_command('/srv/atool/bin/create')
+
 
 def encrypt_password(password):
     """Encrypts (not hashes) a user password to be stored on disk while it
@@ -70,6 +74,7 @@ def encrypt_password(password):
     key = RSA.importKey(open(constants.CREATE_PUBKEY_PATH).read())
     RSA_CIPHER = PKCS1_OAEP.new(key)
     return RSA_CIPHER.encrypt(password)
+
 
 def queue_creation(full_name, calnet_uid, callink_oid, username, email,
                    password, responsible=None):
@@ -95,7 +100,7 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
     if validators.username_reserved(username):
         raise Exception("Username {} is reserved.".format(username))
 
-    full_name = ''.join(c for c in full_name if c.isalpha())
+    full_name = ''.join(c for c in full_name if c.isalpha() or c == ' ')
 
     if len(full_name) < 3:
         raise Exception("Full name should be >= 3 characters.")
@@ -121,7 +126,7 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
     ]
 
     # same as entry_record but without password
-    entry_log = entry_record[:6] + entry_record[7:]
+    entry_log = entry_record[:6] + entry_record[7:] + [date.today().isoformat()]
 
     # write record to queue and log
     save = (
