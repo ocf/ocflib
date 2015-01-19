@@ -26,7 +26,7 @@ def change_password(username, password, keytab, principal):
     validators.validate_password(username, password)
 
     if not validators.user_exists(username):
-        raise Exception("Username doesn't exist")
+        raise Exception("User doesn't exist")
 
     # try changing using kadmin pexpect
     cmd = "{kadmin_path} -K {keytab} -p {principal} cpw {username}".format(

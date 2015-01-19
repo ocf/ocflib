@@ -1,22 +1,19 @@
 """Methods for searching and selecting users."""
-import ocflib.constants
-# TODO: imports
+import ldap3
+
+import ocflib.constants as constants
+import ocflib.account.ldap as ldap
+
 
 def users_by_calnet_uid(calnet_uid):
     """Get a list of users associated with a CalNet UID"""
+    with ldap.ldap_ocf() as c:
+        c.search(constants.OCF_LDAP_PEOPLE,
+            "(calnetUid={})".format(calnet_uid), attributes=('uid',))
+        return [entry['attributes']['uid'][0] for entry in c.response]
 
-    l = ldap.initialize(ocflib.constants.OCF_LDAP)
-    l.simple_bind_s("", "")
 
-    search_filter = "(calnetUid=%s)" % calnet_uid
-    attrs = ["uid"]
-
-    ldap_entries = l.search_st(ocflib.constants.OCF_LDAP_BASE,
-                               ldap.SCOPE_SUBTREE, search_filter, attrs)
-
-    return [entry[1]["uid"][0] for entry in ldap_entries]
-
-def user_attrs(user_account):
+def user_attrs(uid):
     """Returns a dictionary of LDAP attributes for a given LDAP UID in
     the form:
 
@@ -28,27 +25,20 @@ def user_attrs(user_account):
 
     Returns None if no account exists with uid=user_account.
     """
+    with ldap.ldap_ocf() as c:
+        c.search(constants.OCF_LDAP_PEOPLE,
+            "(uid={})".format(uid), attributes=ldap3.ALL_ATTRIBUTES)
 
-    l = ldap.initialize(ocflib.constants.OCF_LDAP)
-    l.simple_bind_s("", "")
+        if len(c.response) > 0:
+            return c.response[0]['attributes']
 
-    search_filter = "(uid=%s)" % user_account
 
-    ldap_entries = l.search_st(ocflib.constants.OCF_LDAP_BASE,
-                               ldap.SCOPE_SUBTREE, search_filter)
-
-    if len(ldap_entries) > 0:
-        return ldap_entries[0][1]
-
-def user_exists(user_account):
+def user_exists(account):
     """Returns True if an OCF user exists with specified account name"""
+    return bool(user_attrs(account))
 
-    l = ldap.initialize(ocflib.constants.OCF_LDAP)
-    l.simple_bind_s("", "")
 
-    search_filter = "(uid=%s)" % user_account
-    attrs = []
-    ldap_entries = l.search_st(ocflib.constants.OCF_LDAP_BASE,
-                               ldap.SCOPE_SUBTREE, search_filter, attrs)
-
-    return len(ldap_entries) == 1
+def user_is_group(username):
+    """Returns True if an OCF user account exists and is a group account"""
+    attrs = user_attrs(username)
+    return 'callinkOid' in attrs or 'oslGid' in attrs

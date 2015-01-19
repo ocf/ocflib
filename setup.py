@@ -14,6 +14,7 @@ setup(
         'paramiko',
         'cracklib',
         'pexpect',
-        'dnspython3'
+        'dnspython3',
+        'ldap3'
     )
 )

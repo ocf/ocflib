@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+import ocflib.account.search as search
+
+if __name__ == '__main__':
+    print("Users with CalNet UID 1034192: {}".format(
+        search.users_by_calnet_uid(1034192)))
+
+    print("Attributes for user ckuehl:\n{}".format(
+        search.user_attrs('ckuehl')))
+
+    print("Attributes for user nonexist should be None:\n{}".format(
+        search.user_attrs('nonexist')))
+
+    for user in ('ckuehl', 'nonexist'):
+        print("User {} exists: {}".format(user, search.user_exists(user)))
+
+    for user in ('ckuehl', 'ggroup'):
+        print("User {} is group: {}".format(user, search.user_is_group(user)))
