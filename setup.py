@@ -9,5 +9,11 @@ setup(
     author_email='help@ocf.berkeley.edu',
     description="libraries for account and server management",
     url='https://www.ocf.berkeley.edu',
-    packages=find_packages()
+    packages=find_packages(),
+    install_requires=(
+        'paramiko',
+        'cracklib',
+        'pexpect',
+        'dnspython3'
+    )
 )

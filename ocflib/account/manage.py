@@ -12,112 +12,125 @@ import time
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
-# TODO: adjust this import
-from ocf.utils import clean_user_account, clean_password
-import kerberos
+import ocflib.account.validators as validators
+import ocflib.constants as constants
+import ocflib.misc.shell as shell
+import ocflib.misc.validators
 
-def change_password(user_account, new_password):
-    """Change a user's Kerberos password.
+def change_password(username, password, keytab, principal):
+    """Change a user's Kerberos password, subject to username and password
+    validation."""
+    validators.validate_username(username)
+    validators.validate_password(username, password)
 
-    Runs a kadmin command in a pexpect session to change a user's password.
+    if not validators.user_exists(username):
+        raise Exception("Username doesn't exist")
 
-    Args:
-        user_account: a dirty string of a user's OCF account
-        new_password: a dirty string of a user's new password
+    # try changing using kadmin pexpect
+    cmd = "{kadmin_path} -K {keytab} -p {principal} cpw {username}".format(
+            kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
+            keytab=shell.escape_arg(keytab),
+            principal=shell.escape_arg(principal),
+            username=shell.escape_arg(username))
 
-    Returns:
-        True if successful
-
-    Raises:
-        Exception: kadmin returned an error. Probably incorrect
-            principal or error with sending the new password.
-        pexpect.TIMEOUT: We never got the line that we were expecting,
-            so something probably went wrong with the lines that we sent.
-        pexpect.EOF: The child ended prematurely.
-
-    """
-
-    # TODO: don't clean these, error if bad instead
-    user_account = clean_user_account(user_account)
-    new_password = clean_password(new_password)
-    cmd = kerberos._kadmin_command(user_account)
     child = pexpect.spawn(cmd, timeout=10)
 
-    child.expect("%s@OCF.BERKELEY.EDU's Password:" % user_account)
-    child.sendline(new_password)
-
-    child.expect("Verify password - %s@OCF.BERKELEY.EDU's Password:" % user_account)
-    child.sendline(new_password)
+    child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
+    child.sendline(password)
+    child.expect("Verify password - {}@OCF.BERKELEY.EDU's Password:".format(username))
+    child.sendline(password)
 
     child.expect(pexpect.EOF)
-    if "kadmin" in child.before:
-        raise Exception("kadmin Error: %s" % child.before)
 
-    return True
+    output = child.before.decode('utf8')
+    if "kadmin" in output:
+        raise Exception("kadmin Error: {}".format(output))
 
-def _trigger_create():
-    """Attempt to trigger a create run."""
-    key = paramiko.RSAKey.from_private_key_file(settings.ADMIN_SSH_KEY)
+def trigger_create(ssh_key_path, host_keys_path):
+    """Attempt to trigger a create run on the admin server."""
+
+    key = paramiko.RSAKey.from_private_key_file(ssh_key_path)
     ssh = paramiko.SSHClient()
-    ssh.load_host_keys(settings.CMDS_HOST_KEYS_FILENAME)
+    ssh.load_host_keys(host_keys_path)
     ssh.connect(hostname='admin.ocf.berkeley.edu', username='atool', pkey=key)
     ssh.exec_command('/srv/atool/bin/create')
 
-def _encrypt_password(password):
-    # Use an asymmetric encryption algorithm to allow the keys to be stored on disk
-    # Generate the public / private keys with the following code:
-    # >>> from Crypto.PublicKey import RSA
-    # >>> key = RSA.generate(2048)
-    # >>> open("private.pem", "w").write(key.exportKey())
-    # >>> open("public.pem", "w").write(key.publickey().exportKey())
+def encrypt_password(password):
+    """Encrypts (not hashes) a user password to be stored on disk while it
+    awaits approval.
 
-    key = RSA.importKey(open(settings.PASSWORD_PUB_KEY).read())
+    Generate the public / private keys with the following code:
+    >>> from Crypto.PublicKey import RSA
+    >>> key = RSA.generate(2048)
+    >>> open("private.pem", "w").write(key.exportKey())
+    >>> open("public.pem", "w").write(key.publickey().exportKey())
+    """
+    # TODO: is there any way we can save the hash instead? this is tricky
+    # because we need to stick it in kerberos, but this is bad as-is...
+    key = RSA.importKey(open(constants.CREATE_PUBKEY_PATH).read())
     RSA_CIPHER = PKCS1_OAEP.new(key)
     return RSA_CIPHER.encrypt(password)
 
-class ApprovalError(Exception):
-    pass
+def queue_creation(full_name, calnet_uid, callink_oid, username, email,
+                   password, responsible=None):
+    """Queues a user account for creation."""
 
-# TODO: don't use ApprovalErrors here? or at least fix the imports
-def approve_user(real_name, calnet_uid, account_name, email, password):
-    _check_real_name(real_name)
-    _check_university_uid(calnet_uid)
-    _check_username(account_name)
-    _check_email(email)
-    _check_password(password, real_name)
+    # individuals should have calnet_uid, groups should have callink_oid
+    if calnet_uid and callink_oid:
+        raise Exception("Only one of calnet_uid or callink_oid may be set.")
 
-    _approve(calnet_uid, email, account_name, password, real_name = real_name)
+    # callink_oid might be 0, which is OK (indicates non-RSO group)
+    if not calnet_uid and callink_oid is None:
+        raise Exception("One of calnet_uid or callink_oid must be set.")
 
-def _approve(university_uid, email, account_name, password, real_name = None,
-        responsible = None):
+    validators.validate_username(username)
+    validators.validate_password(username, password)
 
-    group_name = "(null)"
-    group = 0
-    responsible = "(null)"
+    if validators.user_exists(username):
+        raise Exception("Username {} is already taken.".format(username))
 
-    # Encrypt the password and base64 encode it
-    password = base64.b64encode(_encrypt_password(password.encode()))
+    if validators.username_queued(username):
+        raise Exception("Username {} is queued for creation.".format(username))
 
-    # Write to the list of users to be approved
-    sections = [account_name, real_name, group_name,
-                email, 0, group, password,
-                university_uid, responsible]
+    if validators.username_reserved(username):
+        raise Exception("Username {} is reserved.".format(username))
 
-    with open(settings.APPROVE_FILE, "a") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        f.write(":".join([str(i) for i in sections]) + "\n")
-        fcntl.flock(f, fcntl.LOCK_UN)
+    full_name = ''.join(c for c in full_name if c.isalpha())
 
-    # Write to the log
-    name = real_name
+    if len(full_name) < 3:
+        raise Exception("Full name should be >= 3 characters.")
 
-    sections = [account_name, name, university_uid,
-                email, getpass.getuser(), socket.gethostname(),
-                0, group, time.asctime(), responsible]
+    if not ocflib.misc.validators.valid_email(email):
+        raise Exception("Email is invalid.")
 
-    with open(settings.APPROVE_LOG, "a") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        f.write(":".join([str(i) for i in sections]) + "\n")
-        fcntl.flock(f, fcntl.LOCK_UN)
+    # actually create the account
+    password = base64.b64encode(encrypt_password(
+        password.encode("utf8"))).decode('ascii')
 
-    _trigger_create()
+    # TODO: replace this with a better format
+    entry_record = [
+        username,
+        full_name if calnet_uid else '(null)', # name IF not group
+        full_name if not calnet_uid else '(null)', # name IF group
+        email,
+        0,
+        0 if calnet_uid else 1,
+        password,
+        calnet_uid or callink_oid, # university ID
+        responsible or '(null)'
+    ]
+
+    # same as entry_record but without password
+    entry_log = entry_record[:6] + entry_record[7:]
+
+    # write record to queue and log
+    save = (
+        (constants.QUEUED_ACCOUNTS_PATH, entry_record),
+        (constants.CREATE_LOG_PATH, entry_log)
+    )
+
+    for path, entry in save:
+        with open(path, 'a') as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            print(':'.join(map(str, entry)), file=f)
+            fcntl.flock(f, fcntl.LOCK_UN)

@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+import getpass
+import ocflib.account.manage
+
+if __name__ == '__main__':
+    # replace with None if empty
+    none_if_empty = lambda id: id if len(id) > 0 else None
+
+    ocflib.account.manage.queue_creation(
+        input("Full Name: "),
+        none_if_empty(input("CalNet UID: ")),
+        none_if_empty(input("Callink OID: ")),
+        input("Username: "),
+        input("Email: "),
+        getpass.getpass("Password: "),
+        none_if_empty(input("Responsible: "))
+    )
