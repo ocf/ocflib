@@ -1,14 +1,16 @@
 """Misc validators for things like emails, domains, etc."""
 import re
+import socket
+
 import dns.resolver
 
 def host_exists(host):
     try:
-        host_info = getaddrinfo(host, None)
-    except gaierror:
+        host_info = socket.getaddrinfo(host, None)
+    except socket.gaierror:
         return False
     else:
-        return host_info
+        return bool(host_info)
 
 def email_host_exists(email_addr):
     """Verifies that the host of the email address exists"""
