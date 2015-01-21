@@ -1,7 +1,9 @@
 """Random account methods that don't fit anywhere else."""
 import pexpect
+import requests
 
 import ocflib.account.validators as validators
+import ocflib.constants as constants
 
 
 def password_matches(username, password):
@@ -23,3 +25,14 @@ def password_matches(username, password):
     child.close()
 
     return child.exitstatus == 0
+
+
+def has_vhost(user):
+    """Returns whether or not a virtual host is already configured for
+    the given user."""
+
+    check = (user, user + "!")
+    line_matches = lambda fields: len(fields) > 0 and fields[0] in check
+
+    vhosts = requests.get(constants.VHOST_DB_URL).text.split("\n")
+    return any(line_matches(line.split()) for line in vhosts)

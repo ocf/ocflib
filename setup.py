@@ -11,10 +11,11 @@ setup(
     url='https://www.ocf.berkeley.edu',
     packages=find_packages(),
     install_requires=(
-        'paramiko',
         'cracklib',
-        'pexpect',
         'dnspython3',
-        'ldap3'
+        'ldap3',
+        'paramiko',
+        'pexpect',
+        'requests',
     )
 )
