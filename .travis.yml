@@ -6,7 +6,7 @@ python:
 install:
   - pip install flake8
 script:
-  - ./lint.sh
+  - make check
 notifications:
   email:
     recipients:
