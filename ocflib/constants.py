@@ -63,7 +63,6 @@ RESERVED_USERNAMES = [
     'gm',
     'gnats',
     'groups',
-    'guser',
     'help',
     'hostmaster',
     'irc',
