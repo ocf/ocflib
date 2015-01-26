@@ -41,12 +41,24 @@ ocflib in development mode:
 Now, if you import something from ocflib, you'll be using the version from your
 working copy.
 
+### Testing and linting
+
+We use flake8 to lint our code. You should run `make check` before pushing to
+run the linter.
+
+Currently, the `tests` directory contains a bunch of standalone executable
+Python scripts for testing various parts of ocflib. These are useful by
+themselves, and you're encouraged to maintain and add to them. Eventually we'd
+like to replace them with automated tests (while keeping some which can't
+easily be automated on a build server, such as password changing).
+
 ## Deploying changes
 
 To deploy changes, we push a new update to PyPI. The easiest way to do this is
-by executing `release.sh`, which will increment the version number, build a
+by executing `make release`, which will increment the version number, build a
 source distribution and upload it. Note that you need to have permission to
-push to PyPI.
+push to PyPI. Make sure to commit and push the version number change after
+releasing.
 
 [ocf]: https://www.ocf.berkeley.edu/
 [atool]: https://github.com/ocf/atool/
