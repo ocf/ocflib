@@ -83,10 +83,6 @@ def change_password_with_keytab(username, password, keytab, principal):
         raise ValueError("kadmin Error: {}".format(output))
 
 
-# TODO: remove this
-change_password = change_password_with_keytab
-
-
 def trigger_create(ssh_key_path, host_keys_path):
     """Attempt to trigger a create run on the admin server."""
 
