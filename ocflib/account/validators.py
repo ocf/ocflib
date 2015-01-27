@@ -12,13 +12,13 @@ def validate_username(username):
     encountered."""
 
     if username_reserved(username):
-        raise Exception("Username is reserved")
+        raise ValueError("Username is reserved")
 
     if not 3 <= len(username) <= 8:
-        raise Exception("Username must be between 3 and 8 characters")
+        raise ValueError("Username must be between 3 and 8 characters")
 
     if not all(c.islower() for c in username):
-        raise Exception("Username must be all lowercase letters")
+        raise ValueError("Username must be all lowercase letters")
 
 
 def validate_password(username, password, strength_check=True):
@@ -27,25 +27,25 @@ def validate_password(username, password, strength_check=True):
 
     if strength_check:
         if len(password) < 8:
-            raise Exception("Password must be at least 8 characters")
+            raise ValueError("Password must be at least 8 characters")
 
         s = difflib.SequenceMatcher()
         s.set_seqs(password, username)
 
         if s.ratio() > 0.6:
-            raise Exception("Password is too similar to username")
+            raise ValueError("Password is too similar to username")
 
         try:
             cracklib.FascistCheck(password)
         except ValueError as e:
-            raise Exception("Password problem: {}".format(e))
+            raise ValueError("Password problem: {}".format(e))
 
     # sanity check; note we don't use string.whitespace since we don't want
     # tabs or newlines
     allowed = string.digits + string.ascii_letters + string.punctuation + ' '
 
     if not all(c in allowed for c in password):
-        raise Exception("Password contains forbidden characters")
+        raise ValueError("Password contains forbidden characters")
 
 
 def user_exists(username):

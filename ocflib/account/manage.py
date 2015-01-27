@@ -25,7 +25,7 @@ def change_password(username, password, keytab, principal):
     validators.validate_password(username, password)
 
     if not validators.user_exists(username):
-        raise Exception("User doesn't exist")
+        raise ValueError("User doesn't exist")
 
     # try changing using kadmin pexpect
     cmd = "{kadmin_path} -K {keytab} -p {principal} cpw {username}".format(
@@ -46,7 +46,7 @@ def change_password(username, password, keytab, principal):
 
     output = child.before.decode('utf8')
     if "kadmin" in output:
-        raise Exception("kadmin Error: {}".format(output))
+        raise ValueError("kadmin Error: {}".format(output))
 
 
 def trigger_create(ssh_key_path, host_keys_path):
@@ -82,31 +82,32 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
 
     # individuals should have calnet_uid, groups should have callink_oid
     if calnet_uid and callink_oid:
-        raise Exception("Only one of calnet_uid or callink_oid may be set.")
+        raise ValueError("Only one of calnet_uid or callink_oid may be set.")
 
     # callink_oid might be 0, which is OK (indicates non-RSO group)
     if not calnet_uid and callink_oid is None:
-        raise Exception("One of calnet_uid or callink_oid must be set.")
+        raise ValueError("One of calnet_uid or callink_oid must be set.")
 
     validators.validate_username(username)
     validators.validate_password(username, password)
 
     if validators.user_exists(username):
-        raise Exception("Username {} is already taken.".format(username))
+        raise ValueError("Username {} is already taken.".format(username))
 
     if validators.username_queued(username):
-        raise Exception("Username {} is queued for creation.".format(username))
+        raise ValueError(
+            "Username {} is queued for creation.".format(username))
 
     if validators.username_reserved(username):
-        raise Exception("Username {} is reserved.".format(username))
+        raise ValueError("Username {} is reserved.".format(username))
 
     full_name = ''.join(c for c in full_name if c.isalpha() or c == ' ')
 
     if len(full_name) < 3:
-        raise Exception("Full name should be >= 3 characters.")
+        raise ValueError("Full name should be >= 3 characters.")
 
     if not ocflib.misc.validators.valid_email(email):
-        raise Exception("Email is invalid.")
+        raise ValueError("Email is invalid.")
 
     # actually create the account
     password = base64.b64encode(encrypt_password(

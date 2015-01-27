@@ -13,7 +13,7 @@ def password_matches(username, password):
     validators.validate_password(username, password, strength_check=False)
 
     if not validators.user_exists(username):
-        raise Exception("User doesn't exist")
+        raise ValueError("User doesn't exist")
 
     cmd = "kinit --no-forwardable -l0 {}@OCF.BERKELEY.EDU".format(username)
     child = pexpect.spawn(cmd, timeout=10)
