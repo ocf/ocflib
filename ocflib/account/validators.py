@@ -7,7 +7,7 @@ import cracklib
 import ocflib.constants as constants
 
 
-def validate_username(username):
+def validate_username(username, check_exists=False):
     """Validate a username, raising a descriptive exception if problems are
     encountered."""
 
@@ -19,6 +19,9 @@ def validate_username(username):
 
     if not all(c.islower() for c in username):
         raise ValueError("Username must be all lowercase letters")
+
+    if check_exists and not user_exists(username):
+        raise ValueError("Username does not exist")
 
 
 def validate_password(username, password, strength_check=True):
