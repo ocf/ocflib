@@ -27,7 +27,25 @@ CREATE_PUBKEY_PATH = '/opt/create/public/public_pass.pem'
 
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
 
+# mail
 MAIL_FROM = "Open Computing Facility <help@ocf.berkeley.edu>"
+
+MAIL_SIGNATURE = """Thanks for flying OCF,
+The friendly staff of 6A Hearst Gym
+
+=========
+The Open Computing Facility is an all-volunteer, student-run service
+group providing free printing, web hosting, disk space, and Unix shell
+accounts.
+
+OCF volunteers hold weekly staff hours to provide support:
+https://ocf.io/staff-hours
+
+Need help connecting to the OCF?
+https://ocf.io/ssh
+
+Need to reset your account password?
+https://ocf.io/password"""
 
 # don't bother listing accounts starting with 'ocf' here;
 # those are always reserved
