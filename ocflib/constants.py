@@ -19,12 +19,15 @@ CAS_URL = 'https://auth.berkeley.edu/cas/'
 
 # paths
 KADMIN_PATH = '/usr/sbin/kadmin'
+SENDMAIL_PATH = '/usr/sbin/sendmail'
 
 QUEUED_ACCOUNTS_PATH = '/opt/create/public/approved.users'
 CREATE_LOG_PATH = '/opt/create/public/approved.log'
 CREATE_PUBKEY_PATH = '/opt/create/public/public_pass.pem'
 
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
+
+MAIL_FROM = "Open Computing Facility <help@ocf.berkeley.edu>"
 
 # don't bother listing accounts starting with 'ocf' here;
 # those are always reserved
