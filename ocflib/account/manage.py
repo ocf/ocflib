@@ -12,8 +12,10 @@ from datetime import date
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
+import ocflib.account.search as search
 import ocflib.account.validators as validators
 import ocflib.constants as constants
+import ocflib.misc.mail as mail
 import ocflib.misc.shell as shell
 import ocflib.misc.validators
 
@@ -51,15 +53,14 @@ def change_password_with_staffer(username, password, principal,
     elif "kadmin" in output:
         raise ValueError("kadmin Error: {}".format(output))
 
+    _notify_password_change(username)
+
 
 def change_password_with_keytab(username, password, keytab, principal):
     """Change a user's Kerberos password using a keytab, subject to username
     and password validation."""
-    validators.validate_username(username)
+    validators.validate_username(username, check_exists=True)
     validators.validate_password(username, password)
-
-    if not validators.user_exists(username):
-        raise ValueError("User doesn't exist")
 
     # try changing using kadmin pexpect
     cmd = "{kadmin_path} -K {keytab} -p {principal} cpw {username}".format(
@@ -81,6 +82,28 @@ def change_password_with_keytab(username, password, keytab, principal):
     output = child.before.decode('utf8')
     if "kadmin" in output:
         raise ValueError("kadmin Error: {}".format(output))
+
+    _notify_password_change(username)
+
+
+def _notify_password_change(username):
+    """Send email about a password change."""
+
+    name = search.user_attrs(username)['cn'][0]
+    body = """Howdy there {name},
+
+Just a quick heads up that your Open Computing Facility account password was
+just reset, hopefully by you.
+
+As a a reminder, your OCF username is: {username}
+
+If you're not sure why this happened, please reply to this email ASAP.
+
+{signature}""".format(name=name,
+                      username=username,
+                      signature=constants.MAIL_SIGNATURE)
+
+    mail.send_mail_user(username, "[OCF] Account password changed", body)
 
 
 def trigger_create(ssh_key_path, host_keys_path):
