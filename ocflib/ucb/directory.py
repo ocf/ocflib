@@ -1,34 +1,4 @@
-try:
-    from xml.etree import ElementTree
-except ImportError:
-    from elementtree import ElementTree
-
-from urllib.parse import urlencode
-from urllib.request import urlopen
-from urllib.parse import urljoin
-
 import ocflib.account.search as search
-import ocflib.constants as constants
-
-
-def verify_ticket(ticket, service):
-    """Verifies CAS 2.0+ XML-based authentication ticket.
-
-    Returns CalNet UID on success and None on failure.
-    """
-    params = {'ticket': ticket, 'service': service}
-    url = (urljoin(constants.CAS_URL, 'serviceValidate') + '?' +
-           urlencode(params))
-    try:
-        page = urlopen(url)
-        response = page.read()
-        tree = ElementTree.fromstring(response)
-        if tree[0].tag.endswith('authenticationSuccess'):
-            return tree[0][0].text
-        else:
-            return None
-    except:
-        return None
 
 
 def get_calnet_names(uid):

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import ocflib.calnet.utils as utils
+import ocflib.calnet.directory as directory
 
 if __name__ == '__main__':
     print("Names for user 1034192:\n{}".format(
-        utils.get_calnet_names('1034192')))
+        directory.get_calnet_names('1034192')))
 
     print("Name for user 1034192:\n{}".format(
-        utils.name_by_calnet_uid('1034192')))
+        directory.name_by_calnet_uid('1034192')))

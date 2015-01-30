@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from urllib.parse import urlencode
-import ocflib.calnet.utils as utils
+import ocflib.ucb.cas as cas
+import ocflib.ucb.directory as directory
 
 if __name__ == '__main__':
     service = "https://accounts.ocf.berkeley.edu/stophere"
@@ -10,10 +11,10 @@ if __name__ == '__main__':
             urlencode({'service': service}))
 
     ticket = input("Enter your ticket: ")
-    uid = utils.verify_ticket(ticket, service)
+    uid = cas.verify_ticket(ticket, service)
 
     if uid:
         print("Validated successfully, you are {} ({})".format(
-            uid, utils.name_by_calnet_uid(uid)))
+            uid, directory.name_by_calnet_uid(uid)))
     else:
         print("Ticket validation failed")
