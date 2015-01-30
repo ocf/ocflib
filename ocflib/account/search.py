@@ -5,12 +5,23 @@ import ocflib.constants as constants
 import ocflib.account.ldap as ldap
 
 
+def users_by_filter(ldap_filter):
+    """Returns a list of users matching an LDAP filter"""
+    with ldap.ldap_ocf() as c:
+        c.search(constants.OCF_LDAP_PEOPLE, ldap_filter, attributes=('uid',))
+        return [entry['attributes']['uid'][0] for entry in c.response]
+
+
 def users_by_calnet_uid(calnet_uid):
     """Get a list of users associated with a CalNet UID"""
-    with ldap.ldap_ocf() as c:
-        c.search(constants.OCF_LDAP_PEOPLE,
-                 "(calnetUid={})".format(calnet_uid), attributes=('uid',))
-        return [entry['attributes']['uid'][0] for entry in c.response]
+    calnet_uid = int(calnet_uid)
+    return users_by_filter("(calnetUid={})".format(calnet_uid))
+
+
+def users_by_callink_oid(callink_oid):
+    """Get a list of users associated with a CalLink OID"""
+    callink_oid = int(callink_oid)
+    return users_by_filter("(callinkOid={})".format(callink_oid))
 
 
 def user_attrs(uid, connection=ldap.ldap_ocf, base=constants.OCF_LDAP_PEOPLE):
