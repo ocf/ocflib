@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+from pprint import pprint
+
+import ocflib.ucb.groups as groups
+
+if __name__ == '__main__':
+    print("Signatories for OCF:")
+    pprint(groups.signatories_for_group(46187))
+
+    print("ckuehl is signatory for active groups:")
+    pprint(groups.groups_by_student_signat(1034192))
+
+    print("ckuehl is signatory for groups:")
+    pprint(groups.groups_by_student_signat(1034192))
