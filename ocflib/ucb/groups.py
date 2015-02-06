@@ -67,7 +67,8 @@ def groups_by_student_signat(uid, service=_API['SERVICE']['SIGNAT_ACTIVE']):
             oid = int(group.findtext('groupId'))
             return oid, {
                 'name': group.findtext('groupName'),
-                'accounts': search.users_by_callink_oid(oid)}
+                'accounts':
+                    [] if oid == 0 else search.users_by_callink_oid(oid)}
 
         xml_groups = root.findall('StudentGroupData/StudentGroupDatum')
         return {oid: name for oid, name in map(parse, xml_groups)}
