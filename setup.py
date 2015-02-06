@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = 15
+VERSION = 16
 
 setup(
     name='ocflib',
