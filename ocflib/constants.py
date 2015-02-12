@@ -28,6 +28,7 @@ CREATE_PUBKEY_PATH = '/opt/create/public/public_pass.pem'
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
 
 # mail
+MAIL_ROOT = "root@ocf.berkeley.edu"
 MAIL_FROM = "Open Computing Facility <help@ocf.berkeley.edu>"
 
 MAIL_SIGNATURE = """Thanks for flying OCF,

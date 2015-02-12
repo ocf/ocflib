@@ -1,6 +1,8 @@
 """Email handling and sending"""
 
 import email.mime.text
+import inspect
+import socket
 import subprocess
 from email.utils import parseaddr
 
@@ -46,3 +48,28 @@ def send_mail(to, subject, body, sender=constants.MAIL_FROM):
     p = subprocess.Popen((constants.SENDMAIL_PATH, '-t', '-oi'),
                          stdin=subprocess.PIPE)
     p.communicate(msg.as_string().encode('utf8'))
+
+
+def send_problem_report(problem):
+    """Send a problem report to OCF staff."""
+
+    def format_frame(frame):
+        _, filename, line, funcname, _, _ = frame
+        return "{}:{} ({})".format(filename, line, funcname)
+
+    callstack = "\n        by ".join(map(format_frame, inspect.stack()))
+    body = \
+        """A problem was encountered and reported via ocflib:
+
+{problem}
+
+====
+Hostname: {hostname}
+Callstack:
+    at {callstack}
+""".format(problem=problem, hostname=socket.getfqdn(), callstack=callstack)
+
+    send_mail(
+        constants.MAIL_ROOT,
+        "[ocflib] Problem report from " + socket.getfqdn(),
+        body)
