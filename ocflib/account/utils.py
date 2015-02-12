@@ -34,7 +34,9 @@ def has_vhost(user):
     the given user."""
 
     check = (user, user + "!")
-    line_matches = lambda fields: len(fields) > 0 and fields[0] in check
+
+    def line_matches(fields):
+        return len(fields) > 0 and fields[0] in check
 
     vhosts = requests.get(constants.VHOST_DB_URL).text.split("\n")
     return any(line_matches(line.split()) for line in vhosts)

@@ -19,7 +19,8 @@ def name_by_calnet_uid(uid):
 
     # the name we want to input into our system is "givenName sn"
     # displayName is not necessarily equal to what's printed on Cal 1 Cards
-    get_longest_string = lambda strs: max(strs, key=len)
+    def get_longest_string(strs):
+        return max(strs, key=len)
 
     if 'givenName' in names and 'sn' in names:
         given_name = get_longest_string(names['givenName'])
