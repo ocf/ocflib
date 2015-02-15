@@ -17,5 +17,6 @@ setup(
         'paramiko',
         'pexpect',
         'requests',
+        'pysnmp'
     )
 )
