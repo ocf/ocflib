@@ -70,6 +70,7 @@ RESERVED_USERNAMES = [
     'board',
     'bod',
     'boinc',
+    'callinkapi',
     'clamav',
     'colord',
     'contact',
@@ -130,7 +131,6 @@ RESERVED_USERNAMES = [
     'officers',
     'openldap',
     'opersquad',
-    'oslapi'
     'paper',
     'password',
     'pimp',
