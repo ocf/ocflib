@@ -74,6 +74,7 @@ RESERVED_USERNAMES = [
     'clamav',
     'colord',
     'contact',
+    'control',
     'create',
     'cricket',
     'csgo',
