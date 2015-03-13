@@ -18,9 +18,11 @@ def _snmp(host, oid):
             oid)
 
     if err_indication:
-        raise Exception(err_indication)
+        raise Exception(
+            "Device returned error indication: {}".format(err_indication))
     elif err_status:
-        raise Exception(err_status)
+        raise Exception(
+            "Device returned error status: {}".format(err_status))
     else:
         return response_kv[0][1]
 
