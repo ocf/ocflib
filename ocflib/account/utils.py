@@ -1,4 +1,5 @@
 """Random account methods that don't fit anywhere else."""
+import os.path
 import re
 
 import pexpect
@@ -59,3 +60,13 @@ def extract_username_from_principal(principal):
         raise ValueError("Invalid username")
 
     return match.group(1)
+
+
+def home_dir(user):
+    """Returns the user's home directory path."""
+    return '/' + os.path.join('home', user[0], user[:2], user)
+
+
+def web_dir(user):
+    """Returns the user's web directory path."""
+    return '/' + os.path.join('services', 'http', 'users', user[0], user)
