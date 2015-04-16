@@ -30,19 +30,6 @@ def password_matches(username, password):
     return child.exitstatus == 0
 
 
-def has_vhost(user):
-    """Returns whether or not a virtual host is already configured for
-    the given user."""
-
-    check = (user, user + "!")
-
-    def line_matches(fields):
-        return len(fields) > 0 and fields[0] in check
-
-    vhosts = requests.get(constants.VHOST_DB_URL).text.split("\n")
-    return any(line_matches(line.split()) for line in vhosts)
-
-
 def extract_username_from_principal(principal):
     """Extract username from principal.
 
@@ -60,6 +47,69 @@ def extract_username_from_principal(principal):
         raise ValueError("Invalid username")
 
     return match.group(1)
+
+
+def get_vhost_db():
+    """Returns lines from the vhost database. Loaded from the filesystem (if
+    available), or from the web if not."""
+    try:
+        with open(constants.VHOST_DB_PATH) as f:
+            return list(map(str.strip, f))
+    except IOError:
+        # fallback to database loaded from web
+        return requests.get(constants.VHOST_DB_URL).text.split("\n")
+
+
+def get_vhosts():
+    """Returns a list of virtual hosts in convenient format.
+
+    >>> parse_vhosts()
+    {
+        'bpreview.berkeley.edu': {
+            'account': 'bpr',
+            'aliases': ['bpr.berkeley.edu'],
+            'docroot': '/',
+            'redirect': None  # format is '/ https://some.other.site/'
+        }
+    }
+    """
+    def fully_qualify(host):
+        """Fully qualifies a hostname (by appending .berkeley.edu) if it's not
+        already fully-qualified."""
+        return host if '.' in host else host + '.berkeley.edu'
+
+    vhosts = {}
+
+    for line in get_vhost_db():
+        if not line or line.startswith('#'):
+            continue
+
+        account, host, aliases, docroot = line.split(' ')
+        redirect = None
+
+        if account.endswith('!'):
+            account = account[:-1]
+            redirect = "/ https://www.ocf.berkeley.edu/~{}/".format(account)
+
+        if aliases != '-':
+            aliases = list(map(fully_qualify, aliases.split(',')))
+        else:
+            aliases = []
+
+        vhosts[fully_qualify(host)] = {
+            'account': account,
+            'aliases': aliases,
+            'docroot': '/' if docroot == '-' else docroot,
+            'redirect': redirect
+        }
+
+    return vhosts
+
+
+def has_vhost(user):
+    """Returns whether or not a virtual host is already configured for
+    the given user."""
+    return any(vhost['account'] == user for vhost in get_vhosts().values())
 
 
 def home_dir(user):

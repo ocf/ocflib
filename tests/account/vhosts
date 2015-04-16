@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+import ocflib.account.utils as utils
+from pprint import pprint
+
+if __name__ == '__main__':
+    print("All vhosts:")
+    pprint(utils.get_vhosts())
+
+    for user in ['ckuehl', 'bpreview', 'guser']:
+        print("{} has vhost: {}".format(user, utils.has_vhost(user)))
