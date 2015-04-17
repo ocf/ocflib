@@ -84,7 +84,15 @@ def get_vhosts():
         if not line or line.startswith('#'):
             continue
 
-        username, host, aliases, docroot = line.split(' ')
+        fields = line.split(' ')
+
+        if len(fields) < 5:
+            flags = []
+        else:
+            flags = re.search('^\[(.*)\]$', fields[4]).group(1).split(',')
+
+        username, host, aliases, docroot = fields[:4]
+
         redirect = None
 
         if username.endswith('!'):
@@ -100,7 +108,8 @@ def get_vhosts():
             'username': username,
             'aliases': aliases,
             'docroot': '/' if docroot == '-' else docroot,
-            'redirect': redirect
+            'redirect': redirect,
+            'flags': flags
         }
 
     return vhosts
