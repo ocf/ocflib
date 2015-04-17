@@ -66,7 +66,7 @@ def get_vhosts():
     >>> parse_vhosts()
     {
         'bpreview.berkeley.edu': {
-            'account': 'bpr',
+            'username': 'bpr',
             'aliases': ['bpr.berkeley.edu'],
             'docroot': '/',
             'redirect': None  # format is '/ https://some.other.site/'
@@ -84,20 +84,20 @@ def get_vhosts():
         if not line or line.startswith('#'):
             continue
 
-        account, host, aliases, docroot = line.split(' ')
+        username, host, aliases, docroot = line.split(' ')
         redirect = None
 
-        if account.endswith('!'):
-            account = account[:-1]
-            redirect = "/ https://www.ocf.berkeley.edu/~{}/".format(account)
+        if username.endswith('!'):
+            username = username[:-1]
+            redirect = "/ https://www.ocf.berkeley.edu/~{}/".format(username)
 
         if aliases != '-':
             aliases = list(map(fully_qualify, aliases.split(',')))
         else:
             aliases = []
 
-        vhosts[fully_qualify(host)] = {
-            'account': account,
+        vhosts[fully_qualify(username if host == '-' else host)] = {
+            'username': username,
             'aliases': aliases,
             'docroot': '/' if docroot == '-' else docroot,
             'redirect': redirect
