@@ -118,7 +118,7 @@ def get_vhosts():
 def has_vhost(user):
     """Returns whether or not a virtual host is already configured for
     the given user."""
-    return any(vhost['account'] == user for vhost in get_vhosts().values())
+    return any(vhost['username'] == user for vhost in get_vhosts().values())
 
 
 def home_dir(user):
