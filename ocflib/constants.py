@@ -1,3 +1,5 @@
+import os.path
+
 # ocf ldap
 OCF_LDAP = 'ldap.ocf.berkeley.edu'
 OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
@@ -18,7 +20,8 @@ UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
 CAS_URL = 'https://auth.berkeley.edu/cas/'
 
 # paths
-KADMIN_PATH = '/usr/sbin/kadmin'
+KADMIN_PATH = '/usr/sbin/kadmin' if os.path.isfile('/usr/sbin/kadmin') \
+    else '/usr/bin/kadmin'
 SENDMAIL_PATH = '/usr/sbin/sendmail'
 
 QUEUED_ACCOUNTS_PATH = '/opt/create/public/approved.users'
