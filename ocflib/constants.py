@@ -105,6 +105,7 @@ RESERVED_USERNAMES = [
     'https',
     'irc',
     'jabber',
+    'jenkins',
     'join',
     'lab',
     'libuuid',
