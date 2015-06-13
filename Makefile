@@ -13,6 +13,14 @@ test:
 release: check
 	./scripts/release.sh
 
+builddeb:
+	python3 setup.py sdist
+	py2dsc --with-python2 False --with-python3 True dist/ocflib-*.tar.gz
+	cd deb_dist/ocflib-*/ && dpkg-buildpackage -us -uc
+
+clean:
+	rm -rf dist deb_dist
+
 # Install Python versions using pyenv, run tests with tox.
 tox-pyenv: export PYENV_ROOT := $(ROOT_DIR)/.pyenv
 tox-pyenv: export PATH := $(PYENV_ROOT)/shims:$(PYENV_ROOT)/bin:${PATH}
