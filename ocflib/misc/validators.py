@@ -19,6 +19,7 @@ def email_host_exists(email_addr):
     if '@' in email_addr:
         host = email_addr.rsplit("@", 1).pop()
         return host_exists(host)
+    return False
 
 
 def valid_email(email):
@@ -31,9 +32,7 @@ def valid_email(email):
         domain = m.group(1)
         try:
             # Check that the domain has MX record(s)
-            answer = dns.resolver.query(domain, 'MX')
-            if answer:
-                return True
+            return bool(dns.resolver.query(domain, 'MX'))
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             pass
     return False

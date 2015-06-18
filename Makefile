@@ -8,7 +8,9 @@ lint:
 	flake8 ocflib
 
 test:
-	py.test tests
+	coverage erase
+	coverage run -m py.test tests
+	coverage report --show-missing
 
 release: check
 	./scripts/release.sh
