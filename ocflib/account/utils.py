@@ -123,11 +123,9 @@ def has_vhost(user):
 
 def home_dir(user):
     """Returns the user's home directory path."""
-    validators.validate_username(user)
     return '/' + os.path.join('home', user[0], user[:2], user)
 
 
 def web_dir(user):
     """Returns the user's web directory path."""
-    validators.validate_username(user)
     return '/' + os.path.join('services', 'http', 'users', user[0], user)
