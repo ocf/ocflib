@@ -27,7 +27,8 @@ like `import ocflib.constants` from the system python3 installation. We *don't*
 install it to python2 site-packages.
 
 ocflib is published on [PyPI][pypi], and new versions are automatically
-installed from there every time puppet runs.
+installed from there every time puppet runs. We also build an ocflib Debian
+package, but it's not quite ready to replace the PyPI package yet.
 
 ## Testing changes
 
@@ -36,31 +37,49 @@ ocflib in development mode:
 
     virtualenv -p $(which python3) ~/venv/ocflib
     . ~/venv/ocflib/bin/activate
-    python3 setup.py develop
+    pip install -r requirements-dev.txt
+    pip install -e .
 
 Now, if you import something from ocflib, you'll be using the version from your
 working copy.
 
 ### Testing and linting
 
-We use flake8 to lint our code. You should run `make check` before pushing to
-run the linter.
+We use pytest to test our code, and flake8 to lint it. You should run `make
+check` before pushing to run both.
 
-Currently, the `tests` directory contains a bunch of standalone executable
-Python scripts for testing various parts of ocflib. These are useful by
-themselves, and you're encouraged to maintain and add to them. Eventually we'd
-like to replace them with automated tests (while keeping some which can't
-easily be automated on a build server, such as password changing).
+The `tests` directory contains automated tests which you're encouraged to add
+to (and not break). The `tests-manual` directory contains scripts intended for
+testing.
+
+#### Testing in a sandbox
+
+Ideally, you should test your changes in a clean virtualenv (not the one you
+develop in). To do this, just run `make tox-pyenv`. This will take a few
+minutes as it downloads and compiles Python 3.2 and 3.4, creates virtualenvs
+for both, then installs ocflib and runs the tests inside of them.
+
+Normally, it is sufficient to just run `make check` from your development
+environment, then push your changes. [Jenkins][jenkins] will run the tests in
+the sandbox and catch any unexpected failures.
 
 ## Deploying changes
 
-To deploy changes, we push a new update to PyPI. The easiest way to do this is
-by executing `make release`, which will increment the version number, build a
-source distribution and upload it. Note that you need to have permission to
-push to PyPI. Make sure to commit and push the version number change after
-releasing.
+Deploying changes involves:
+
+* Running tests and linters
+* Pushing a new version to [PyPI][pypi]
+* Building a Debian package
+* Pushing the Debian package to our internal [apt][apt]
+
+[Jenkins][jenkins] will automatically perform all of these steps for you on
+every push, including automatically generating a new version number. As long as
+`make tox-pyenv` passes, your code will be automatically deployed. You can
+monitor the progress of your deploy [here][jenkins].
 
 [ocf]: https://www.ocf.berkeley.edu/
 [atool]: https://github.com/ocf/atool/
 [puppet]: https://github.com/ocf/puppet/
 [pypi]: https://pypi.python.org/pypi/ocflib
+[apt]: http://apt.ocf.berkeley.edu/
+[jenkins]: https://jenkins.ocf.berkeley.edu/view/ocflib-deploy/
