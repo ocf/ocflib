@@ -8,16 +8,16 @@ import sys
 
 import ocflib.account.search as search
 import ocflib.account.utils as utils
+import ocflib.account.validators as validators
 import ocflib.constants as constants
 import ocflib.misc.mail as mail
-import ocflib.validators as validators
 
 
 def create_home_dir(user):
     """Create home directory for user. Makes a directory with appropriate
     permissions, then copies in OCF's skeleton dotfiles."""
 
-    home = utils.home_dir(user['account_name'])
+    home = utils.home_dir(user)
     subprocess.check_call(
         ['sudo', 'install', '-d', '--mode=0700', '--group=ocf',
             '--owner=' + user, home],
@@ -133,7 +133,7 @@ def validate_calnet_uid(uid):
     # check if user is eligible for an account
     affiliations = attrs['berkeleyEduAffiliations']
     if not eligible_for_account(affiliations):
-        raise ValidationError(
+        raise ValidationWarning(
             "Affiliate type not eligible for account: " + str(affiliations))
 
 
@@ -195,7 +195,7 @@ def validate_username(username, realname):
     if any(word in username for word in constants.BAD_WORDS):
         raise ValidationWarning("Username {} contains bad words")
 
-    if any(word in username for word in constants.RESRICTED_WORDS):
+    if any(word in username for word in constants.RESTRICTED_WORDS):
         raise ValidationWarning("Username {} contains restricted words")
 
 
