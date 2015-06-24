@@ -9,6 +9,8 @@ OID_TONER_CUR = "1.3.6.1.2.1.43.11.1.1.9.1.1"
 OID_MAINTKIT_MAX = "1.3.6.1.2.1.43.11.1.1.8.1.2"
 OID_MAINTKIT_CUR = "1.3.6.1.2.1.43.11.1.1.9.1.2"
 
+OID_LIFETIME_PAGES_PRINTED = "1.3.6.1.2.1.43.10.2.1.4.1.1"
+
 
 def _snmp(host, oid):
     err_indication, err_status, err_idx, response_kv = \
@@ -36,3 +38,8 @@ def get_maintkit(printer):
     """Returns (cur, max) maintenance kit tuple for the given printer."""
     return [_snmp(printer, oid) for oid
             in (OID_MAINTKIT_CUR, OID_MAINTKIT_MAX)]
+
+
+def get_lifetime_pages(printer):
+    """Returns lifetime pages printed for the given printer."""
+    return _snmp(printer, OID_LIFETIME_PAGES_PRINTED)
