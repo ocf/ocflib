@@ -16,9 +16,7 @@ release-pypi: autoversion
 
 
 builddeb: autoversion
-	python3 setup.py sdist
-	py2dsc --with-python2 False --with-python3 True dist/ocflib-*.tar.gz
-	cd deb_dist/ocflib-*/ && dpkg-buildpackage -us -uc
+	dpkg-buildpackage -us -uc -b
 
 clean:
 	python3 setup.py clean
@@ -28,6 +26,10 @@ clean:
 # SHA; unfortunately, PyPI enforces this restriction
 autoversion:
 	date +%Y.%m.%d.%H.%M > .version
+	rm -f debian/changelog
+	DEBFULLNAME="Open Computing Facility" DEBEMAIL="help@ocf.berkeley.edu" VISUAL=true \
+		dch -v `cat .version` -D stable --no-force-save-on-release \
+		--create --package "python-ocflib" "Package for Debian."
 
 # Install Python versions using pyenv, run tests with tox.
 tox-pyenv: export PYENV_ROOT := $(ROOT_DIR)/.pyenv

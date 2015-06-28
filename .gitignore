@@ -54,3 +54,9 @@ docs/_build/
 .pyenv
 .version
 .python-version
+debian/changelog
+.pybuild
+debian/files
+debian/python3-ocflib/
+debian/python3-ocflib.substvars
+debian/*.debhelper
