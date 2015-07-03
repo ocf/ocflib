@@ -2,7 +2,7 @@
 import ldap3
 
 import ocflib.constants as constants
-import ocflib.account.ldap as ldap
+import ocflib.infra.ldap as ldap
 
 
 def users_by_filter(ldap_filter):
