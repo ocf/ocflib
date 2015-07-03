@@ -38,6 +38,12 @@ tox-pyenv: .pyenv/ autoversion
 	pyenv rehash
 	tox
 
+tox-py32:
+	tox -e py32
+
+tox-py34:
+	tox -e py34
+
 .pyenv/: export PYENV_ROOT := $(ROOT_DIR)/.pyenv
 .pyenv/: export PATH := $(PYENV_ROOT)/shims:$(PYENV_ROOT)/bin:${PATH}
 .pyenv/:
