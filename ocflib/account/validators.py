@@ -6,7 +6,7 @@ import sys
 import cracklib
 
 import ocflib.constants as constants
-import ocflib.misc.mail as mail
+import ocflib.misc.mail
 
 
 def validate_username(username, check_exists=False):
@@ -73,7 +73,7 @@ def username_reserved(username):
                 "WARNING: Username {} rejected based on /etc/passwd!"
                 .format(username),
                 file=sys.stderr)
-            mail.send_problem_report(
+            ocflib.misc.mail.send_problem_report(
                 """Username {} rejected based on /etc/passwd. It should be \
 added to RESERVED_USERNAMES for consistency across \
 servers!""".format(username))
