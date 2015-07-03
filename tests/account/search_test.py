@@ -23,7 +23,7 @@ class TestUsersByFilter:
     @pytest.mark.parametrize('filter_str', ['', 'uid=ckuehl', '42', 'asdf'])
     def test_invalid_filters(self, filter_str):
         with pytest.raises(Exception):
-            users_by_filter(bad_filter)
+            users_by_filter(filter_str)
 
 
 @pytest.mark.parametrize('uid,users', [
@@ -63,7 +63,6 @@ class TestUserAttrsUCB:
 
     def test_nonexistent_user(self):
         assert user_attrs_ucb(9999999999) is None
-
 
 
 @pytest.mark.parametrize('user,exists', [

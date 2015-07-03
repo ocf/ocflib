@@ -19,7 +19,7 @@ class TestHostsByFilter:
     @pytest.mark.parametrize('filter_str', ['', 'cn=death', '42', 'asdf'])
     def test_invalid_filters(self, filter_str):
         with pytest.raises(Exception):
-            users_by_filter(bad_filter)
+            hosts_by_filter(filter_str)
 
     def test_puppet_class(self):
         # This will break if death is ever renamed, but it's a useful test.

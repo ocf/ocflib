@@ -10,6 +10,7 @@ from ocflib.account.utils import home_dir
 from ocflib.account.utils import password_matches
 from ocflib.account.utils import web_dir
 
+
 class TestPasswordMatches:
     @pytest.mark.parametrize('user', [
         '',
@@ -103,7 +104,7 @@ asucarch archive.asuc.org www.archive.asuc.org,modern.asuc.org,www.modern.asuc.o
 # [added 2015.04.16 ckuehl]
 staff! contrib - /contrib
 ocfwiki docs.ocf.berkeley.edu - - [ssl,hsts]
-"""
+"""  # noqa
 
 VHOSTS_EXAMPLE_PARSED = {
     'archive.asuc.org': {
@@ -133,6 +134,16 @@ VHOSTS_EXAMPLE_PARSED = {
     },
 }
 
+
+@pytest.yield_fixture
+def mock_get_vhosts_db():
+    with mock.patch(
+        'ocflib.account.utils.get_vhost_db',
+        return_value=VHOSTS_EXAMPLE.splitlines()
+    ):
+        yield
+
+
 class TestVirtualHosts:
     def test_reads_file_if_exists(self):
         with mock.patch('builtins.open', mock.mock_open()) as mock_open:
@@ -151,8 +162,7 @@ class TestVirtualHosts:
 
         assert get_vhost_db() == ["hello", "world"]
 
-    @mock.patch('ocflib.account.utils.get_vhost_db', return_value=VHOSTS_EXAMPLE.splitlines())
-    def test_proper_parse(self, __):
+    def test_proper_parse(self, mock_get_vhosts_db):
         assert get_vhosts() == VHOSTS_EXAMPLE_PARSED
 
     @pytest.mark.parametrize('user,should_have_vhost', [
@@ -161,8 +171,7 @@ class TestVirtualHosts:
         ('ckuehl', False),
         ('', False),
     ])
-    @mock.patch('ocflib.account.utils.get_vhost_db', return_value=VHOSTS_EXAMPLE.splitlines())
-    def test_has_vhost(self, __, user, should_have_vhost):
+    def test_has_vhost(self, user, should_have_vhost, mock_get_vhosts_db):
         assert has_vhost(user) == should_have_vhost
 
 

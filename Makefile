@@ -5,7 +5,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 check: lint test
 
 lint:
-	flake8 ocflib
+	flake8 ocflib tests
 
 test: autoversion
 	py.test --cov ocflib tests/

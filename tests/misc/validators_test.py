@@ -6,10 +6,15 @@ from ocflib.misc.validators import valid_email
 
 
 REAL_HOSTS = ['ocf.berkeley.edu', 'google.com']
-FAKE_HOSTS = ['hello.waffle', 'i am not a real host', 'lashdfkjashgklhsadfsad.com']
+FAKE_HOSTS = [
+    'hello.waffle',
+    'i am not a real host',
+    'lashdfkjashgklhsadfsad.com',
+]
 
 
-@pytest.mark.parametrize('host,exists',
+@pytest.mark.parametrize(
+    'host,exists',
     [(host, True) for host in REAL_HOSTS] +
     [(host, False) for host in FAKE_HOSTS]
 )
@@ -17,12 +22,13 @@ def test_host_exists(host, exists):
     assert host_exists(host) == exists
 
 
-@pytest.mark.parametrize('email,exists',
+@pytest.mark.parametrize(
+    'email,exists',
     [('ckuehl@' + host, True) for host in REAL_HOSTS] +
     [('ckuehl@' + host, False) for host in FAKE_HOSTS] +
     [('no host here!', False)],
 )
-def test_host_exists(email, exists):
+def test_email_host_exists(email, exists):
     assert email_host_exists(email) == exists
 
 
@@ -32,7 +38,7 @@ def test_host_exists(email, exists):
     ('hello world@ocf.berkeley.edu', False),
     ('hello world@ocf', False),
     ('derp@langasdgkjsadhglkjbjgsdfgsd.com', False),
-    ('derp@www.ocf.berkeley.edu', False), # no MX records
+    ('derp@www.ocf.berkeley.edu', False),  # no MX records
     ('@ocf', False),
     ('hello@', False),
     ('@', False),
