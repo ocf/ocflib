@@ -26,9 +26,9 @@ ocflib is installed by [Puppet][puppet] on the OCF, so you can simply do things
 like `import ocflib.constants` from the system python3 installation. We *don't*
 install it to python2 site-packages.
 
-ocflib is published on [PyPI][pypi], and new versions are automatically
-installed from there every time puppet runs. We also build an ocflib Debian
-package, but it's not quite ready to replace the PyPI package yet.
+We build [a Debian package][debian-pkg] which is installed by Puppet. We also
+publish new versions to [PyPI][pypi], which is useful because it allows easy
+installation into virtualenvs.
 
 ## Testing changes
 
@@ -83,3 +83,4 @@ monitor the progress of your deploy [here][jenkins].
 [pypi]: https://pypi.python.org/pypi/ocflib
 [apt]: http://apt.ocf.berkeley.edu/
 [jenkins]: https://jenkins.ocf.berkeley.edu/view/ocflib-deploy/
+[debian-pkg]: http://apt.ocf.berkeley.edu/pool/main/o/ocflib/
