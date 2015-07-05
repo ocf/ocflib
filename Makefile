@@ -8,9 +8,11 @@ lint:
 	flake8 ocflib tests
 
 test: autoversion
-	py.test --cov ocflib tests/
+	coverage erase
+	coverage run -m py.test tests
+	coverage report --show-missing
 
-release-pypi: autoversion
+release-pypi: clean autoversion
 	python3 setup.py sdist
 	twine upload dist/*
 
