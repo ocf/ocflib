@@ -11,9 +11,9 @@ from ocflib.account.creation import create_web_dir
 from ocflib.account.creation import eligible_for_account
 from ocflib.account.creation import send_created_mail
 from ocflib.account.creation import send_rejected_mail
-from ocflib.account.creation import similarity_heuristic
 from ocflib.account.creation import validate_calnet_uid
 from ocflib.account.creation import validate_username
+
 
 class TestCreateDirectories:
     @mock.patch('subprocess.check_call')
@@ -27,7 +27,11 @@ class TestCreateDirectories:
         )]
 
         for name in ['bashrc', 'bash_profile', 'bash_logout']:
-            path = os.path.join(os.path.dirname(ocflib.account.creation.__file__), 'rc', name)
+            path = os.path.join(os.path.dirname(
+                ocflib.account.creation.__file__),
+                'rc',
+                name,
+            )
             calls.append(mock.call(
                 ['sudo', 'install', '--mode=0600', '--group=ocf',
                     '--owner=ckuehl', path, '/home/c/ck/ckuehl/.' + name],
@@ -64,7 +68,9 @@ class TestUsernameBasedOnRealName:
             validate_username(username, realname)
         except ValidationWarning as ex:
             if success:
-                pytest.fail("Received unexpected error: {error}".format(error=ex))
+                pytest.fail(
+                    "Received unexpected error: {error}".format(error=ex),
+                )
 
     @pytest.mark.parametrize("username", [
         'shitup',
@@ -114,20 +120,24 @@ class TestUsernameBasedOnRealName:
 
 class TestAccountEligibility:
     @pytest.mark.parametrize("bad_uid", [
-        1034192,    # good uid, but already has account
-        9999999999, # fake uid, not in university ldap
+        1034192,     # good uid, but already has account
+        9999999999,  # fake uid, not in university ldap
     ])
     def test_validate_calnet_uid_error(self, bad_uid):
         with pytest.raises(ValidationError):
             validate_calnet_uid(bad_uid)
 
-    @mock.patch('ocflib.account.search.user_attrs_ucb',
-            return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']})
+    @mock.patch(
+        'ocflib.account.search.user_attrs_ucb',
+        return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
+    )
     def test_validate_calnet_uid_success(self, _):
         validate_calnet_uid(9999999999999)
 
-    @mock.patch('ocflib.account.search.user_attrs_ucb',
-            return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']})
+    @mock.patch(
+        'ocflib.account.search.user_attrs_ucb',
+        return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
+    )
     def test_validate_calnet_affiliations_failure(self, _):
         with pytest.raises(ValidationWarning):
             validate_calnet_uid(9999999999999)
@@ -139,8 +149,8 @@ class TestAccountEligibility:
         (['EMPLOYEE-TYPE-ACADEMIC'], True),
         (['EMPLOYEE-TYPE-STAFF'], True),
         (['EMPLOYEE-TYPE-ACADEMIC', 'EMPLOYEE-STATUS-EXPIRED'], False),
-        (['EMPLOYEE-TYPE-ACADEMIC', 'EMPLOYEE-STATUS-EXPIRED', 'AFFILIATE-TYPE-CONSULTANT'], True),
-        (['EMPLOYEE-TYPE-ACADEMIC', 'EMPLOYEE-STATUS-EXPIRED', 'STUDENT-TYPE-REGISTERED'], True),
+        (['EMPLOYEE-STATUS-EXPIRED', 'AFFILIATE-TYPE-CONSULTANT'], True),
+        (['EMPLOYEE-STATUS-EXPIRED', 'STUDENT-TYPE-REGISTERED'], True),
 
         (['STUDENT-TYPE-REGISTERED'], True),
         (['STUDENT-TYPE-REGISTERED', 'STUDENT-STATUS-EXPIRED'], False),
