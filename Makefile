@@ -20,7 +20,7 @@ release-pypi: clean autoversion
 builddeb: autoversion
 	dpkg-buildpackage -us -uc -b
 
-clean:
+clean: autoversion
 	python3 setup.py clean
 	rm -rf dist deb_dist
 
