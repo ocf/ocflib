@@ -10,7 +10,7 @@ lint:
 test: autoversion
 	coverage erase
 	coverage run --source=ocflib,tests -m pytest tests
-	coverage report --show-missing --fail-under 45
+	coverage report --show-missing --fail-under 55
 
 release-pypi: clean autoversion
 	python3 setup.py sdist
