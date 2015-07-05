@@ -1,5 +1,5 @@
-"""Module containing account management methods, such as password changing,
-account creation, etc."""
+"""Module containing account management methods, such as password changing, but
+not account creation (since it's too large)."""
 
 import base64
 import fcntl

@@ -52,6 +52,10 @@ https://ocf.io/ssh
 Need to reset your account password?
 https://ocf.io/password"""
 
+# words not allowed in usernames
+BAD_WORDS = ["fuck", "shit", "cunt", "crap", "bitch", "hell", "ass", "dick"]
+RESTRICTED_WORDS = ["ocf", "ucb", "cal"]
+
 # don't bother listing accounts starting with 'ocf' here;
 # those are always reserved
 RESERVED_USERNAMES = [
