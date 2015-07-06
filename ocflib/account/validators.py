@@ -66,6 +66,9 @@ def username_reserved(username):
     if username.startswith('ocf'):
         return True
 
+    if username in constants.RESERVED_USERNAMES:
+        return True
+
     # sanity check: make sure no local users share the username
     with open('/etc/passwd') as f:
         if any(line.startswith(username + ':') for line in f):
@@ -79,7 +82,7 @@ added to RESERVED_USERNAMES for consistency across \
 servers!""".format(username))
             return True
 
-    return username in constants.RESERVED_USERNAMES
+    return False
 
 
 def username_queued(username):
