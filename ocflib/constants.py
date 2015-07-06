@@ -191,5 +191,6 @@ RESERVED_USERNAMES = [
     'wiki',
     'wordpress',
     'www',
+    'www-data',
     'zabbix',
 ]
