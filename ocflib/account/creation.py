@@ -12,6 +12,24 @@ import ocflib.account.validators as validators
 import ocflib.constants as constants
 import ocflib.misc.mail as mail
 
+from ocflib.infra.ldap import ldap_ocf
+
+
+def _get_first_available_uid():
+    """Returns the first available UID number.
+
+    Searches our entire People ou in order to find it. It seems like there
+    should be a better way to do this, but quick searches don't show any.
+    """
+    with ldap_ocf() as c:
+        c.search(
+            constants.OCF_LDAP_PEOPLE,
+            "(uidNumber=*)",
+            attributes=['uidNumber'],
+        )
+        return max(int(entry['attributes']['uidNumber'][0])
+                   for entry in c.response) + 1
+
 
 def create_home_dir(user):
     """Create home directory for user. Makes a directory with appropriate

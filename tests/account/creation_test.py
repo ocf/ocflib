@@ -2,10 +2,13 @@ import mock
 import os.path
 import pytest
 import sys
+from contextlib import contextmanager
 
 import ocflib.account.creation
+import ocflib.constants as constants
 from ocflib.account.creation import ValidationError
 from ocflib.account.creation import ValidationWarning
+from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import create_home_dir
 from ocflib.account.creation import create_web_dir
 from ocflib.account.creation import eligible_for_account
@@ -13,6 +16,30 @@ from ocflib.account.creation import send_created_mail
 from ocflib.account.creation import send_rejected_mail
 from ocflib.account.creation import validate_calnet_uid
 from ocflib.account.creation import validate_username
+
+
+class TestFirstAvailableUID:
+    def test_first_uid(self):
+        connection = mock.Mock(response=[
+            {'attributes': {'uidNumber': [100]}},
+            {'attributes': {'uidNumber': [300]}},
+            {'attributes': {'uidNumber': [200]}},
+        ])
+
+        @contextmanager
+        def ldap_ocf():
+            yield connection
+
+        with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
+            next_uid = _get_first_available_uid()
+
+        connection.search.assert_called_with(
+            constants.OCF_LDAP_PEOPLE,
+            "(uidNumber=*)",
+            attributes=['uidNumber'],
+        )
+
+        assert next_uid == 301
 
 
 class TestCreateDirectories:
