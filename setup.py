@@ -17,7 +17,8 @@ setup(
         'ldap3',
         'paramiko',
         'pexpect',
+        'pycrypto',
+        'pysnmp',
         'requests',
-        'pysnmp'
     )
 )
