@@ -1,7 +1,8 @@
 from urllib.parse import urlencode
-from urllib.request import urlopen
 from urllib.parse import urljoin
 from xml.etree import ElementTree
+
+import requests
 
 import ocflib.constants as constants
 
@@ -15,9 +16,8 @@ def verify_ticket(ticket, service):
     url = (urljoin(constants.CAS_URL, 'serviceValidate') + '?' +
            urlencode(params))
     try:
-        page = urlopen(url)
-        response = page.read()
-        tree = ElementTree.fromstring(response)
+        req = requests.get(url)
+        tree = ElementTree.fromstring(req.text)
         if tree[0].tag.endswith('authenticationSuccess'):
             return tree[0][0].text
         else:
