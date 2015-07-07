@@ -135,8 +135,7 @@ CqXzvT0v5ZrGj+K9dWDb+pYvGWhc2iU/e40yyj0G9w==
 @pytest.yield_fixture
 def mock_rsa_key():
     real_key = RSA.importKey(WEAK_KEY)
-    with mock.patch('Crypto.PublicKey.RSA.importKey') as importkey:
-        importkey.return_value = real_key
+    with mock.patch('builtins.open', mock.mock_open(read_data=WEAK_KEY)):
         yield real_key
 
 
