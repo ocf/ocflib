@@ -155,9 +155,6 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
         raise ValueError(
             "Username {} is queued for creation.".format(username))
 
-    if validators.username_reserved(username):
-        raise ValueError("Username {} is reserved.".format(username))
-
     full_name = ''.join(c for c in full_name if c.isalpha() or c == ' ')
 
     if len(full_name) < 3:
@@ -166,7 +163,7 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
     if not ocflib.misc.validators.valid_email(email):
         raise ValueError("Email is invalid.")
 
-    # actually create the account
+    # actually queue the account
     password = base64.b64encode(encrypt_password(
         password.encode("utf8"))).decode('ascii')
 
