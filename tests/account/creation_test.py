@@ -193,9 +193,9 @@ class TestSendMail:
     @mock.patch('ocflib.misc.mail.send_mail')
     def test_send_created_mail(self, send_mail):
         send_created_mail('email', 'realname', 'username')
-        send_mail.assert_called()
+        assert send_mail.called
 
     @mock.patch('ocflib.misc.mail.send_mail')
     def test_send_rejected_mail(self, send_mail):
         send_rejected_mail('email', 'realname', 'username', 'reason')
-        send_mail.assert_called()
+        assert send_mail.called

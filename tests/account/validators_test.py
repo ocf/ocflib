@@ -105,7 +105,7 @@ class TestUsernameReserved:
             with mock.patch('ocflib.misc.mail.send_problem_report') \
                     as send_report:
                 assert username_reserved('somename')
-                send_report.assert_called()
+                assert send_report.called
 
 
 class TestUsernameQueued:
