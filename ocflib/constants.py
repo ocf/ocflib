@@ -154,6 +154,7 @@ RESERVED_USERNAMES = [
     'proxy',
     'pulse',
     'puppet',
+    'rabbitmq',
     'rancid',
     'root',
     'rt',
