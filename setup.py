@@ -12,6 +12,7 @@ setup(
     url='https://www.ocf.berkeley.edu',
     packages=find_packages(),
     install_requires=(
+        'colorama',
         'cracklib',
         'dnspython3',
         'ldap3',
