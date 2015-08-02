@@ -1,5 +1,4 @@
 """Module for dealing with student groups."""
-
 from urllib.parse import urlencode
 from xml.etree import ElementTree
 
@@ -86,7 +85,7 @@ def _get_osl(query, service, parser):
 
     You should probably use one of the nicer methods instead."""
 
-    url = "{}/{}?{}".format(_API['BASE'], service, urlencode(query))
+    url = '{}/{}?{}'.format(_API['BASE'], service, urlencode(query))
 
     r = requests.get(url)
     return _parse_osl(ElementTree.fromstring(r.text), parser)
@@ -99,6 +98,6 @@ def _parse_osl(root, parser):
             error_reason = root.findtext('Reason')
         except:
             error_reason = 'unknown reason'
-        raise Exception("Lookup failed: " + error_reason)
+        raise Exception('Lookup failed: ' + error_reason)
 
     return parser(root)

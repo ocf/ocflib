@@ -26,6 +26,7 @@ BAD_RESPONSE = """
 
 
 class TestVerifyTicket:
+
     def test_good_ticket(self, mock_get):
         mock_get.return_value.text = GOOD_RESPONSE
         assert verify_ticket(

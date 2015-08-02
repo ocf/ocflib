@@ -1,5 +1,4 @@
 """Email handling and sending"""
-
 import email.mime.text
 import inspect
 import socket
@@ -18,7 +17,7 @@ def email_for_user(username):
     something more complicated."""
 
     ocflib.account.validators.validate_username(username, check_exists=True)
-    return "{}@ocf.berkeley.edu".format(username)
+    return '{}@ocf.berkeley.edu'.format(username)
 
 
 def send_mail_user(user, subject, body, sender=constants.MAIL_FROM):
@@ -32,10 +31,10 @@ def send_mail(to, subject, body, sender=constants.MAIL_FROM):
     `body` should be a string with newlines, wrapped at about 80 characters."""
 
     if not validators.valid_email(parseaddr(sender)[1]):
-        raise ValueError("Invalid sender address.")
+        raise ValueError('Invalid sender address.')
 
     if not validators.valid_email(parseaddr(to)[1]):
-        raise ValueError("Invalid recipient address.")
+        raise ValueError('Invalid recipient address.')
 
     msg = email.mime.text.MIMEText(body)
 
@@ -55,9 +54,9 @@ def send_problem_report(problem):
 
     def format_frame(frame):
         _, filename, line, funcname, _, _ = frame
-        return "{}:{} ({})".format(filename, line, funcname)
+        return '{}:{} ({})'.format(filename, line, funcname)
 
-    callstack = "\n        by ".join(map(format_frame, inspect.stack()))
+    callstack = '\n        by '.join(map(format_frame, inspect.stack()))
     body = \
         """A problem was encountered and reported via ocflib:
 
@@ -71,5 +70,5 @@ Callstack:
 
     send_mail(
         constants.MAIL_ROOT,
-        "[ocflib] Problem report from " + socket.getfqdn(),
+        '[ocflib] Problem report from ' + socket.getfqdn(),
         body)

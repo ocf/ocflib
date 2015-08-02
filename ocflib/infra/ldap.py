@@ -1,5 +1,6 @@
-import ldap3
 from contextlib import contextmanager
+
+import ldap3
 
 import ocflib.constants as constants
 

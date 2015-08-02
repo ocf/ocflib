@@ -1,15 +1,16 @@
 import pytest
 
-from ocflib.account.search import users_by_filter
-from ocflib.account.search import users_by_calnet_uid
-from ocflib.account.search import users_by_callink_oid
-from ocflib.account.search import user_exists
-from ocflib.account.search import user_is_group
 from ocflib.account.search import user_attrs
 from ocflib.account.search import user_attrs_ucb
+from ocflib.account.search import user_exists
+from ocflib.account.search import user_is_group
+from ocflib.account.search import users_by_callink_oid
+from ocflib.account.search import users_by_calnet_uid
+from ocflib.account.search import users_by_filter
 
 
 class TestUsersByFilter:
+
     @pytest.mark.parametrize('filter_str,results', [
         ('(uid=ckuehl)', ['ckuehl']),
         ('(uidNumber=28460)', ['ckuehl']),
@@ -43,6 +44,7 @@ def test_users_by_callink_oid(oid, users):
 
 
 class TestUserAttrs:
+
     def test_existing_user(self):
         user = user_attrs('ckuehl')
         assert user['uid'] == ['ckuehl']
@@ -53,6 +55,7 @@ class TestUserAttrs:
 
 
 class TestUserAttrsUCB:
+
     def test_existing_user(self, test_uid=1034192):
         """These are a little flaky because alumni eventually get kicked out of
         the university's "People" OU. So you'll need to update these every few
@@ -75,6 +78,7 @@ def test_user_exists(user, exists):
 
 
 class TestUserIsGroup:
+
     @pytest.mark.parametrize('user,exists', [
         ('ckuehl', False),
         ('bpreview', True),

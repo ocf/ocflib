@@ -12,6 +12,7 @@ from ocflib.account.utils import web_dir
 
 
 class TestPasswordMatches:
+
     @pytest.mark.parametrize('user', [
         '',
         '; rm -rf /',
@@ -26,9 +27,9 @@ class TestPasswordMatches:
             password_matches(user, 'hunter2')
 
     @pytest.mark.parametrize('password', [
-        "asdf\nasdf",
-        "\n\n\n\n\n\n",
-        "a\0asdf",
+        'asdf\nasdf',
+        '\n\n\n\n\n\n',
+        'a\0asdf',
     ])
     def test_fails_with_bad_password(self, password):
         with pytest.raises(ValueError):
@@ -75,6 +76,7 @@ class TestPasswordMatches:
 
 
 class TestExtractUsernameFromPrincipal:
+
     @pytest.mark.parametrize('principal,username', [
         ('ckuehl@OCF.BERKELEY.EDU', 'ckuehl'),
         ('ckuehl/admin@OCF.BERKELEY.EDU', 'ckuehl'),
@@ -145,9 +147,10 @@ def mock_get_vhosts_db():
 
 
 class TestVirtualHosts:
+
     def test_reads_file_if_exists(self):
         with mock.patch('builtins.open', mock.mock_open()) as mock_open:
-            lines = ["hello", "world"]
+            lines = ['hello', 'world']
             mock_open.return_value.__iter__.return_value = lines
             assert get_vhost_db() == lines
 
@@ -158,9 +161,9 @@ class TestVirtualHosts:
             raise IOError()
 
         mock_open.side_effect = raise_error
-        get.return_value.text = "hello\nworld"
+        get.return_value.text = 'hello\nworld'
 
-        assert get_vhost_db() == ["hello", "world"]
+        assert get_vhost_db() == ['hello', 'world']
 
     def test_proper_parse(self, mock_get_vhosts_db):
         assert get_vhosts() == VHOSTS_EXAMPLE_PARSED
@@ -176,6 +179,7 @@ class TestVirtualHosts:
 
 
 class TestUserPaths:
+
     @pytest.mark.parametrize('user,expected', [
         ('ckuehl', '/home/c/ck/ckuehl'),
         ('ggroup', '/home/g/gg/ggroup'),

@@ -11,6 +11,7 @@ def mock_spawn():
 
 
 class TestCreateKerberosPrincipal:
+
     def test_normal_password(self, mock_spawn):
         create_kerberos_principal_with_keytab(
             'ggroup',

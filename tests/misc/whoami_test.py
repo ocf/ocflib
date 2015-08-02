@@ -43,13 +43,13 @@ def test_current_user_fullname(mock_uid, mock_getpwuid):
 
 
 def test_current_user_email(mock_uid, mock_getpwuid):
-    assert current_user_email() == "{username}@ocf.berkeley.edu".format(
+    assert current_user_email() == '{username}@ocf.berkeley.edu'.format(
         username=mock_getpwuid.pw_name,
     )
 
 
 def test_current_user_formatted_email(mock_uid, mock_getpwuid):
-    expected = "{name} <{username}@ocf.berkeley.edu>".format(
+    expected = '{name} <{username}@ocf.berkeley.edu>'.format(
         name=mock_getpwuid.pw_gecos,
         username=mock_getpwuid.pw_name,
     )

@@ -3,13 +3,13 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 PRINTERS = ['deforestation', 'logjam']
 
-OID_TONER_MAX = "1.3.6.1.2.1.43.11.1.1.8.1.1"
-OID_TONER_CUR = "1.3.6.1.2.1.43.11.1.1.9.1.1"
+OID_TONER_MAX = '1.3.6.1.2.1.43.11.1.1.8.1.1'
+OID_TONER_CUR = '1.3.6.1.2.1.43.11.1.1.9.1.1'
 
-OID_MAINTKIT_MAX = "1.3.6.1.2.1.43.11.1.1.8.1.2"
-OID_MAINTKIT_CUR = "1.3.6.1.2.1.43.11.1.1.9.1.2"
+OID_MAINTKIT_MAX = '1.3.6.1.2.1.43.11.1.1.8.1.2'
+OID_MAINTKIT_CUR = '1.3.6.1.2.1.43.11.1.1.9.1.2'
 
-OID_LIFETIME_PAGES_PRINTED = "1.3.6.1.2.1.43.10.2.1.4.1.1"
+OID_LIFETIME_PAGES_PRINTED = '1.3.6.1.2.1.43.10.2.1.4.1.1'
 
 
 def _snmp(host, oid):
@@ -21,10 +21,10 @@ def _snmp(host, oid):
 
     if err_indication:
         raise IOError(
-            "Device returned error indication: {}".format(err_indication))
+            'Device returned error indication: {}'.format(err_indication))
     elif err_status:
         raise IOError(
-            "Device returned error status: {}".format(err_status))
+            'Device returned error status: {}'.format(err_status))
     else:
         return response_kv[0][1]
 

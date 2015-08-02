@@ -1,4 +1,5 @@
-from colorama import Fore, Back
+from colorama import Back
+from colorama import Fore
 
 import ocflib.misc.shell
 

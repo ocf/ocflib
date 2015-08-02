@@ -32,8 +32,8 @@ VHOST_DB_PATH = '/home/s/st/staff/vhost/vhost.conf'
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
 
 # mail
-MAIL_ROOT = "root@ocf.berkeley.edu"
-MAIL_FROM = "Open Computing Facility <help@ocf.berkeley.edu>"
+MAIL_ROOT = 'root@ocf.berkeley.edu'
+MAIL_FROM = 'Open Computing Facility <help@ocf.berkeley.edu>'
 
 MAIL_SIGNATURE = """Thanks for flying OCF,
 The friendly staff of 6A Hearst Gym
@@ -53,8 +53,8 @@ Need to reset your account password?
 https://ocf.io/password"""
 
 # words not allowed in usernames
-BAD_WORDS = ["fuck", "shit", "cunt", "crap", "bitch", "hell", "ass", "dick"]
-RESTRICTED_WORDS = ["ocf", "ucb", "cal"]
+BAD_WORDS = ['fuck', 'shit', 'cunt', 'crap', 'bitch', 'hell', 'ass', 'dick']
+RESTRICTED_WORDS = ['ocf', 'ucb', 'cal']
 
 # don't bother listing accounts starting with 'ocf' here;
 # those are always reserved

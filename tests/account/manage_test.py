@@ -1,16 +1,16 @@
 import fcntl
 
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
 import mock
 import pytest
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
 
-from ocflib.account.manage import change_password_with_staffer
-from ocflib.account.manage import change_password_with_keytab
 from ocflib.account.manage import _notify_password_change
-from ocflib.account.manage import trigger_create
+from ocflib.account.manage import change_password_with_keytab
+from ocflib.account.manage import change_password_with_staffer
 from ocflib.account.manage import encrypt_password
 from ocflib.account.manage import queue_creation
+from ocflib.account.manage import trigger_create
 
 
 @pytest.yield_fixture
@@ -146,11 +146,12 @@ def mock_rsa_key():
 ])
 def test_encrypt_password(password, mock_rsa_key):
     RSA_CIPHER = PKCS1_OAEP.new(mock_rsa_key)
-    password = password.encode("utf8")
+    password = password.encode('utf8')
     assert RSA_CIPHER.decrypt(encrypt_password(password)) == password
 
 
 class TestQueueCreation:
+
     @pytest.mark.parametrize('name,calnet,callink,username,email,password', [
         # both calnet uid and callink oid
         ('Chris', 100, 100, 'nonexist', 'a@gmail.com', '9cy9APmA'),

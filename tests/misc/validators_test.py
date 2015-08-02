@@ -1,7 +1,7 @@
 import pytest
 
-from ocflib.misc.validators import host_exists
 from ocflib.misc.validators import email_host_exists
+from ocflib.misc.validators import host_exists
 from ocflib.misc.validators import valid_email
 
 

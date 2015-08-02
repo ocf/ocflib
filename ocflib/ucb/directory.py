@@ -27,9 +27,9 @@ def name_by_calnet_uid(uid):
         sn = get_longest_string(names['sn'])
 
         if given_name and sn:
-            return "{} {}".format(given_name, sn)
+            return '{} {}'.format(given_name, sn)
     elif 'displayName' in names:
-        display_name = get_longest_string(names["displayName"])
+        display_name = get_longest_string(names['displayName'])
 
         if display_name:
             return display_name

@@ -4,6 +4,7 @@ from ocflib.infra.hosts import hosts_by_filter
 
 
 class TestHostsByFilter:
+
     def _hostnames(self, results):
         return [entry['cn'][0] for entry in results]
 

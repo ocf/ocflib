@@ -1,11 +1,12 @@
-import mock
-import pytest
 import subprocess
 from email.parser import Parser
 
-from ocflib.constants import SENDMAIL_PATH
+import mock
+import pytest
+
 from ocflib.constants import MAIL_FROM
 from ocflib.constants import MAIL_ROOT
+from ocflib.constants import SENDMAIL_PATH
 from ocflib.misc.mail import email_for_user
 from ocflib.misc.mail import send_mail
 from ocflib.misc.mail import send_mail_user
@@ -13,6 +14,7 @@ from ocflib.misc.mail import send_problem_report
 
 
 class TestEmailForUser:
+
     @pytest.mark.parametrize('username,email', [
         ('ckuehl', 'ckuehl@ocf.berkeley.edu'),
         ('daradib', 'daradib@ocf.berkeley.edu'),
@@ -32,6 +34,7 @@ def mock_popen():
 
 
 class TestEmailSending:
+
     def get_message(self, mock_popen):
         mock_popen.assert_called_with(
             (SENDMAIL_PATH, '-t', '-oi'),
@@ -81,7 +84,7 @@ class TestEmailSending:
         assert not mock_popen.called
 
     def test_problem_report(self, mock_popen):
-        send_problem_report("hellllo world")
+        send_problem_report('hellllo world')
 
         msg = self.get_message(mock_popen)
         assert msg['Subject'].startswith('[ocflib] Problem report')

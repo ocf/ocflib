@@ -1,6 +1,7 @@
 import os
-import pexpect
 import string
+
+import pexpect
 
 from ocflib.constants import KADMIN_PATH
 from ocflib.misc.shell import escape_arg
@@ -22,8 +23,8 @@ def create_kerberos_principal_with_keytab(
     :return: the password of the newly-created account
     """
     # try changing using kadmin pexpect
-    cmd = ("{kadmin} -K {keytab} -p {admin} add --use-defaults " +
-           "{principal}").format(
+    cmd = ('{kadmin} -K {keytab} -p {admin} add --use-defaults ' +
+           '{principal}').format(
         kadmin=escape_arg(KADMIN_PATH),
         keytab=escape_arg(keytab),
         admin=escape_arg(admin_principal),
@@ -49,6 +50,6 @@ def create_kerberos_principal_with_keytab(
 
     output = child.before.decode('utf8')
     if 'kadmin' in output:
-        raise ValueError("kadmin Error: {}".format(output))
+        raise ValueError('kadmin Error: {}'.format(output))
 
     return password

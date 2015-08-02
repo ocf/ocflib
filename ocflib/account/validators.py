@@ -14,16 +14,16 @@ def validate_username(username, check_exists=False):
     encountered."""
 
     if username_reserved(username):
-        raise ValueError("Username is reserved")
+        raise ValueError('Username is reserved')
 
     if not 3 <= len(username) <= 8:
-        raise ValueError("Username must be between 3 and 8 characters")
+        raise ValueError('Username must be between 3 and 8 characters')
 
     if not all(c.islower() for c in username):
-        raise ValueError("Username must be all lowercase letters")
+        raise ValueError('Username must be all lowercase letters')
 
     if check_exists and not user_exists(username):
-        raise ValueError("Username does not exist")
+        raise ValueError('Username does not exist')
 
 
 def validate_password(username, password, strength_check=True):
@@ -32,25 +32,25 @@ def validate_password(username, password, strength_check=True):
 
     if strength_check:
         if len(password) < 8:
-            raise ValueError("Password must be at least 8 characters")
+            raise ValueError('Password must be at least 8 characters')
 
         s = difflib.SequenceMatcher()
         s.set_seqs(password, username)
 
         if s.ratio() > 0.6:
-            raise ValueError("Password is too similar to username")
+            raise ValueError('Password is too similar to username')
 
         try:
             cracklib.FascistCheck(password)
         except ValueError as e:
-            raise ValueError("Password problem: {}".format(e))
+            raise ValueError('Password problem: {}'.format(e))
 
     # sanity check; note we don't use string.whitespace since we don't want
     # tabs or newlines
     allowed = string.digits + string.ascii_letters + string.punctuation + ' '
 
     if not all(c in allowed for c in password):
-        raise ValueError("Password contains forbidden characters")
+        raise ValueError('Password contains forbidden characters')
 
 
 def user_exists(username):
@@ -73,7 +73,7 @@ def username_reserved(username):
     with open('/etc/passwd') as f:
         if any(line.startswith(username + ':') for line in f):
             print(
-                "WARNING: Username {} rejected based on /etc/passwd!"
+                'WARNING: Username {} rejected based on /etc/passwd!'
                 .format(username),
                 file=sys.stderr)
             ocflib.misc.mail.send_problem_report(
@@ -89,4 +89,4 @@ def username_queued(username):
     """Returns if the username has already been requested and is queued to be
     created."""
     with open(constants.QUEUED_ACCOUNTS_PATH) as f:
-        return any(line.startswith(username + ":") for line in f)
+        return any(line.startswith(username + ':') for line in f)

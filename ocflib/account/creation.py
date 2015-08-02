@@ -11,7 +11,6 @@ import ocflib.account.utils as utils
 import ocflib.account.validators as validators
 import ocflib.constants as constants
 import ocflib.misc.mail as mail
-
 from ocflib.infra.ldap import ldap_ocf
 
 
@@ -24,7 +23,7 @@ def _get_first_available_uid():
     with ldap_ocf() as c:
         c.search(
             constants.OCF_LDAP_PEOPLE,
-            "(uidNumber=*)",
+            '(uidNumber=*)',
             attributes=['uidNumber'],
         )
         return max(int(entry['attributes']['uidNumber'][0])
@@ -93,7 +92,7 @@ replying to this message.
 {signature}""".format(username=username,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail(email, "[OCF] Your account has been created!", body)
+    mail.send_mail(email, '[OCF] Your account has been created!', body)
 
 
 def send_rejected_mail(email, realname, username, reason):
@@ -114,7 +113,7 @@ replying to this message.
                       reason=reason,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail(email, "[OCF] Your account request has been rejected", body)
+    mail.send_mail(email, '[OCF] Your account request has been rejected', body)
 
 
 class ValidationWarning(ValueError):
@@ -141,7 +140,7 @@ def validate_calnet_uid(uid):
 
     if existing_accounts:
         raise ValidationError(
-            "Calnet UID already has account: " + str(existing_accounts))
+            'Calnet UID already has account: ' + str(existing_accounts))
 
     attrs = search.user_attrs_ucb(uid)
 
@@ -152,7 +151,7 @@ def validate_calnet_uid(uid):
     affiliations = attrs['berkeleyEduAffiliations']
     if not eligible_for_account(affiliations):
         raise ValidationWarning(
-            "Affiliate type not eligible for account: " + str(affiliations))
+            'Affiliate type not eligible for account: ' + str(affiliations))
 
 
 def eligible_for_account(affiliations):
@@ -197,7 +196,7 @@ def validate_username(username, realname):
     * Username isn't restricted."""
 
     if search.user_exists(username):
-        raise ValidationError("Username {} already exists.".format(username))
+        raise ValidationError('Username {} already exists.'.format(username))
 
     try:
         validators.validate_username(username)
@@ -208,13 +207,13 @@ def validate_username(username, realname):
 
     if similarity_heuristic(realname, username) > SIMILARITY_THRESHOLD:
         raise ValidationWarning(
-            "Username {} not based on real name {}".format(username, realname))
+            'Username {} not based on real name {}'.format(username, realname))
 
     if any(word in username for word in constants.BAD_WORDS):
-        raise ValidationWarning("Username {} contains bad words")
+        raise ValidationWarning('Username {} contains bad words')
 
     if any(word in username for word in constants.RESTRICTED_WORDS):
-        raise ValidationWarning("Username {} contains restricted words")
+        raise ValidationWarning('Username {} contains restricted words')
 
 
 def similarity_heuristic(realname, username):
@@ -238,7 +237,7 @@ def similarity_heuristic(realname, username):
     max_words = 8
     max_iterations = math.factorial(max_words)
 
-    words = re.findall("\w+", realname)
+    words = re.findall('\w+', realname)
     initials = [word[0] for word in words]
 
     if len(words) > max_words:
@@ -250,12 +249,12 @@ def similarity_heuristic(realname, username):
         for i, permutation in enumerate(itertools.permutations(sequence)):
             if i > max_iterations:
                 break
-            s = "".join(permutation).lower()
+            s = ''.join(permutation).lower()
             matcher = difflib.SequenceMatcher(None, s, username)
             edits = matcher.get_opcodes()
             distance = sum(edit[4] - edit[3]
                            for edit in edits
-                           if edit[0] in ["replace", "insert"])
+                           if edit[0] in ['replace', 'insert'])
             if distance == 0:
                 # Edit distance cannot be smaller than 0, so return early.
                 return 0

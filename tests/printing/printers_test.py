@@ -1,18 +1,19 @@
 import mock
 import pytest
 
+from ocflib.printing.printers import _snmp
+from ocflib.printing.printers import get_lifetime_pages
+from ocflib.printing.printers import get_maintkit
+from ocflib.printing.printers import get_toner
 from ocflib.printing.printers import OID_LIFETIME_PAGES_PRINTED
 from ocflib.printing.printers import OID_MAINTKIT_CUR
 from ocflib.printing.printers import OID_MAINTKIT_MAX
 from ocflib.printing.printers import OID_TONER_CUR
 from ocflib.printing.printers import OID_TONER_MAX
-from ocflib.printing.printers import _snmp
-from ocflib.printing.printers import get_lifetime_pages
-from ocflib.printing.printers import get_maintkit
-from ocflib.printing.printers import get_toner
 
 
 class TestSNMP:
+
     @mock.patch('ocflib.printing.printers.cmdgen')
     def test_snmp(self, cmdgen):
         cmdgen.CommandGenerator.return_value.getCmd.return_value = (
@@ -31,8 +32,8 @@ class TestSNMP:
 
     @mock.patch('ocflib.printing.printers.cmdgen')
     @pytest.mark.parametrize('err_indication,err_status', [
-        ("it broke", None),
-        (None, "it broke"),
+        ('it broke', None),
+        (None, 'it broke'),
     ])
     def test_errors(self, cmdgen, err_indication, err_status):
         cmdgen.CommandGenerator.return_value.getCmd.return_value = (

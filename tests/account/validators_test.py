@@ -9,6 +9,7 @@ from ocflib.account.validators import validate_username
 
 
 class TestValidateUsername:
+
     @pytest.mark.parametrize('username', [
         # reserved
         'ocfdeploy',
@@ -41,6 +42,7 @@ class TestValidateUsername:
 
 
 class TestValidatePassword:
+
     @pytest.mark.parametrize('password', [
         # too short
         'hunter2',
@@ -54,8 +56,8 @@ class TestValidatePassword:
         '12345678',
 
         # tabs or newlines
-        "a really strong password\tbut with tab",
-        "a really strong password\nbut with newline",
+        'a really strong password\tbut with tab',
+        'a really strong password\nbut with newline',
     ])
     def test_failure(self, password):
         with pytest.raises(ValueError):
@@ -67,6 +69,7 @@ class TestValidatePassword:
 
 
 class TestUserExists:
+
     @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks'])
     def test_not_exists(self, username):
         assert not user_exists(username)
@@ -77,6 +80,7 @@ class TestUserExists:
 
 
 class TestUsernameReserved:
+
     @pytest.mark.parametrize('username', [
         # starts with ocf
         'ocf',
@@ -109,6 +113,7 @@ class TestUsernameReserved:
 
 
 class TestUsernameQueued:
+
     @pytest.yield_fixture
     def mock_file(self):
         with mock.patch('builtins.open', mock.mock_open()) as mock_open:

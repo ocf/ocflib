@@ -1,4 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
 
 with open('.version') as f:
     VERSION = f.readline().strip()
@@ -6,9 +7,9 @@ with open('.version') as f:
 setup(
     name='ocflib',
     version=VERSION,
-    author="Open Computing Facility",
+    author='Open Computing Facility',
     author_email='help@ocf.berkeley.edu',
-    description="libraries for account and server management",
+    description='libraries for account and server management',
     url='https://www.ocf.berkeley.edu',
     packages=find_packages(),
     install_requires=(

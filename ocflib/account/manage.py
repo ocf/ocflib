@@ -1,14 +1,13 @@
 """Module containing account management methods, such as password changing, but
 not account creation (since it's too large)."""
-
 import base64
 import fcntl
 import getpass
-import paramiko
-import pexpect
 import socket
 from datetime import date
 
+import paramiko
+import pexpect
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
@@ -28,7 +27,7 @@ def change_password_with_staffer(username, password, principal,
     validators.validate_password(username, password)
 
     # try changing using kadmin pexpect
-    cmd = "{kadmin_path} -p {principal} cpw {username}".format(
+    cmd = '{kadmin_path} -p {principal} cpw {username}'.format(
         kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
         principal=shell.escape_arg(principal),
         username=shell.escape_arg(username))
@@ -48,10 +47,10 @@ def change_password_with_staffer(username, password, principal,
     child.expect(pexpect.EOF)
 
     output = child.before.decode('utf8')
-    if "Looping detected" in output:
-        raise ValueError("Invalid admin password given.")
-    elif "kadmin" in output:
-        raise ValueError("kadmin Error: {}".format(output))
+    if 'Looping detected' in output:
+        raise ValueError('Invalid admin password given.')
+    elif 'kadmin' in output:
+        raise ValueError('kadmin Error: {}'.format(output))
 
     _notify_password_change(username)
 
@@ -63,7 +62,7 @@ def change_password_with_keytab(username, password, keytab, principal):
     validators.validate_password(username, password)
 
     # try changing using kadmin pexpect
-    cmd = "{kadmin_path} -K {keytab} -p {principal} cpw {username}".format(
+    cmd = '{kadmin_path} -K {keytab} -p {principal} cpw {username}'.format(
         kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
         keytab=shell.escape_arg(keytab),
         principal=shell.escape_arg(principal),
@@ -80,8 +79,8 @@ def change_password_with_keytab(username, password, keytab, principal):
     child.expect(pexpect.EOF)
 
     output = child.before.decode('utf8')
-    if "kadmin" in output:
-        raise ValueError("kadmin Error: {}".format(output))
+    if 'kadmin' in output:
+        raise ValueError('kadmin Error: {}'.format(output))
 
     _notify_password_change(username)
 
@@ -103,7 +102,7 @@ If you're not sure why this happened, please reply to this email ASAP.
                       username=username,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail_user(username, "[OCF] Account password changed", body)
+    mail.send_mail_user(username, '[OCF] Account password changed', body)
 
 
 def trigger_create(ssh_key_path, host_keys_path):
@@ -139,33 +138,33 @@ def queue_creation(full_name, calnet_uid, callink_oid, username, email,
 
     # individuals should have calnet_uid, groups should have callink_oid
     if calnet_uid and callink_oid:
-        raise ValueError("Only one of calnet_uid or callink_oid may be set.")
+        raise ValueError('Only one of calnet_uid or callink_oid may be set.')
 
     # callink_oid might be 0, which is OK (indicates non-RSO group)
     if not calnet_uid and callink_oid is None:
-        raise ValueError("One of calnet_uid or callink_oid must be set.")
+        raise ValueError('One of calnet_uid or callink_oid must be set.')
 
     validators.validate_username(username)
     validators.validate_password(username, password)
 
     if validators.user_exists(username):
-        raise ValueError("Username {} is already taken.".format(username))
+        raise ValueError('Username {} is already taken.'.format(username))
 
     if validators.username_queued(username):
         raise ValueError(
-            "Username {} is queued for creation.".format(username))
+            'Username {} is queued for creation.'.format(username))
 
     full_name = ''.join(c for c in full_name if c.isalpha() or c == ' ')
 
     if len(full_name) < 3:
-        raise ValueError("Full name should be >= 3 characters.")
+        raise ValueError('Full name should be >= 3 characters.')
 
     if not ocflib.misc.validators.valid_email(email):
-        raise ValueError("Email is invalid.")
+        raise ValueError('Email is invalid.')
 
     # actually queue the account
     password = base64.b64encode(encrypt_password(
-        password.encode("utf8"))).decode('ascii')
+        password.encode('utf8'))).decode('ascii')
 
     # TODO: replace this with a better format
     entry_record = [

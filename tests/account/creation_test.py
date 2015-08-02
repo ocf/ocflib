@@ -1,13 +1,12 @@
-import mock
 import os.path
-import pytest
 import sys
 from contextlib import contextmanager
 
+import mock
+import pytest
+
 import ocflib.account.creation
 import ocflib.constants as constants
-from ocflib.account.creation import ValidationError
-from ocflib.account.creation import ValidationWarning
 from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import create_home_dir
 from ocflib.account.creation import create_web_dir
@@ -16,9 +15,12 @@ from ocflib.account.creation import send_created_mail
 from ocflib.account.creation import send_rejected_mail
 from ocflib.account.creation import validate_calnet_uid
 from ocflib.account.creation import validate_username
+from ocflib.account.creation import ValidationError
+from ocflib.account.creation import ValidationWarning
 
 
 class TestFirstAvailableUID:
+
     def test_first_uid(self):
         connection = mock.Mock(response=[
             {'attributes': {'uidNumber': [100]}},
@@ -35,7 +37,7 @@ class TestFirstAvailableUID:
 
         connection.search.assert_called_with(
             constants.OCF_LDAP_PEOPLE,
-            "(uidNumber=*)",
+            '(uidNumber=*)',
             attributes=['uidNumber'],
         )
 
@@ -43,6 +45,7 @@ class TestFirstAvailableUID:
 
 
 class TestCreateDirectories:
+
     @mock.patch('subprocess.check_call')
     def test_create_home_dir(self, check_call):
         create_home_dir('ckuehl')
@@ -77,7 +80,8 @@ class TestCreateDirectories:
 
 
 class TestUsernameBasedOnRealName:
-    @pytest.mark.parametrize("username,realname,success", [
+
+    @pytest.mark.parametrize('username,realname,success', [
         ['ckuehl', 'Christopher Kuehl', True],
         ['ckuehl', 'CHRISTOPHER B KUEHL', True],
         ['kuehl', 'CHRISTOPHER B KUEHL', True],
@@ -96,10 +100,10 @@ class TestUsernameBasedOnRealName:
         except ValidationWarning as ex:
             if success:
                 pytest.fail(
-                    "Received unexpected error: {error}".format(error=ex),
+                    'Received unexpected error: {error}'.format(error=ex),
                 )
 
-    @pytest.mark.parametrize("username", [
+    @pytest.mark.parametrize('username', [
         'shitup',
         'hella',
         'ucbcop',
@@ -112,7 +116,7 @@ class TestUsernameBasedOnRealName:
         with pytest.raises(ValidationWarning):
             validate_username(username, username)
 
-    @pytest.mark.parametrize("username", [
+    @pytest.mark.parametrize('username', [
         'wordpress',
         'systemd',
         'ocf',
@@ -128,7 +132,7 @@ class TestUsernameBasedOnRealName:
     def test_error_user_exists(self):
         """Ensure that we raise an error if the username already exists."""
         with pytest.raises(ValidationError):
-            validate_username('ckuehl', "Chris Kuehl")
+            validate_username('ckuehl', 'Chris Kuehl')
 
     @mock.patch('ocflib.account.validators.validate_username')
     @mock.patch('ocflib.account.search.user_exists', return_value=False)
@@ -140,13 +144,14 @@ class TestUsernameBasedOnRealName:
             # 16! = 2.09227899e13, so if this works, it's definitely not
             # because we tried all possibilities
             validate_username(
-                "nomatch",
-                "I Have Sixteen Names A B C D E F G H I J K L",
+                'nomatch',
+                'I Have Sixteen Names A B C D E F G H I J K L',
             )
 
 
 class TestAccountEligibility:
-    @pytest.mark.parametrize("bad_uid", [
+
+    @pytest.mark.parametrize('bad_uid', [
         1034192,     # good uid, but already has account
         9999999999,  # fake uid, not in university ldap
     ])
@@ -169,7 +174,7 @@ class TestAccountEligibility:
         with pytest.raises(ValidationWarning):
             validate_calnet_uid(9999999999999)
 
-    @pytest.mark.parametrize("affiliations,eligible", [
+    @pytest.mark.parametrize('affiliations,eligible', [
         (['AFFILIATE-TYPE-CONSULTANT'], True),
         (['AFFILIATE-TYPE-CONSULTANT', 'AFFILIATE-STATUS-EXPIRED'], False),
 
@@ -190,6 +195,7 @@ class TestAccountEligibility:
 
 
 class TestSendMail:
+
     @mock.patch('ocflib.misc.mail.send_mail')
     def test_send_created_mail(self, send_mail):
         send_created_mail('email', 'realname', 'username')

@@ -18,7 +18,7 @@ def password_matches(username, password):
     if not validators.user_exists(username):
         raise ValueError("User doesn't exist")
 
-    cmd = "kinit --no-forwardable -l0 {}@OCF.BERKELEY.EDU".format(username)
+    cmd = 'kinit --no-forwardable -l0 {}@OCF.BERKELEY.EDU'.format(username)
     child = pexpect.spawn(cmd, timeout=10)
 
     child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
@@ -44,7 +44,7 @@ def extract_username_from_principal(principal):
     match = re.match(REGEX, principal)
 
     if not match:
-        raise ValueError("Invalid username")
+        raise ValueError('Invalid username')
 
     return match.group(1)
 
@@ -57,7 +57,7 @@ def get_vhost_db():
             return list(map(str.strip, f))
     except IOError:
         # fallback to database loaded from web
-        return requests.get(constants.VHOST_DB_URL).text.split("\n")
+        return requests.get(constants.VHOST_DB_URL).text.split('\n')
 
 
 def get_vhosts():
@@ -97,7 +97,7 @@ def get_vhosts():
 
         if username.endswith('!'):
             username = username[:-1]
-            redirect = "/ https://www.ocf.berkeley.edu/~{}/".format(username)
+            redirect = '/ https://www.ocf.berkeley.edu/~{}/'.format(username)
 
         if aliases != '-':
             aliases = list(map(fully_qualify, aliases.split(',')))

@@ -17,7 +17,7 @@ def host_exists(host):
 def email_host_exists(email_addr):
     """Verifies that the host of the email address exists"""
     if '@' in email_addr:
-        host = email_addr.rsplit("@", 1).pop()
+        host = email_addr.rsplit('@', 1).pop()
         return host_exists(host)
     return False
 

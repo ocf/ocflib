@@ -1,5 +1,6 @@
 """Misc utilities for helping with shell commands."""
-from colorama import Fore, Back
+from colorama import Back
+from colorama import Fore
 
 # shlex.quote is new in Python 3.3
 try:  # pragma: no cover
