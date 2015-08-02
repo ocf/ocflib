@@ -10,7 +10,7 @@ lint:
 test: autoversion
 	coverage erase
 	coverage run --source=ocflib,tests -m pytest tests
-	coverage report --show-missing --fail-under 88
+	coverage report --show-missing
 
 tox: autoversion
 	tox
