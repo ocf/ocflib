@@ -5,7 +5,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 check: lint test
 
 lint:
-	flake8 ocflib tests
+	pre-commit run --all-files
 
 test: autoversion
 	coverage erase
@@ -15,7 +15,6 @@ test: autoversion
 release-pypi: clean autoversion
 	python3 setup.py sdist
 	twine upload dist/*
-
 
 builddeb: autoversion
 	dpkg-buildpackage -us -uc -b

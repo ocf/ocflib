@@ -1,0 +1,40 @@
+-   repo: https://github.com/pre-commit/pre-commit-hooks.git
+    sha: 003e43251aea1da33f2072f2365ec8b9ceaae070
+    hooks:
+    -   id: autopep8-wrapper
+        language_version: python3
+    -   id: check-added-large-files
+    -   id: check-docstring-first
+        language_version: python3
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-xml
+    -   id: check-yaml
+    -   id: debug-statements
+        language_version: python3
+    -   id: detect-private-key
+        exclude: ^tests/account/manage_test.py$
+    -   id: double-quote-string-fixer
+        language_version: python3
+    -   id: end-of-file-fixer
+    -   id: flake8
+        language_version: python3
+    -   id: name-tests-test
+    -   id: requirements-txt-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/asottile/reorder_python_imports.git
+    sha: 3d86483455ab5bd06cc1069fdd5ac57be5463f10
+    hooks:
+    -   id: reorder-python-imports
+        language_version: python3
+-   repo: https://github.com/Lucas-C/pre-commit-hooks.git
+    sha: 43020827f28dfea6b2fd2bf4ddf27088fb06ad1b
+    hooks:
+    -   id: remove-tabs
+        exclude: ^(Makefile|debian/rules)$
+# Maybe one day...
+# -   repo: https://github.com/FalconSocial/pre-commit-mirrors-pep257.git
+#     sha: 67c970e89857fdcebcd59ace94950a3331985a3b
+#     hooks:
+#     -   id: pep257
+#         exclude: (^setup\.py|__init__\.py)$
