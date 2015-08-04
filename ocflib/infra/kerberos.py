@@ -20,6 +20,7 @@ def create_kerberos_principal_with_keytab(
     :param keytab: path to the admin keytab
     :param password: password of the new principal (optional);
                      if not given, defaults to using a random password
+    :param admin_principal: admin principal to use with the keytab
     :return: the password of the newly-created account
     """
     # try changing using kadmin pexpect

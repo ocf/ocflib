@@ -5,13 +5,70 @@ import os.path
 import re
 import subprocess
 import sys
+from grp import getgrnam
 
 import ocflib.account.search as search
 import ocflib.account.utils as utils
 import ocflib.account.validators as validators
 import ocflib.constants as constants
 import ocflib.misc.mail as mail
+from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
+from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
+from ocflib.misc.validators import valid_email
+
+
+def create_account(
+    user,
+    password,
+    real_name,
+    email,
+    calnet_uid,
+    callink_oid,
+    keytab,
+    admin_principal,
+):
+    """Create an account as idempotently as possible."""  # TODO: docstring
+    new_uid = _get_first_available_uid()
+
+    # TODO: check if kerberos principal already exists; skip this if so
+    create_kerberos_principal_with_keytab(
+        user,
+        keytab,
+        admin_principal,
+        password=password,
+    )
+
+    # TODO: check if LDAP entry already exists; skip this if so
+    dn = 'uid={user},{base_people}'.format(
+        user=user,
+        base_people=constants.OCF_LDAP_PEOPLE,
+    )
+    sasl_fake_password = '{SASL}' + user + '@OCF.BERKELEY.EDU'
+    attrs = {
+        'objectClass': ['ocfAccount', 'account', 'posixAccount'],
+        'cn': [real_name],
+        'uid': [user],
+        'uidNumber': [str(new_uid)],
+        'gidNumber': [str(getgrnam('ocf').gr_gid)],
+        'homeDirectory': [utils.home_dir(user)],
+        'loginShell': ['/bin/bash'],
+        'mail': [email],
+        'userPassword': [sasl_fake_password],
+    }
+
+    if calnet_uid:
+        attrs['calnet_uid'] = [str(calnet_uid)]
+
+    if callink_oid:
+        attrs['callink_oid'] = [str(callink_oid)]
+
+    create_ldap_entry_with_keytab(dn, attrs, keytab, admin_principal)
+
+    create_home_dir(user)
+    create_web_dir(user)
+
+    # TODO: logging to files and IRC
 
 
 def _get_first_available_uid():
@@ -126,6 +183,32 @@ class ValidationError(ValueError):
     """Error exception raised by validators when a request should be
     rejected."""
     pass
+
+
+def validate_callink_oid(oid):
+    """Verifies whether a given CalLink OID is eligible for a new OCF account.
+
+    Checks that:
+      - User doesn't already have an OCF account
+        Issues a warning which staff can override if they do (unlike
+        validate_calnet_uid, which issues an error).
+
+    OID `0` can create an infinite number of accounts; we use this for
+    department-sponsored groups and others without CalLink OIDs.
+    """
+
+    if oid == 0:
+        return
+
+    # check for existing OCF accounts
+    existing_accounts = search.users_by_callink_oid(oid)
+
+    if existing_accounts:
+        raise ValidationWarning(
+            'Calnet UID already has account: ' + str(existing_accounts))
+
+    # TODO: verify CalLink OID exists, once we've written some basic CalLink
+    # support into ocflib
 
 
 def validate_calnet_uid(uid):
@@ -260,3 +343,15 @@ def similarity_heuristic(realname, username):
                 return 0
             distances.append(distance)
     return min(distances)
+
+
+def validate_email(email):
+    if not valid_email(email):
+        raise ValidationError('Invalid email.')
+
+
+def validate_password(username, password):
+    try:
+        validators.validate_password(username, password)
+    except ValueError as ex:
+        raise ValidationError(str(ex))

@@ -23,6 +23,16 @@ appropriate broker and backend URL (probably Redis).
     # result.id and fetch it later.
 """
 from collections import namedtuple
+from contextlib import contextmanager
+
+from ocflib.account.creation import create_account
+from ocflib.account.creation import validate_callink_oid
+from ocflib.account.creation import validate_calnet_uid
+from ocflib.account.creation import validate_email
+from ocflib.account.creation import validate_password
+from ocflib.account.creation import validate_username
+from ocflib.account.creation import ValidationError
+from ocflib.account.creation import ValidationWarning
 
 _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'create_account',
@@ -58,6 +68,12 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
     WARNINGS_SUBMIT = 'submit'
     WARNINGS_CREATE = 'create'
 
+    @property
+    def password(self):
+        """Return decrypted password."""
+        # TODO: implement this
+        raise NotImplementedError()
+
 
 class NewAccountResponse(namedtuple('NewAccountResponse', [
     'status',
@@ -82,12 +98,96 @@ class NewAccountResponse(namedtuple('NewAccountResponse', [
     REJECTED = 'rejected'
 
 
+def _validate_request(request):
+    """Validate a request, returning lists of errors and warnings."""
+    errors, warnings = [], []
+
+    @contextmanager
+    def validate_section():
+        try:
+            yield
+        except ValidationWarning as ex:
+            warnings.append(str(ex))
+        except ValidationError as ex:
+            errors.append(str(ex))
+
+    with validate_section():
+        validate_username(request.user_name, request.real_name)
+
+    with validate_section():
+        if request.is_group:
+            validate_callink_oid(request.callink_oid)
+        else:
+            validate_calnet_uid(request.calnet_uid)
+
+    with validate_section():
+        validate_email(request.email)
+
+    with validate_section():
+        validate_password(request.password)
+
+    return errors, warnings
+
+
+def _submit_account(request):
+    # TODO: implement this
+    raise NotImplementedError()
+
+
+def _create_account(request):
+    create_account(
+        user=request.user_name,
+        password=request.password,
+        real_name=request.real_name,
+        email=request.email,
+        calnet_uid=request.calnet_uid,
+        callink_oid=request.callink_oid,
+        keytab='TODO',
+        admin_principal='TODO',
+    )
+
+
 def get_tasks(celery_app):
     """Return Celery tasks instantiated against the provided instance."""
 
     @celery_app.task
     def create_account(request):
-        raise NotImplementedError()
+        CREATE_ACCOUNT, SUBMIT_ACCOUNT = 'create_account', 'submit_account'
+        action = CREATE_ACCOUNT
+
+        errors, warnings = _validate_request(request)
+
+        if errors:
+            # Fatal errors which cannot be bypassed, even with staff approval.
+            return NewAccountResponse(
+                status=NewAccountResponse.REJECTED,
+                errors=(errors + warnings),
+            )
+
+        if warnings:
+            # Non-fatal errors; the frontend can choose to create the account
+            # anyway, submit the account for staff approval, or get a response
+            # with a list of warnings for further inspection.
+            if request.handle_warnings == NewAccountRequest.WARNINGS_CREATE:
+                pass
+            elif request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
+                action = SUBMIT_ACCOUNT
+            elif request.handle_warnings == NewAccountRequest.WARNINGS_WARN:
+                return NewAccountResponse(
+                    status=NewAccountResponse.FLAGGED,
+                    errors=warnings,
+                )
+            else:
+                raise ValueError(
+                    'Not familiar with handle_warnings={}'.format(
+                        request.handle_warnings,
+                    ),
+                )
+
+        if action == SUBMIT_ACCOUNT:
+            _submit_account(request)
+        elif action == CREATE_ACCOUNT:
+            _create_account(request)
 
     return _AccountSubmissionTasks(
         create_account=create_account,
