@@ -111,6 +111,8 @@ def _validate_request(request):
         except ValidationError as ex:
             errors.append(str(ex))
 
+    # TODO: figure out where to sanitize real_name
+
     with validate_section():
         validate_username(request.user_name, request.real_name)
 
@@ -124,7 +126,7 @@ def _validate_request(request):
         validate_email(request.email)
 
     with validate_section():
-        validate_password(request.password)
+        validate_password(request.user_name, request.password)
 
     return errors, warnings
 

@@ -7,6 +7,9 @@ import subprocess
 import sys
 from grp import getgrnam
 
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+
 import ocflib.account.search as search
 import ocflib.account.utils as utils
 import ocflib.account.validators as validators
@@ -48,7 +51,6 @@ def create_account(
     attrs = {
         'objectClass': ['ocfAccount', 'account', 'posixAccount'],
         'cn': [real_name],
-        'uid': [user],
         'uidNumber': [str(new_uid)],
         'gidNumber': [str(getgrnam('ocf').gr_gid)],
         'homeDirectory': [utils.home_dir(user)],
@@ -58,17 +60,17 @@ def create_account(
     }
 
     if calnet_uid:
-        attrs['calnet_uid'] = [str(calnet_uid)]
+        attrs['calnetUid'] = [str(calnet_uid)]
 
     if callink_oid:
-        attrs['callink_oid'] = [str(callink_oid)]
+        attrs['callinkOid'] = [str(callink_oid)]
 
     create_ldap_entry_with_keytab(dn, attrs, keytab, admin_principal)
 
     create_home_dir(user)
     create_web_dir(user)
 
-    # TODO: logging to files and IRC
+    # TODO: logging to syslog, files, and IRC
 
 
 def _get_first_available_uid():
@@ -355,3 +357,22 @@ def validate_password(username, password):
         validators.validate_password(username, password)
     except ValueError as ex:
         raise ValidationError(str(ex))
+
+
+def encrypt_password(password):
+    """Encrypts (not hashes) a user password to be stored on disk while it
+    awaits approval.
+
+    Generate the public / private keys with the following code:
+    >>> from Crypto.PublicKey import RSA
+    >>> key = RSA.generate(2048)
+    >>> open("private.pem", "w").write(key.exportKey())
+    >>> open("public.pem", "w").write(key.publickey().exportKey())
+    """
+    # TODO: is there any way we can save the hash instead? this is tricky
+    # because we need to stick it in kerberos, but this is bad as-is...
+
+    # TODO: maybe we should also implement decryption?
+    key = RSA.importKey(open(constants.CREATE_PUBKEY_PATH).read())
+    RSA_CIPHER = PKCS1_OAEP.new(key)
+    return RSA_CIPHER.encrypt(password)

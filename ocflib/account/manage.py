@@ -1,22 +1,12 @@
 """Module containing account management methods, such as password changing, but
 not account creation (since it's too large)."""
-import base64
-import fcntl
-import getpass
-import socket
-from datetime import date
-
-import paramiko
 import pexpect
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
 
 import ocflib.account.search as search
 import ocflib.account.validators as validators
 import ocflib.constants as constants
 import ocflib.misc.mail as mail
 import ocflib.misc.shell as shell
-import ocflib.misc.validators
 
 
 def change_password_with_staffer(username, password, principal,
@@ -103,94 +93,3 @@ If you're not sure why this happened, please reply to this email ASAP.
                       signature=constants.MAIL_SIGNATURE)
 
     mail.send_mail_user(username, '[OCF] Account password changed', body)
-
-
-def trigger_create(ssh_key_path, host_keys_path):
-    """Attempt to trigger a create run on the admin server."""
-
-    key = paramiko.RSAKey.from_private_key_file(ssh_key_path)
-    ssh = paramiko.SSHClient()
-    ssh.load_host_keys(host_keys_path)
-    ssh.connect(hostname='admin.ocf.berkeley.edu', username='atool', pkey=key)
-    ssh.exec_command('/srv/atool/bin/create')
-
-
-def encrypt_password(password):
-    """Encrypts (not hashes) a user password to be stored on disk while it
-    awaits approval.
-
-    Generate the public / private keys with the following code:
-    >>> from Crypto.PublicKey import RSA
-    >>> key = RSA.generate(2048)
-    >>> open("private.pem", "w").write(key.exportKey())
-    >>> open("public.pem", "w").write(key.publickey().exportKey())
-    """
-    # TODO: is there any way we can save the hash instead? this is tricky
-    # because we need to stick it in kerberos, but this is bad as-is...
-    key = RSA.importKey(open(constants.CREATE_PUBKEY_PATH).read())
-    RSA_CIPHER = PKCS1_OAEP.new(key)
-    return RSA_CIPHER.encrypt(password)
-
-
-def queue_creation(full_name, calnet_uid, callink_oid, username, email,
-                   password, responsible=None):
-    """Queues a user account for creation."""
-
-    # individuals should have calnet_uid, groups should have callink_oid
-    if calnet_uid and callink_oid:
-        raise ValueError('Only one of calnet_uid or callink_oid may be set.')
-
-    # callink_oid might be 0, which is OK (indicates non-RSO group)
-    if not calnet_uid and callink_oid is None:
-        raise ValueError('One of calnet_uid or callink_oid must be set.')
-
-    validators.validate_username(username)
-    validators.validate_password(username, password)
-
-    if validators.user_exists(username):
-        raise ValueError('Username {} is already taken.'.format(username))
-
-    if validators.username_queued(username):
-        raise ValueError(
-            'Username {} is queued for creation.'.format(username))
-
-    full_name = ''.join(c for c in full_name if c.isalpha() or c == ' ')
-
-    if len(full_name) < 3:
-        raise ValueError('Full name should be >= 3 characters.')
-
-    if not ocflib.misc.validators.valid_email(email):
-        raise ValueError('Email is invalid.')
-
-    # actually queue the account
-    password = base64.b64encode(encrypt_password(
-        password.encode('utf8'))).decode('ascii')
-
-    # TODO: replace this with a better format
-    entry_record = [
-        username,
-        full_name if calnet_uid else '(null)',  # name IF not group
-        full_name if not calnet_uid else '(null)',  # name IF group
-        email,
-        0,
-        0 if calnet_uid else 1,
-        password,
-        calnet_uid or callink_oid,  # university ID
-        responsible or '(null)'
-    ]
-
-    # same as entry_record but without password
-    entry_log = entry_record[:6] + entry_record[7:] + \
-        [date.today().isoformat(), getpass.getuser(), socket.getfqdn()]
-
-    # write record to queue and log
-    save = (
-        (constants.QUEUED_ACCOUNTS_PATH, entry_record),
-        (constants.CREATE_LOG_PATH, entry_log)
-    )
-
-    for path, entry in save:
-        with open(path, 'a') as f:
-            fcntl.flock(f, fcntl.LOCK_EX)
-            print(':'.join(map(str, entry)), file=f)
-            fcntl.flock(f, fcntl.LOCK_UN)

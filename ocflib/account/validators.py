@@ -53,6 +53,8 @@ def validate_password(username, password, strength_check=True):
         raise ValueError('Password contains forbidden characters')
 
 
+# TODO: we have two implementations of this (one here, one in search).
+# one should be removed.
 def user_exists(username):
     try:
         pwd.getpwnam(username)
@@ -83,10 +85,3 @@ servers!""".format(username))
             return True
 
     return False
-
-
-def username_queued(username):
-    """Returns if the username has already been requested and is queued to be
-    created."""
-    with open(constants.QUEUED_ACCOUNTS_PATH) as f:
-        return any(line.startswith(username + ':') for line in f)
