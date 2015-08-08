@@ -1,6 +1,7 @@
 import os.path
 import sys
 from contextlib import contextmanager
+from textwrap import dedent
 
 import mock
 import pytest
@@ -10,7 +11,9 @@ import ocflib.constants as constants
 from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import create_home_dir
 from ocflib.account.creation import create_web_dir
+from ocflib.account.creation import decrypt_password
 from ocflib.account.creation import eligible_for_account
+from ocflib.account.creation import encrypt_password
 from ocflib.account.creation import send_created_mail
 from ocflib.account.creation import send_rejected_mail
 from ocflib.account.creation import validate_calnet_uid
@@ -205,3 +208,44 @@ class TestSendMail:
     def test_send_rejected_mail(self, send_mail):
         send_rejected_mail('email', 'realname', 'username', 'reason')
         assert send_mail.called
+
+
+class TestPasswordEncryption:
+
+    WEAK_KEY = dedent(
+        """\
+        -----BEGIN RSA PRIVATE KEY-----
+        MIICWwIBAAKBgQDGkGNFk/yy8HphSvvsmCpMF1vGbJeZXw2AmlLfTLcGJkZuvelu
+        qJTGepGjeEeML6GrE03dI330mWtnC8jdhmwaELndqoPQ3Ks1eXF5usvDeYoRVir0
+        ekqJtd2+7eBQ4xrRIA5YohoE31VGQ7ZaQ0GLMuWjldTe3bx+5OJqB0pE5QIDAQAB
+        AoGAZtTX1GyzbagEeOZwWTLklMt0B+qtCAyl3XgOev4rus+PokJP5bMAeVl4mwPr
+        aboxK3uv01pSHJ5ndNIxkCfRSzSuKvddfoaDrP97dbS0boqHyJmG38U2kxaMufBP
+        rFP4a05TajdU9/rQSaGGmTkgDmRfJId5aDfJh6ToKMEYnQECQQDYb0Nj9mAWz5ja
+        btXyegMespiK1UnyrZlRKsm0zcnEZ4NBE/lgMiJJXkfhdS5af9ORPmDjlQfwuHtZ
+        N5mEKXNRAkEA6tzQPWCIL3gz0FYVX+l00JTFRIFA1yfvHiF4XjNZUr1TjXdGhto5
+        DqV39XTk1CPtXNJto9AmNLf8zJD5xsqLVQJAToXnfD/p0rzUpwMpSgSsVxnSsCP7
+        5TjIdCNC9P7oYgJwI0883YKy38195LVf8OOJfZuVCVyLefFkhxTd9I4ZUQJAO0ft
+        D/DzrveqLGXuEz18DMHgYQA2+5fK1VIhbbWMUEQVeNmoZZVjXX0KoFwW/izrVsiO
+        gBCj9B6UopXdVf392QJAcCUgxV6Ca6iWplAKHsaJ7sG+aQOaYI8m3d3MqJ5g34GB
+        CqXzvT0v5ZrGj+K9dWDb+pYvGWhc2iU/e40yyj0G9w==
+        -----END RSA PRIVATE KEY-----"""
+    )
+
+    @pytest.yield_fixture
+    def mock_rsa_key(self, tmpdir):
+        test_key = tmpdir.join('test.key')
+        test_key.write((self.WEAK_KEY + '\n').encode('ascii'))
+        yield test_key.strpath
+        test_key.remove()
+
+    @pytest.mark.parametrize('password', [
+        'hello world',
+        'hunter2',
+        'mock_send_mail_user.assert_called_once_with',
+    ])
+    def test_encrypt_decrypt_password(self, password, mock_rsa_key):
+        password = password.encode('utf8')
+        assert decrypt_password(
+            encrypt_password(password, mock_rsa_key),
+            mock_rsa_key,
+        ) == password

@@ -359,7 +359,7 @@ def validate_password(username, password):
         raise ValidationError(str(ex))
 
 
-def encrypt_password(password):
+def encrypt_password(password, pubkey_path):
     """Encrypts (not hashes) a user password to be stored on disk while it
     awaits approval.
 
@@ -371,8 +371,13 @@ def encrypt_password(password):
     """
     # TODO: is there any way we can save the hash instead? this is tricky
     # because we need to stick it in kerberos, but this is bad as-is...
-
-    # TODO: maybe we should also implement decryption?
-    key = RSA.importKey(open(constants.CREATE_PUBKEY_PATH).read())
+    key = RSA.importKey(open(pubkey_path).read())
     RSA_CIPHER = PKCS1_OAEP.new(key)
     return RSA_CIPHER.encrypt(password)
+
+
+def decrypt_password(password, privkey_path):
+    """Decrypts a user password."""
+    key = RSA.importKey(open(privkey_path).read())
+    RSA_CIPHER = PKCS1_OAEP.new(key)
+    return RSA_CIPHER.decrypt(password)

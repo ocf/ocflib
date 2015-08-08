@@ -2,7 +2,6 @@ import mock
 import pytest
 
 from ocflib.account.validators import user_exists
-from ocflib.account.validators import username_queued
 from ocflib.account.validators import username_reserved
 from ocflib.account.validators import validate_password
 from ocflib.account.validators import validate_username
@@ -110,21 +109,3 @@ class TestUsernameReserved:
                     as send_report:
                 assert username_reserved('somename')
                 assert send_report.called
-
-
-class TestUsernameQueued:
-
-    @pytest.yield_fixture
-    def mock_file(self):
-        with mock.patch('builtins.open', mock.mock_open()) as mock_open:
-            lines = ['ckuehl:randomstuff', 'daradib:goeshere']
-            mock_open.return_value.__iter__.return_value = lines
-            yield
-
-    @pytest.mark.parametrize('username', ['ckuehl', 'daradib'])
-    def test_queued(self, username, mock_file):
-        assert username_queued(username)
-
-    @pytest.mark.parametrize('username', ['sanjayk', 'nonexist'])
-    def test_not_queued(self, username, mock_file):
-        assert not username_queued(username)
