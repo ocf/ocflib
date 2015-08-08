@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+from ocflib.infra.ldap import create_ldap_entry_with_keytab
+
+
+if __name__ == '__main__':
+    create_ldap_entry_with_keytab(
+        'uid=ggroup2,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
+        {
+            'objectClass': ['ocfAccount', 'account', 'posixAccount'],
+            'uidNumber': ['99999999'],
+            'homeDirectory': ['/dev/null'],
+            'loginShell': ['/bin/zsh'],
+            'cn': ['Some Test Account That Should Be Deleted'],
+            'calnetUid': ['1034192'],
+            'gidNumber': ['1000'],
+        },
+        '/home/c/ck/ckuehl/create.keytab',
+        'create/admin',
+    )
