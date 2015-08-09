@@ -207,7 +207,7 @@ def validate_callink_oid(oid):
 
     if existing_accounts:
         raise ValidationWarning(
-            'Calnet UID already has account: ' + str(existing_accounts))
+            'CalLink OID already has account: ' + str(existing_accounts))
 
     # TODO: verify CalLink OID exists, once we've written some basic CalLink
     # support into ocflib
@@ -225,7 +225,7 @@ def validate_calnet_uid(uid):
 
     if existing_accounts:
         raise ValidationError(
-            'Calnet UID already has account: ' + str(existing_accounts))
+            'CalNet UID already has account: ' + str(existing_accounts))
 
     attrs = search.user_attrs_ucb(uid)
 

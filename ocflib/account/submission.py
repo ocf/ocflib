@@ -26,6 +26,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 
 from ocflib.account.creation import create_account
+from ocflib.account.creation import decrypt_password
 from ocflib.account.creation import validate_callink_oid
 from ocflib.account.creation import validate_calnet_uid
 from ocflib.account.creation import validate_email
@@ -37,6 +38,15 @@ from ocflib.account.creation import ValidationWarning
 _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'create_account',
 ])
+
+
+class AccountCreationCredentials(namedtuple('AccountCreationCredentials', [
+    'encryption_key',
+    'mysql_uri',
+    'kerberos_keytab',
+    'kerberos_principal',
+])):
+    pass
 
 
 class NewAccountRequest(namedtuple('NewAccountRequest', [
@@ -68,12 +78,6 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
     WARNINGS_SUBMIT = 'submit'
     WARNINGS_CREATE = 'create'
 
-    @property
-    def password(self):
-        """Return decrypted password."""
-        # TODO: implement this
-        raise NotImplementedError()
-
 
 class NewAccountResponse(namedtuple('NewAccountResponse', [
     'status',
@@ -98,7 +102,7 @@ class NewAccountResponse(namedtuple('NewAccountResponse', [
     REJECTED = 'rejected'
 
 
-def _validate_request(request):
+def _validate_request(request, credentials):
     """Validate a request, returning lists of errors and warnings."""
     errors, warnings = [], []
 
@@ -126,7 +130,11 @@ def _validate_request(request):
         validate_email(request.email)
 
     with validate_section():
-        validate_password(request.user_name, request.password)
+        password = decrypt_password(
+            request.encrypted_password,
+            credentials.encryption_key,
+        )
+        validate_password(request.user_name, password)
 
     return errors, warnings
 
@@ -136,20 +144,23 @@ def _submit_account(request):
     raise NotImplementedError()
 
 
-def _create_account(request):
+def _create_account(request, credentials):
     create_account(
         user=request.user_name,
-        password=request.password,
+        password=decrypt_password(
+            request.encrypted_password,
+            credentials.encryption_key,
+        ),
         real_name=request.real_name,
         email=request.email,
         calnet_uid=request.calnet_uid,
         callink_oid=request.callink_oid,
-        keytab='TODO',
-        admin_principal='TODO',
+        keytab=credentials.kerberos_keytab,
+        admin_principal=credentials.kerberos_principal,
     )
 
 
-def get_tasks(celery_app):
+def get_tasks(celery_app, credentials=None):
     """Return Celery tasks instantiated against the provided instance."""
 
     @celery_app.task
@@ -157,7 +168,7 @@ def get_tasks(celery_app):
         CREATE_ACCOUNT, SUBMIT_ACCOUNT = 'create_account', 'submit_account'
         action = CREATE_ACCOUNT
 
-        errors, warnings = _validate_request(request)
+        errors, warnings = _validate_request(request, credentials)
 
         if errors:
             # Fatal errors which cannot be bypassed, even with staff approval.
@@ -189,7 +200,7 @@ def get_tasks(celery_app):
         if action == SUBMIT_ACCOUNT:
             _submit_account(request)
         elif action == CREATE_ACCOUNT:
-            _create_account(request)
+            _create_account(request, credentials)
 
     return _AccountSubmissionTasks(
         create_account=create_account,
