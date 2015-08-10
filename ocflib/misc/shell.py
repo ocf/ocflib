@@ -1,5 +1,8 @@
 """Misc utilities for helping with shell commands."""
 import getpass
+import os
+import subprocess
+import tempfile
 
 from colorama import Back
 from colorama import Fore
@@ -9,6 +12,30 @@ try:  # pragma: no cover
     from shlex import quote as escape_arg  # noqa
 except ImportError:  # pragma: no cover
     from pipes import quote as escape_arg  # noqa
+
+
+def get_editor():
+    """Returns the user's preferred editor, or nano."""
+    return os.environ.get('VISUAL') or os.environ.get('EDITOR') or 'nano'
+
+
+def edit_file(template):
+    """Open a file for the user to edit.
+
+    Similar to `git commit`, opens a file and waits for the user to save it.
+    The content is returned.
+
+    :param template: string template of the file
+    """
+    with tempfile.NamedTemporaryFile() as tmp:
+        with open(tmp.name, 'w') as f:
+            f.write(template)
+
+        # We need to close the file and reopen it later in case the editor
+        # overwrites the old file with a new file descriptor.
+        subprocess.check_call([get_editor(), tmp.name])
+        with open(tmp.name) as f:
+            return f.read()
 
 
 def prompt_for_new_password(
@@ -89,3 +116,5 @@ bg_cyan = _wrap_colorama(Back.CYAN, Back.RESET)
 
 white = _wrap_colorama(Fore.WHITE, Fore.RESET)
 bg_white = _wrap_colorama(Back.WHITE, Back.RESET)
+
+bold = _wrap_colorama('\033[1m', '\033[0m')
