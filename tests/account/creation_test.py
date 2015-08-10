@@ -244,7 +244,6 @@ class TestPasswordEncryption:
         'mock_send_mail_user.assert_called_once_with',
     ])
     def test_encrypt_decrypt_password(self, password, mock_rsa_key):
-        password = password
         assert decrypt_password(
             encrypt_password(password, mock_rsa_key),
             mock_rsa_key,
