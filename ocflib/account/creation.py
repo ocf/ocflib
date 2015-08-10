@@ -373,11 +373,11 @@ def encrypt_password(password, pubkey_path):
     # because we need to stick it in kerberos, but this is bad as-is...
     key = RSA.importKey(open(pubkey_path).read())
     RSA_CIPHER = PKCS1_OAEP.new(key)
-    return RSA_CIPHER.encrypt(password)
+    return RSA_CIPHER.encrypt(password.encode('ascii'))
 
 
 def decrypt_password(password, privkey_path):
     """Decrypts a user password."""
     key = RSA.importKey(open(privkey_path).read())
     RSA_CIPHER = PKCS1_OAEP.new(key)
-    return RSA_CIPHER.decrypt(password)
+    return RSA_CIPHER.decrypt(password).decode('ascii')
