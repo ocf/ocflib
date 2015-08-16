@@ -4,7 +4,6 @@ import math
 import os.path
 import re
 import subprocess
-import sys
 from grp import getgrnam
 
 from Crypto.Cipher import PKCS1_OAEP
@@ -70,6 +69,7 @@ def create_account(
     create_home_dir(user)
     create_web_dir(user)
 
+    # TODO: send email to new user
     # TODO: logging to syslog, files, and IRC
 
 
@@ -91,20 +91,18 @@ def _get_first_available_uid():
 
 def create_home_dir(user):
     """Create home directory for user. Makes a directory with appropriate
-    permissions, then copies in OCF's skeleton dotfiles."""
-
+    permissions, then copies in OCF's skeleton dotfiles.
+    """
     home = utils.home_dir(user)
     subprocess.check_call(
         ['sudo', 'install', '-d', '--mode=0700', '--group=ocf',
-            '--owner=' + user, home],
-        stdout=sys.stderr)
+            '--owner=' + user, home])
 
     for name in ['bashrc', 'bash_profile', 'bash_logout']:
         path = os.path.join(os.path.dirname(__file__), 'rc', name)
         subprocess.check_call(
             ['sudo', 'install', '--mode=0600', '--group=ocf',
-                '--owner=' + user, path, os.path.join(home, '.' + name)],
-            stdout=sys.stderr)
+                '--owner=' + user, path, os.path.join(home, '.' + name)])
 
 
 # TODO: is there a reason we make the user use makehttp, or should we just make
@@ -112,13 +110,12 @@ def create_home_dir(user):
 def create_web_dir(user):
     """Create web directory for user with appropriate permissions. We start web
     directories at 000; the user can later use makehttp to chmod them to
-    something readable by the webserver if they desire."""
-
+    something readable by the webserver if they desire.
+    """
     path = utils.web_dir(user)
     subprocess.check_call(
         ['sudo', 'install', '-d', '--mode=0000', '--group=ocf',
-            '--owner=' + user, path],
-        stdout=sys.stderr)
+            '--owner=' + user, path])
 
 
 def send_created_mail(email, realname, username):

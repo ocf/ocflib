@@ -1,5 +1,4 @@
 import os.path
-import sys
 from contextlib import contextmanager
 from textwrap import dedent
 
@@ -56,7 +55,6 @@ class TestCreateDirectories:
         calls = [mock.call(
             ['sudo', 'install', '-d', '--mode=0700', '--group=ocf',
                 '--owner=ckuehl', '/home/c/ck/ckuehl'],
-            stdout=sys.stderr,
         )]
 
         for name in ['bashrc', 'bash_profile', 'bash_logout']:
@@ -68,7 +66,6 @@ class TestCreateDirectories:
             calls.append(mock.call(
                 ['sudo', 'install', '--mode=0600', '--group=ocf',
                     '--owner=ckuehl', path, '/home/c/ck/ckuehl/.' + name],
-                stdout=sys.stderr,
             ))
 
         check_call.assert_has_calls(calls)
@@ -79,7 +76,7 @@ class TestCreateDirectories:
         check_call.assert_called_with(
             ['sudo', 'install', '-d', '--mode=0000', '--group=ocf',
                 '--owner=ckuehl', '/services/http/users/c/ckuehl'],
-            stdout=sys.stderr)
+        )
 
 
 class TestUsernameBasedOnRealName:

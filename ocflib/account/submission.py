@@ -158,6 +158,10 @@ def _create_account(request, credentials):
         keytab=credentials.kerberos_keytab,
         admin_principal=credentials.kerberos_principal,
     )
+    return NewAccountResponse(
+        status=NewAccountResponse.CREATED,
+        errors=[],
+    )
 
 
 def get_tasks(celery_app, credentials=None):
@@ -198,9 +202,9 @@ def get_tasks(celery_app, credentials=None):
                 )
 
         if action == SUBMIT_ACCOUNT:
-            _submit_account(request)
+            return _submit_account(request)
         elif action == CREATE_ACCOUNT:
-            _create_account(request, credentials)
+            return _create_account(request, credentials)
 
     return _AccountSubmissionTasks(
         create_account=create_account,
