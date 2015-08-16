@@ -29,17 +29,26 @@ def create_account(
     callink_oid,
     keytab,
     admin_principal,
+    report_status=None,
 ):
     """Create an account as idempotently as possible."""  # TODO: docstring
+    if report_status is None:
+        def report_status(string):
+            pass
+
+    report_status('Finding first available UID')
     new_uid = _get_first_available_uid()
+    report_status('Found first available UID')
 
     # TODO: check if kerberos principal already exists; skip this if so
+    report_status('Creating Kerberos keytab')
     create_kerberos_principal_with_keytab(
         user,
         keytab,
         admin_principal,
         password=password,
     )
+    report_status('Created Kerberos keytab')
 
     # TODO: check if LDAP entry already exists; skip this if so
     dn = 'uid={user},{base_people}'.format(
@@ -64,10 +73,17 @@ def create_account(
     if callink_oid:
         attrs['callinkOid'] = [str(callink_oid)]
 
+    report_status('Creating LDAP entry')
     create_ldap_entry_with_keytab(dn, attrs, keytab, admin_principal)
+    report_status('Created LDAP entry')
 
+    report_status('Creating home directory')
     create_home_dir(user)
+    report_status('Created home directory')
+
+    report_status('Creating web directory')
     create_web_dir(user)
+    report_status('Created web directory')
 
     # TODO: send email to new user
     # TODO: logging to syslog, files, and IRC

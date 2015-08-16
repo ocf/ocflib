@@ -25,6 +25,15 @@ appropriate broker and backend URL (probably Redis).
 from collections import namedtuple
 from contextlib import contextmanager
 
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import Integer
+from sqlalchemy import LargeBinary
+from sqlalchemy import String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
 from ocflib.account.creation import create_account
 from ocflib.account.creation import decrypt_password
 from ocflib.account.creation import validate_callink_oid
@@ -34,6 +43,7 @@ from ocflib.account.creation import validate_password
 from ocflib.account.creation import validate_username
 from ocflib.account.creation import ValidationError
 from ocflib.account.creation import ValidationWarning
+
 
 _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'create_account',
@@ -79,6 +89,25 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
     WARNINGS_CREATE = 'create'
 
 
+Base = declarative_base()
+
+
+class StoredNewAccountRequest(Base):
+    """SQLAlchemy object for holding account requests."""
+
+    __tablename__ = 'request'
+
+    # TODO: enforce these lengths during submission as errors
+    id = Column(Integer, primary_key=True)
+    user_name = Column(String(255), unique=True, nullable=False)
+    real_name = Column(String(255), nullable=False)
+    is_group = Column(Boolean, nullable=False)
+    calnet_uid = Column(Integer, nullable=True)
+    callink_oid = Column(Integer, nullable=True)
+    email = Column(String(255), nullable=False)
+    encrypted_password = Column(LargeBinary(510), nullable=False)
+
+
 class NewAccountResponse(namedtuple('NewAccountResponse', [
     'status',
     'errors',
@@ -116,6 +145,8 @@ def _validate_request(request, credentials):
             errors.append(str(ex))
 
     # TODO: figure out where to sanitize real_name
+    # TODO: check username against pending requests
+    # TODO: check calnet uid / callink oid against pending requests
 
     with validate_section():
         validate_username(request.user_name, request.real_name)
@@ -139,12 +170,23 @@ def _validate_request(request, credentials):
     return errors, warnings
 
 
-def _submit_account(request):
-    # TODO: implement this
-    raise NotImplementedError()
+def _submit_account(request, session):
+    stored_request = StoredNewAccountRequest(
+        user_name=request.user_name,
+        real_name=request.real_name,
+        is_group=request.is_group,
+        calnet_uid=request.calnet_uid,
+        callink_oid=request.callink_oid,
+        email=request.email,
+        encrypted_password=request.encrypted_password,
+    )
+
+    # TODO: error handling
+    session.add(stored_request)
+    session.commit()
 
 
-def _create_account(request, credentials):
+def _create_account(request, credentials, report_status):
     create_account(
         user=request.user_name,
         password=decrypt_password(
@@ -157,6 +199,7 @@ def _create_account(request, credentials):
         callink_oid=request.callink_oid,
         keytab=credentials.kerberos_keytab,
         admin_principal=credentials.kerberos_principal,
+        report_status=report_status,
     )
     return NewAccountResponse(
         status=NewAccountResponse.CREATED,
@@ -169,10 +212,35 @@ def get_tasks(celery_app, credentials=None):
 
     @celery_app.task
     def create_account(request):
+        # status reporting
+        status = []
+
+        def report_status(line):
+            """Update task status by adding the given line."""
+            status.append(line)
+            create_account.update_state(
+                state='PROGRESS',
+                meta={'status': status},
+            )
+
+        # mysql, for stored account requests
+        Session = None
+
+        def get_session():
+            nonlocal Session
+            if Session is None:
+                Session = sessionmaker(
+                    bind=create_engine(credentials.mysql_uri),
+                )
+            return Session()
+
+        # actual account creation
         CREATE_ACCOUNT, SUBMIT_ACCOUNT = 'create_account', 'submit_account'
         action = CREATE_ACCOUNT
 
+        report_status('Validating account request')
         errors, warnings = _validate_request(request, credentials)
+        report_status('Validated account request')
 
         if errors:
             # Fatal errors which cannot be bypassed, even with staff approval.
@@ -202,9 +270,10 @@ def get_tasks(celery_app, credentials=None):
                 )
 
         if action == SUBMIT_ACCOUNT:
-            return _submit_account(request)
+            report_status('Submitting account for staff approval')
+            return _submit_account(request, get_session())
         elif action == CREATE_ACCOUNT:
-            return _create_account(request, credentials)
+            return _create_account(request, credentials, report_status)
 
     return _AccountSubmissionTasks(
         create_account=create_account,

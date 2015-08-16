@@ -25,7 +25,9 @@ setup(
         # https://github.com/pexpect/pexpect/issues/86
         'pexpect<3.2.999',
         'pycrypto',
+        'pymysql',
         'pysnmp',
         'requests',
+        'sqlalchemy',
     )
 )
