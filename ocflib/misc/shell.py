@@ -85,7 +85,11 @@ def _wrap_colorama(color, reset):
     '\x1b[31mhello\x1b[39m'
     """
     def wrapper(string):
-        return color + string + reset
+        return '{color}{string}{reset}'.format(
+            color=color,
+            string=string,
+            reset=reset,
+        )
     return wrapper
 
 
