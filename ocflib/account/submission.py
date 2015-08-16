@@ -170,7 +170,7 @@ def _validate_request(request, credentials):
     return errors, warnings
 
 
-def _submit_account(request, session):
+def _submit_account(request, session, reasons, celery_app):
     stored_request = StoredNewAccountRequest(
         user_name=request.user_name,
         real_name=request.real_name,
@@ -185,8 +185,23 @@ def _submit_account(request, session):
     session.add(stored_request)
     session.commit()
 
+    with celery_app.events.default_dispatcher() as disp:
+        disp.send(
+            type='ocflib.account_submitted',
+            request={
+                'user_name': request.user_name,
+                'real_name': request.real_name,
+                'reasons': reasons,
+            },
+        )
 
-def _create_account(request, credentials, report_status):
+    return NewAccountResponse(
+        status=NewAccountResponse.PENDING,
+        errors=reasons,
+    )
+
+
+def _create_account(request, credentials, report_status, celery_app):
     create_account(
         user=request.user_name,
         password=decrypt_password(
@@ -201,6 +216,16 @@ def _create_account(request, credentials, report_status):
         admin_principal=credentials.kerberos_principal,
         report_status=report_status,
     )
+
+    with celery_app.events.default_dispatcher() as disp:
+        disp.send(
+            type='ocflib.account_created',
+            request={
+                'user_name': request.user_name,
+                'real_name': request.real_name,
+            },
+        )
+
     return NewAccountResponse(
         status=NewAccountResponse.CREATED,
         errors=[],
@@ -271,9 +296,19 @@ def get_tasks(celery_app, credentials=None):
 
         if action == SUBMIT_ACCOUNT:
             report_status('Submitting account for staff approval')
-            return _submit_account(request, get_session())
+            return _submit_account(
+                request,
+                get_session(),
+                warnings,
+                celery_app,
+            )
         elif action == CREATE_ACCOUNT:
-            return _create_account(request, credentials, report_status)
+            return _create_account(
+                request,
+                credentials,
+                report_status,
+                celery_app,
+            )
 
     return _AccountSubmissionTasks(
         create_account=create_account,
