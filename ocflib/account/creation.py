@@ -4,6 +4,8 @@ import math
 import os.path
 import re
 import subprocess
+from collections import namedtuple
+from contextlib import contextmanager
 from grp import getgrnam
 
 from Crypto.Cipher import PKCS1_OAEP
@@ -20,73 +22,55 @@ from ocflib.infra.ldap import ldap_ocf
 from ocflib.misc.validators import valid_email
 
 
-def create_account(
-    user,
-    password,
-    real_name,
-    email,
-    calnet_uid,
-    callink_oid,
-    keytab,
-    admin_principal,
-    report_status=None,
-):
+def create_account(request, creds, report_status):
     """Create an account as idempotently as possible."""  # TODO: docstring
-    if report_status is None:
-        def report_status(string):
-            pass
-
-    report_status('Finding first available UID')
-    new_uid = _get_first_available_uid()
-    report_status('Found first available UID')
 
     # TODO: check if kerberos principal already exists; skip this if so
-    report_status('Creating Kerberos keytab')
-    create_kerberos_principal_with_keytab(
-        user,
-        keytab,
-        admin_principal,
-        password=password,
-    )
-    report_status('Created Kerberos keytab')
+    with report_status('Creating', 'Created', 'Kerberos keytab'):
+        create_kerberos_principal_with_keytab(
+            request.user_name,
+            creds.kerberos_keytab,
+            creds.kerberos_principal,
+            password=decrypt_password(
+                request.encrypted_password,
+                creds.encryption_key,
+            ),
+        )
 
     # TODO: check if LDAP entry already exists; skip this if so
+    with report_status('Finding', 'Found', 'first available UID'):
+        new_uid = _get_first_available_uid()
+
     dn = 'uid={user},{base_people}'.format(
-        user=user,
+        user=request.user_name,
         base_people=constants.OCF_LDAP_PEOPLE,
     )
-    sasl_fake_password = '{SASL}' + user + '@OCF.BERKELEY.EDU'
     attrs = {
         'objectClass': ['ocfAccount', 'account', 'posixAccount'],
-        'cn': [real_name],
+        'cn': [request.real_name],
         'uidNumber': [str(new_uid)],
         'gidNumber': [str(getgrnam('ocf').gr_gid)],
-        'homeDirectory': [utils.home_dir(user)],
+        'homeDirectory': [utils.home_dir(request.user_name)],
         'loginShell': ['/bin/bash'],
-        'mail': [email],
-        'userPassword': [sasl_fake_password],
+        'mail': [request.email],
+        'userPassword': ['{SASL}' + request.user_name + '@OCF.BERKELEY.EDU'],
     }
+    if request.calnet_uid:
+        attrs['calnetUid'] = [str(request.calnet_uid)]
+    elif request.callink_oid:
+        attrs['callinkOid'] = [str(request.callink_oid)]
 
-    if calnet_uid:
-        attrs['calnetUid'] = [str(calnet_uid)]
+    with report_status('Creating', 'Created', 'LDAP entry'):
+        create_ldap_entry_with_keytab(
+            dn, attrs, creds.kerberos_keytab, creds.kerberos_principal,
+        )
 
-    if callink_oid:
-        attrs['callinkOid'] = [str(callink_oid)]
+    with report_status('Creating', 'Created', 'home and web directories'):
+        create_home_dir(request.user_name)
+        create_web_dir(request.user_name)
 
-    report_status('Creating LDAP entry')
-    create_ldap_entry_with_keytab(dn, attrs, keytab, admin_principal)
-    report_status('Created LDAP entry')
-
-    report_status('Creating home directory')
-    create_home_dir(user)
-    report_status('Created home directory')
-
-    report_status('Creating web directory')
-    create_web_dir(user)
-    report_status('Created web directory')
-
-    # TODO: send email to new user
-    # TODO: logging to syslog, files, and IRC
+    send_created_mail(request)
+    # TODO: logging to syslog, files
 
 
 def _get_first_available_uid():
@@ -134,12 +118,12 @@ def create_web_dir(user):
             '--owner=' + user, path])
 
 
-def send_created_mail(email, realname, username):
+def send_created_mail(request):
     body = """Greetings from the Grotto of Hearst Gym,
 
 Your OCF account has been created and is ready for use! Welcome aboard!
 
-Your account name is: {username}
+Your account name is: {request.user_name}
 
 As a brand-new OCF member, you're welcome to use any and all of our services.
 You can find out more about them on our wiki:
@@ -161,16 +145,16 @@ https://hello.ocf.berkeley.edu/
 If you have any other questions or problems, feel free to contact us by
 replying to this message.
 
-{signature}""".format(username=username,
+{signature}""".format(request=request,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail(email, '[OCF] Your account has been created!', body)
+    mail.send_mail(request.email, '[OCF] Your account has been created!', body)
 
 
-def send_rejected_mail(email, realname, username, reason):
+def send_rejected_mail(request, reason):
     body = """Greetings from the Grotto of Hearst Gym,
 
-Your OCF account, {username} has been rejected for the following reason:
+Your OCF account, {request.user_name} has been rejected for the following reason:
 
 {reason}
 
@@ -181,11 +165,12 @@ https://wiki.ocf.berkeley.edu/membership/
 If you have any other questions or problems, feel free to contact us by
 replying to this message.
 
-{signature}""".format(username=username,
+{signature}""".format(request=request,
                       reason=reason,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail(email, '[OCF] Your account request has been rejected', body)
+    mail.send_mail(
+        request.email, '[OCF] Your account request has been rejected', body)
 
 
 class ValidationWarning(ValueError):
@@ -394,3 +379,91 @@ def decrypt_password(password, privkey_path):
     key = RSA.importKey(open(privkey_path).read())
     RSA_CIPHER = PKCS1_OAEP.new(key)
     return RSA_CIPHER.decrypt(password).decode('ascii')
+
+
+def validate_request(request, credentials, session):
+    """Validate a request, returning lists of errors and warnings."""
+    from ocflib.account.submission import username_pending
+    from ocflib.account.submission import user_has_request_pending
+
+    errors, warnings = [], []
+
+    @contextmanager
+    def validate_section():
+        try:
+            yield
+        except ValidationWarning as ex:
+            warnings.append(str(ex))
+        except ValidationError as ex:
+            errors.append(str(ex))
+
+    # TODO: figure out where to sanitize real_name
+
+    # user name
+    with validate_section():
+        if username_pending(session, request):
+            raise ValidationError('Username {} has already been requested.'.format(
+                request.user_name,
+            ))
+
+        validate_username(request.user_name, request.real_name)
+
+    # calnet uid / callink oid
+    with validate_section():
+        if request.is_group:
+            validate_callink_oid(request.callink_oid)
+        else:
+            validate_calnet_uid(request.calnet_uid)
+
+        if user_has_request_pending(session, request):
+            raise ValidationError('You have already requested an account.')
+
+    # email
+    with validate_section():
+        validate_email(request.email)
+
+    # password
+    with validate_section():
+        password = decrypt_password(
+            request.encrypted_password,
+            credentials.encryption_key,
+        )
+        validate_password(request.user_name, password)
+
+    return errors, warnings
+
+
+class NewAccountRequest(namedtuple('NewAccountRequest', [
+    'user_name',
+    'real_name',
+    'is_group',
+    'calnet_uid',
+    'callink_oid',
+    'email',
+    'encrypted_password',
+    'handle_warnings',
+])):
+    """Request for account creation.
+
+    :param user_name:
+    :param real_name:
+    :param is_group:
+    :param calnet_uid: uid (or None)
+    :param callink_oid: oid (or None)
+    :param email:
+    :param encrypted_password:
+    :param handle_warnings: one of WARNINGS_WARN, WARNINGS_SUBMIT,
+                            WARNINGS_CREATE
+        WARNINGS_WARN: don't create account, return warnings
+        WARNINGS_SUBMIT: don't create account, submit for staff approval
+        WARNINGS_CREATE: create the account anyway
+    """
+    WARNINGS_WARN = 'warn'
+    WARNINGS_SUBMIT = 'submit'
+    WARNINGS_CREATE = 'create'
+
+    def to_dict(self):
+        return {
+            field: getattr(self, field)
+            for field in self._fields if field != 'encrypted_password'
+        }
