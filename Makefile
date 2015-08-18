@@ -12,6 +12,10 @@ test: autoversion
 	coverage run --source=ocflib,tests -m pytest tests
 	coverage report --show-missing
 
+# first set COVERALLS_REPO_TOKEN=<repo token> environment variable
+coveralls: tox
+	tox -e coveralls
+
 tox: autoversion
 	tox
 
