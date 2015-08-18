@@ -57,7 +57,7 @@ def create_account(request, creds, report_status):
     }
     if request.calnet_uid:
         attrs['calnetUid'] = [str(request.calnet_uid)]
-    elif request.callink_oid:
+    else:
         attrs['callinkOid'] = [str(request.callink_oid)]
 
     with report_status('Creating', 'Created', 'LDAP entry'):

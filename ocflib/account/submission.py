@@ -191,8 +191,7 @@ def get_tasks(celery_app, credentials=None):
             # with a list of warnings for further inspection.
             if request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
                 with report_status('Submitting', 'Submitted', 'account for staff approval'):
-                    stored_request = StoredNewAccountRequest.from_request(
-                        request)
+                    stored_request = StoredNewAccountRequest.from_request(request)
 
                     session = get_session()
                     session.add(stored_request)  # TODO: error handling
