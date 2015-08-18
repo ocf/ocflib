@@ -33,7 +33,7 @@ autoversion:
 	rm -f debian/changelog
 	DEBFULLNAME="Open Computing Facility" DEBEMAIL="help@ocf.berkeley.edu" VISUAL=true \
 		dch -v `cat .version` -D stable --no-force-save-on-release \
-		--create --package "python-ocflib" "Package for Debian."
+		--create --force-distribution --package "python-ocflib" "Package for Debian."
 
 .pyenv/: export PYENV_ROOT := $(ROOT_DIR)/.pyenv
 .pyenv/: export PATH := $(PYENV_ROOT)/shims:$(PYENV_ROOT)/bin:${PATH}

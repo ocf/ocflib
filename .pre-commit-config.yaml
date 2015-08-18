@@ -28,10 +28,9 @@
     -   id: reorder-python-imports
         language_version: python3
 -   repo: https://github.com/Lucas-C/pre-commit-hooks.git
-    sha: 43020827f28dfea6b2fd2bf4ddf27088fb06ad1b
+    sha: 2f63005157f76e34303fc891ec9e9bc97d267d4a
     hooks:
     -   id: remove-tabs
-        exclude: ^(Makefile|debian/rules)$
 # Maybe one day...
 # -   repo: https://github.com/FalconSocial/pre-commit-mirrors-pep257.git
 #     sha: 67c970e89857fdcebcd59ace94950a3331985a3b
