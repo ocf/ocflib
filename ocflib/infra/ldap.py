@@ -68,7 +68,7 @@ def create_ldap_entry_with_keytab(
         principal=admin_principal,
     )
 
-    child = pexpect.spawn(cmd, timeout=1)
+    child = pexpect.spawn(cmd, timeout=10)
     child.expect('SASL data security layer installed.')
 
     for line in lines:

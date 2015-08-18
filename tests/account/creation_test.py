@@ -8,17 +8,66 @@ import pytest
 import ocflib.account.creation
 import ocflib.constants as constants
 from ocflib.account.creation import _get_first_available_uid
+from ocflib.account.creation import create_account
 from ocflib.account.creation import create_home_dir
 from ocflib.account.creation import create_web_dir
 from ocflib.account.creation import decrypt_password
 from ocflib.account.creation import eligible_for_account
 from ocflib.account.creation import encrypt_password
+from ocflib.account.creation import NewAccountRequest
 from ocflib.account.creation import send_created_mail
 from ocflib.account.creation import send_rejected_mail
+from ocflib.account.creation import validate_callink_oid
 from ocflib.account.creation import validate_calnet_uid
+from ocflib.account.creation import validate_email
+from ocflib.account.creation import validate_password
+from ocflib.account.creation import validate_request
 from ocflib.account.creation import validate_username
 from ocflib.account.creation import ValidationError
 from ocflib.account.creation import ValidationWarning
+from ocflib.account.submission import AccountCreationCredentials
+
+
+WEAK_KEY = dedent(
+    """\
+    -----BEGIN RSA PRIVATE KEY-----
+    MIICWwIBAAKBgQDGkGNFk/yy8HphSvvsmCpMF1vGbJeZXw2AmlLfTLcGJkZuvelu
+    qJTGepGjeEeML6GrE03dI330mWtnC8jdhmwaELndqoPQ3Ks1eXF5usvDeYoRVir0
+    ekqJtd2+7eBQ4xrRIA5YohoE31VGQ7ZaQ0GLMuWjldTe3bx+5OJqB0pE5QIDAQAB
+    AoGAZtTX1GyzbagEeOZwWTLklMt0B+qtCAyl3XgOev4rus+PokJP5bMAeVl4mwPr
+    aboxK3uv01pSHJ5ndNIxkCfRSzSuKvddfoaDrP97dbS0boqHyJmG38U2kxaMufBP
+    rFP4a05TajdU9/rQSaGGmTkgDmRfJId5aDfJh6ToKMEYnQECQQDYb0Nj9mAWz5ja
+    btXyegMespiK1UnyrZlRKsm0zcnEZ4NBE/lgMiJJXkfhdS5af9ORPmDjlQfwuHtZ
+    N5mEKXNRAkEA6tzQPWCIL3gz0FYVX+l00JTFRIFA1yfvHiF4XjNZUr1TjXdGhto5
+    DqV39XTk1CPtXNJto9AmNLf8zJD5xsqLVQJAToXnfD/p0rzUpwMpSgSsVxnSsCP7
+    5TjIdCNC9P7oYgJwI0883YKy38195LVf8OOJfZuVCVyLefFkhxTd9I4ZUQJAO0ft
+    D/DzrveqLGXuEz18DMHgYQA2+5fK1VIhbbWMUEQVeNmoZZVjXX0KoFwW/izrVsiO
+    gBCj9B6UopXdVf392QJAcCUgxV6Ca6iWplAKHsaJ7sG+aQOaYI8m3d3MqJ5g34GB
+    CqXzvT0v5ZrGj+K9dWDb+pYvGWhc2iU/e40yyj0G9w==
+    -----END RSA PRIVATE KEY-----"""
+)
+
+
+@pytest.yield_fixture
+def fake_new_account_request(mock_rsa_key):
+    yield NewAccountRequest(
+        user_name='someuser',
+        real_name='Some User',
+        is_group=False,
+        calnet_uid=123456,
+        callink_oid=None,
+        email='some.user@ocf.berkeley.edu',
+        encrypted_password=encrypt_password('hunter2000', mock_rsa_key),
+        handle_warnings=NewAccountRequest.WARNINGS_WARN,
+    )
+
+
+@pytest.yield_fixture
+def mock_rsa_key(tmpdir):
+    test_key = tmpdir.join('test.key')
+    test_key.write((WEAK_KEY + '\n').encode('ascii'))
+    yield test_key.strpath
+    test_key.remove()
 
 
 class TestFirstAvailableUID:
@@ -159,18 +208,10 @@ class TestAccountEligibility:
         with pytest.raises(ValidationError):
             validate_calnet_uid(bad_uid)
 
-    @mock.patch(
-        'ocflib.account.search.user_attrs_ucb',
-        return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
-    )
-    def test_validate_calnet_uid_success(self, _):
+    def test_validate_calnet_uid_success(self, mock_valid_calnet_uid):
         validate_calnet_uid(9999999999999)
 
-    @mock.patch(
-        'ocflib.account.search.user_attrs_ucb',
-        return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
-    )
-    def test_validate_calnet_affiliations_failure(self, _):
+    def test_validate_calnet_affiliations_failure(self, mock_invalid_calnet_uid):
         with pytest.raises(ValidationWarning):
             validate_calnet_uid(9999999999999)
 
@@ -197,45 +238,25 @@ class TestAccountEligibility:
 class TestSendMail:
 
     @mock.patch('ocflib.misc.mail.send_mail')
-    @pytest.mark.xfail(reason='changed signatured')
-    def test_send_created_mail(self, send_mail):
-        send_created_mail('email', 'realname', 'username')
-        assert send_mail.called
+    def test_send_created_mail(self, send_mail, fake_new_account_request):
+        send_created_mail(fake_new_account_request)
+        send_mail.assert_called_once_with(
+            fake_new_account_request.email,
+            '[OCF] Your account has been created!',
+            mock.ANY,
+        )
 
     @mock.patch('ocflib.misc.mail.send_mail')
-    @pytest.mark.xfail(reason='changed signatured')
-    def test_send_rejected_mail(self, send_mail):
-        send_rejected_mail('email', 'realname', 'username', 'reason')
-        assert send_mail.called
+    def test_send_rejected_mail(self, send_mail, fake_new_account_request):
+        send_rejected_mail(fake_new_account_request, 'some reason')
+        send_mail.called_called_once_with(
+            fake_new_account_request.email,
+            '[OCF] Your account has been created!',
+            mock.ANY,
+        )
 
 
 class TestPasswordEncryption:
-
-    WEAK_KEY = dedent(
-        """\
-        -----BEGIN RSA PRIVATE KEY-----
-        MIICWwIBAAKBgQDGkGNFk/yy8HphSvvsmCpMF1vGbJeZXw2AmlLfTLcGJkZuvelu
-        qJTGepGjeEeML6GrE03dI330mWtnC8jdhmwaELndqoPQ3Ks1eXF5usvDeYoRVir0
-        ekqJtd2+7eBQ4xrRIA5YohoE31VGQ7ZaQ0GLMuWjldTe3bx+5OJqB0pE5QIDAQAB
-        AoGAZtTX1GyzbagEeOZwWTLklMt0B+qtCAyl3XgOev4rus+PokJP5bMAeVl4mwPr
-        aboxK3uv01pSHJ5ndNIxkCfRSzSuKvddfoaDrP97dbS0boqHyJmG38U2kxaMufBP
-        rFP4a05TajdU9/rQSaGGmTkgDmRfJId5aDfJh6ToKMEYnQECQQDYb0Nj9mAWz5ja
-        btXyegMespiK1UnyrZlRKsm0zcnEZ4NBE/lgMiJJXkfhdS5af9ORPmDjlQfwuHtZ
-        N5mEKXNRAkEA6tzQPWCIL3gz0FYVX+l00JTFRIFA1yfvHiF4XjNZUr1TjXdGhto5
-        DqV39XTk1CPtXNJto9AmNLf8zJD5xsqLVQJAToXnfD/p0rzUpwMpSgSsVxnSsCP7
-        5TjIdCNC9P7oYgJwI0883YKy38195LVf8OOJfZuVCVyLefFkhxTd9I4ZUQJAO0ft
-        D/DzrveqLGXuEz18DMHgYQA2+5fK1VIhbbWMUEQVeNmoZZVjXX0KoFwW/izrVsiO
-        gBCj9B6UopXdVf392QJAcCUgxV6Ca6iWplAKHsaJ7sG+aQOaYI8m3d3MqJ5g34GB
-        CqXzvT0v5ZrGj+K9dWDb+pYvGWhc2iU/e40yyj0G9w==
-        -----END RSA PRIVATE KEY-----"""
-    )
-
-    @pytest.yield_fixture
-    def mock_rsa_key(self, tmpdir):
-        test_key = tmpdir.join('test.key')
-        test_key.write((self.WEAK_KEY + '\n').encode('ascii'))
-        yield test_key.strpath
-        test_key.remove()
 
     @pytest.mark.parametrize('password', [
         'hello world',
@@ -247,3 +268,227 @@ class TestPasswordEncryption:
             encrypt_password(password, mock_rsa_key),
             mock_rsa_key,
         ) == password
+
+
+class TestValidateCallinkOid:
+
+    @pytest.mark.parametrize('oid', [0, 123123123])
+    def test_valid_oid(self, oid):
+        validate_callink_oid(oid)
+
+    @pytest.mark.parametrize('oid', [46130, 46187])
+    def test_invalid_oid(self, oid):
+        with pytest.raises(ValidationWarning):
+            validate_callink_oid(oid)
+
+
+class TestValidateEmail:
+
+    @pytest.mark.parametrize('email', [
+        'ckuehl@ocf.berkeley.edu',
+        'somebody@gmail.com',
+        'herp.derp-hello+something@berkeley.edu',
+    ])
+    def test_valid_email(self, email):
+        validate_email(email)
+
+    @pytest.mark.parametrize('email', [
+        '',
+        '@',
+        'hello@hello',
+        'some kinda email@gmail.com',
+    ])
+    def test_invalid_email(self, email):
+        with pytest.raises(ValidationError):
+            validate_email(email)
+
+
+class TestValidatePassword:
+
+    @pytest.mark.parametrize('password', [
+        'correct horse battery staple',
+        'pogjpaioshfoasdfnlka;sdfi;sagj',
+        'p@ssw0rd',
+    ])
+    def test_valid_password(self, password):
+        validate_password('ckuehl', password)
+
+    @pytest.mark.parametrize('password', [
+        '',
+        'simple',
+        'correct horse\nbattery staple',
+        'correct horse battery staple é',
+    ])
+    def test_invalid_password(self, password):
+        with pytest.raises(ValidationError):
+            validate_password('ckuehl', password)
+
+
+def mock_session(response):
+    return mock.Mock(**{
+        'query.return_value': mock.Mock(
+            scalar=lambda: response[0][0],
+            first=lambda: response[0]
+        ),
+    })
+
+
+@pytest.yield_fixture
+def fake_credentials(mock_rsa_key):
+    yield AccountCreationCredentials(
+        encryption_key=mock_rsa_key,
+        mysql_uri='mysql+pymysql://ocfcreate:password@mysql/ocfcreate',
+        kerberos_keytab='/nonexist',
+        kerberos_principal='create/admin',
+    )
+
+
+@pytest.yield_fixture
+def mock_valid_calnet_uid():
+    with mock.patch(
+        'ocflib.account.search.user_attrs_ucb',
+        return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
+    ):
+        yield
+
+
+@pytest.yield_fixture
+def mock_invalid_calnet_uid():
+    with mock.patch(
+        'ocflib.account.search.user_attrs_ucb',
+        return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
+    ):
+        yield
+
+
+class TestValidateRequest:
+
+    def test_valid_request(
+        self,
+        fake_new_account_request,
+        fake_credentials,
+        mock_valid_calnet_uid,
+    ):
+        assert validate_request(
+            fake_new_account_request,
+            fake_credentials,
+            mock_session([[False]]),
+        ) == ([], [])
+
+    @pytest.mark.parametrize('attrs', [
+        {'user_name': 'someuser', 'real_name': 'asdf hjkl'},
+        {'callink_oid': 46187, 'is_group': True},
+    ])
+    def test_invalid_request_warning(
+        self,
+        fake_new_account_request,
+        fake_credentials,
+        mock_valid_calnet_uid,
+        attrs,
+    ):
+        errors, warnings = validate_request(
+            fake_new_account_request._replace(**attrs),
+            fake_credentials,
+            mock_session([[False]]),
+        )
+        assert warnings
+
+    @pytest.mark.parametrize('attrs', [
+        {'user_name': 'ckuehl'},
+    ])
+    def test_invalid_request_error(
+        self,
+        fake_new_account_request,
+        fake_credentials,
+        mock_valid_calnet_uid,
+        attrs,
+    ):
+        errors, warnings = validate_request(
+            fake_new_account_request._replace(**attrs),
+            fake_credentials,
+            mock_session([[False]]),
+        )
+        assert errors
+
+    def test_invalid_request_already_submitted_submitted(
+        self,
+        fake_new_account_request,
+        fake_credentials,
+        mock_valid_calnet_uid,
+    ):
+        with mock.patch('ocflib.account.submission.username_pending', return_value=True):
+            errors, warnings = validate_request(
+                fake_new_account_request,
+                fake_credentials,
+                mock_session([[False]]),
+            )
+        assert errors
+
+        with mock.patch('ocflib.account.submission.user_has_request_pending', return_value=True):
+            errors, warnings = validate_request(
+                fake_new_account_request,
+                fake_credentials,
+                mock_session([[False]]),
+            )
+        assert errors
+
+
+class TestCreateAccount:
+
+    @pytest.mark.parametrize('is_group,calnet_uid,callink_oid,expected', [
+        (False, 123456, None, {'calnetUid': ['123456']}),
+        (True, None, 123456, {'callinkOid': ['123456']}),
+    ])
+    def test_create(
+        self,
+        is_group,
+        calnet_uid,
+        callink_oid,
+        expected,
+        fake_new_account_request,
+        fake_credentials
+    ):
+        @contextmanager
+        def report_status(start, end, line):
+            yield
+        with mock.patch('ocflib.account.creation.create_kerberos_principal_with_keytab') as kerberos, \
+                mock.patch('ocflib.account.creation.create_ldap_entry_with_keytab') as ldap, \
+                mock.patch('ocflib.account.creation.create_home_dir') as home_dir, \
+                mock.patch('ocflib.account.creation.create_web_dir') as web_dir, \
+                mock.patch('ocflib.account.creation.send_created_mail') as send_created_mail, \
+                mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42):
+
+            fake_new_account_request = fake_new_account_request._replace(
+                is_group=is_group,
+                calnet_uid=calnet_uid,
+                callink_oid=callink_oid,
+            )
+            create_account(
+                fake_new_account_request,
+                fake_credentials,
+                report_status,
+            )
+            kerberos.assert_called_once_with(
+                fake_new_account_request.user_name,
+                fake_credentials.kerberos_keytab,
+                fake_credentials.kerberos_principal,
+                password='hunter2000',
+            )
+            ldap.assert_called_once_with(
+                'uid=someuser,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
+                dict({
+                    'cn': ['Some User'],
+                    'gidNumber': ['1000'],
+                    'objectClass': ['ocfAccount', 'account', 'posixAccount'],
+                    'uidNumber': ['42'],
+                    'homeDirectory': ['/home/s/so/someuser'],
+                    'loginShell': ['/bin/bash'],
+                    'mail': ['some.user@ocf.berkeley.edu'],
+                    'userPassword': ['{SASL}someuser@OCF.BERKELEY.EDU'],
+                }, **expected),
+                fake_credentials.kerberos_keytab,
+                fake_credentials.kerberos_principal,
+            )
+            home_dir.assert_called_once_with(fake_new_account_request.user_name)
+            web_dir.assert_called_once_with(fake_new_account_request.user_name)
+            send_created_mail.assert_called_once_with(fake_new_account_request)

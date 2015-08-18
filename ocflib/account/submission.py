@@ -60,7 +60,10 @@ def user_has_request_pending(session, request):
         query = StoredNewAccountRequest.callink_oid == request.callink_oid
     elif not request.is_group:
         query = StoredNewAccountRequest.calnet_uid == request.calnet_uid
-    return bool(query and session.query(exists().where(query)).scalar())
+    return (
+        query is not None and
+        session.query(exists().where(query)).scalar()
+    )
 
 
 class StoredNewAccountRequest(Base):
