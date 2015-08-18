@@ -176,7 +176,8 @@ def get_tasks(celery_app, credentials=None):
         # actual account creation
         with report_status('Validating', 'Validated', 'account request'):
             errors, warnings = validate_request(
-                request, credentials, get_session())
+                request, credentials, get_session()
+            )
 
         if errors:
             # Fatal errors; cannot be bypassed, even with staff approval

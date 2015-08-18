@@ -325,6 +325,7 @@ class TestValidatePassword:
 
 
 def mock_session(response):
+    # TODO: this is crappy, use the one from submission_test instead
     return mock.Mock(**{
         'query.return_value': mock.Mock(
             scalar=lambda: response[0][0],
@@ -337,7 +338,7 @@ def mock_session(response):
 def fake_credentials(mock_rsa_key):
     yield AccountCreationCredentials(
         encryption_key=mock_rsa_key,
-        mysql_uri='mysql+pymysql://ocfcreate:password@mysql/ocfcreate',
+        mysql_uri='sqlite://',  # heh
         kerberos_keytab='/nonexist',
         kerberos_principal='create/admin',
     )
