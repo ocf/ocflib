@@ -158,12 +158,13 @@ def get_tasks(celery_app, credentials=None):
     def create_account(request):
         # status reporting
         status = []
+        state = 'STARTED'
 
         def _report_status(line):
             """Update task status by adding the given line."""
             status.append(line)
             create_account.update_state(
-                state='PROGRESS',
+                state=state,
                 meta={'status': status},
             )
 
@@ -210,6 +211,11 @@ def get_tasks(celery_app, credentials=None):
                     status=NewAccountResponse.FLAGGED,
                     errors=warnings,
                 )
+
+        # change state to VALIDATED so frontends know that they can switch to
+        # async mode while waiting for the account to be created
+        state = 'VALIDATED'
+        _report_status('Finished validation.')
 
         real_create_account(request, credentials, report_status)
         dispatch_event('ocflib.account_created', request=request.to_dict())

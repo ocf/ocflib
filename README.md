@@ -1,7 +1,7 @@
 ocflib
 ======
 [![Build Status](https://jenkins.ocf.berkeley.edu/buildStatus/icon?job=ocflib-test)](https://jenkins.ocf.berkeley.edu/view/ocflib-deploy/)
-[![Coverage Status](https://coveralls.io/repos/ocf/ocflib/badge.svg?branch=master&service=github)](https://coveralls.io/github/ocf/ocflib?branch=master)
+[![Coverage Status](https://coveralls.io/repos/ocf/ocflib/badge.svg?branch=master&service=github)](https://coveralls.io/github/ocf/ocflib?branch=HEAD)
 [![PyPI version](https://badge.fury.io/py/ocflib.svg)](https://pypi.python.org/pypi/ocflib)
 
 ocflib is a Python library for working with [Open Computing Facility][ocf]
