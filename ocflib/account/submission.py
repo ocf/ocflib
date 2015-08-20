@@ -25,6 +25,8 @@ appropriate broker and backend URL (probably Redis).
 from collections import namedtuple
 from contextlib import contextmanager
 
+import redis
+from redis.exceptions import LockError
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import create_engine
@@ -206,38 +208,49 @@ def get_tasks(celery_app, credentials=None):
     @celery_app.task
     def create_account(request):
         # TODO: docstring
-        # TODO: locking
-        # status reporting
-        status = []
+        # lock account creation for up to 5 minutes
+        r = redis.from_url(credentials.redis_uri)
+        lock = r.lock('ocflib.account.submission.create_account', timeout=60 * 5)
+        try:
+            if not lock.acquire(blocking=True, blocking_timeout=60 * 5):
+                raise RuntimeError('Couldn\'t lock account creation, abandoning.')
 
-        def _report_status(line):
-            """Update task status by adding the given line."""
-            status.append(line)
-            create_account.update_state(meta={'status': status})
+            # status reporting
+            status = []
 
-        @contextmanager
-        def report_status(start, stop, task):
-            _report_status(start + ' ' + task)
-            yield
-            _report_status(stop + ' ' + task)
+            def _report_status(line):
+                """Update task status by adding the given line."""
+                status.append(line)
+                create_account.update_state(meta={'status': status})
 
-        with report_status('Validating', 'Validated', 'request'):
-            errors, warnings = validate_request(request, credentials, get_session())
+            @contextmanager
+            def report_status(start, stop, task):
+                _report_status(start + ' ' + task)
+                yield
+                _report_status(stop + ' ' + task)
 
-        if errors:
-            send_rejected_mail(request, str(errors))
+            with report_status('Validating', 'Validated', 'request'):
+                errors, warnings = validate_request(request, credentials, get_session())
+
+            if errors:
+                send_rejected_mail(request, str(errors))
+                return NewAccountResponse(
+                    status=NewAccountResponse.REJECTED,
+                    errors=(errors + warnings),
+                )
+
+            # actual account creation
+            real_create_account(request, credentials, report_status)
+            dispatch_event('ocflib.account_created', request=request.to_dict())
             return NewAccountResponse(
-                status=NewAccountResponse.REJECTED,
-                errors=(errors + warnings),
+                status=NewAccountResponse.CREATED,
+                errors=[],
             )
-
-        # actual account creation
-        real_create_account(request, credentials, report_status)
-        dispatch_event('ocflib.account_created', request=request.to_dict())
-        return NewAccountResponse(
-            status=NewAccountResponse.CREATED,
-            errors=[],
-        )
+        finally:
+            try:
+                lock.release()
+            except LockError:
+                pass
 
     @celery_app.task
     def get_pending_requests():
@@ -283,5 +296,5 @@ _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
 ])
 
 AccountCreationCredentials = namedtuple('AccountCreationCredentials', [
-    'encryption_key', 'mysql_uri', 'kerberos_keytab', 'kerberos_principal',
+    'encryption_key', 'mysql_uri', 'kerberos_keytab', 'kerberos_principal', 'redis_uri',
 ])

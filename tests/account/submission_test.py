@@ -230,6 +230,12 @@ class TestValidateThenCreateAccount:
             assert not tasks.create_account.delay.called
 
 
+@pytest.yield_fixture
+def mock_redis_locking():
+    with mock.patch('redis.from_url') as m:
+        yield m
+
+
 class TestCreateAccount:
 
     def test_create_no_issues(
@@ -239,6 +245,7 @@ class TestCreateAccount:
         mock_real_create_account,
         fake_credentials,
         celery_app,
+        mock_redis_locking,
     ):
         with mock_validate_request([], []):
             resp = tasks.create_account(fake_new_account_request)
@@ -263,6 +270,7 @@ class TestCreateAccount:
         fake_new_account_request,
         mock_real_create_account,
         fake_credentials,
+        mock_redis_locking,
     ):
         with mock_validate_request(['bad error'], ['ok warning']):
             resp = tasks.create_account(fake_new_account_request)

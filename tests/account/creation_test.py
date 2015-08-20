@@ -353,6 +353,7 @@ def fake_credentials(mock_rsa_key):
         mysql_uri='sqlite://',  # heh
         kerberos_keytab='/nonexist',
         kerberos_principal='create/admin',
+        redis_uri='redis://create',
     )
 
 
