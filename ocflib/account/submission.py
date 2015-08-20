@@ -225,6 +225,7 @@ def get_tasks(celery_app, credentials=None):
             errors, warnings = validate_request(request, credentials, get_session())
 
         if errors:
+            send_rejected_mail(request, str(errors))
             return NewAccountResponse(
                 status=NewAccountResponse.REJECTED,
                 errors=(errors + warnings),

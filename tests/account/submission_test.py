@@ -255,8 +255,10 @@ class TestCreateAccount:
                 {'type': 'ocflib.account_created', 'request': fake_new_account_request.to_dict()}
             ]
 
+    @mock.patch('ocflib.account.submission.send_rejected_mail')
     def test_create_with_errors(
         self,
+        send_rejected_mail,
         tasks,
         fake_new_account_request,
         mock_real_create_account,
@@ -269,6 +271,7 @@ class TestCreateAccount:
                 errors=['bad error', 'ok warning'],
             )
             assert not mock_real_create_account.called
+            assert send_rejected_mail.called
 
 
 class TestStoredNewAccountRequest:
