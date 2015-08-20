@@ -15,10 +15,11 @@ import ocflib.account.search as search
 import ocflib.account.utils as utils
 import ocflib.account.validators as validators
 import ocflib.constants as constants
-import ocflib.misc.mail as mail
 from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
+from ocflib.misc.mail import send_mail
+from ocflib.misc.mail import send_problem_report
 from ocflib.misc.validators import valid_email
 
 
@@ -78,15 +79,24 @@ def _get_first_available_uid():
 
     Searches our entire People ou in order to find it. It seems like there
     should be a better way to do this, but quick searches don't show any.
+
+    We hard-code a value we know has already been reached and only select
+    entries greater than that for performance.
     """
+    KNOWN_MIN = 33900
     with ldap_ocf() as c:
         c.search(
             constants.OCF_LDAP_PEOPLE,
-            '(uidNumber=*)',
+            '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=KNOWN_MIN),
             attributes=['uidNumber'],
         )
-        return max(int(entry['attributes']['uidNumber'][0])
-                   for entry in c.response) + 1
+        uids = [int(entry['attributes']['uidNumber'][0]) for entry in c.response]
+        if len(uids) > 2500:
+            send_problem_report((
+                'Found {} accounts with UID >= {}, '
+                'you should bump the constant for speed.'
+            ).format(len(uids), KNOWN_MIN))
+        return max(uids) + 1
 
 
 def create_home_dir(user):
@@ -148,7 +158,7 @@ replying to this message.
 {signature}""".format(request=request,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail(request.email, '[OCF] Your account has been created!', body)
+    send_mail(request.email, '[OCF] Your account has been created!', body)
 
 
 def send_rejected_mail(request, reason):
@@ -169,7 +179,7 @@ replying to this message.
                       reason=reason,
                       signature=constants.MAIL_SIGNATURE)
 
-    mail.send_mail(
+    send_mail(
         request.email, '[OCF] Your account request has been rejected', body)
 
 

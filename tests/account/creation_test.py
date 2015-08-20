@@ -6,7 +6,6 @@ import mock
 import pytest
 
 import ocflib.account.creation
-import ocflib.constants as constants
 from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import create_account
 from ocflib.account.creation import create_home_dir
@@ -72,11 +71,12 @@ def mock_rsa_key(tmpdir):
 
 class TestFirstAvailableUID:
 
-    def test_first_uid(self):
+    @mock.patch('ocflib.account.creation.send_problem_report')
+    def test_first_uid(self, send_problem_report):
         connection = mock.Mock(response=[
-            {'attributes': {'uidNumber': [100]}},
-            {'attributes': {'uidNumber': [300]}},
-            {'attributes': {'uidNumber': [200]}},
+            {'attributes': {'uidNumber': [999000]}},
+            {'attributes': {'uidNumber': [999200]}},
+            {'attributes': {'uidNumber': [999100]}},
         ])
 
         @contextmanager
@@ -86,13 +86,25 @@ class TestFirstAvailableUID:
         with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
             next_uid = _get_first_available_uid()
 
-        connection.search.assert_called_with(
-            constants.OCF_LDAP_PEOPLE,
-            '(uidNumber=*)',
-            attributes=['uidNumber'],
-        )
+        assert next_uid == 999201
+        assert not send_problem_report.called
 
-        assert next_uid == 301
+    @mock.patch('ocflib.account.creation.send_problem_report')
+    def test_alerts_staff_if_too_many(self, send_problem_report):
+        connection = mock.Mock(response=[
+            {'attributes': {'uidNumber': [n]}}
+            for n in range(100000, 100000 + 5000)
+        ])
+
+        @contextmanager
+        def ldap_ocf():
+            yield connection
+
+        with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
+            next_uid = _get_first_available_uid()
+
+        assert next_uid == 105000
+        assert send_problem_report.called
 
 
 class TestCreateDirectories:
@@ -237,7 +249,7 @@ class TestAccountEligibility:
 
 class TestSendMail:
 
-    @mock.patch('ocflib.misc.mail.send_mail')
+    @mock.patch('ocflib.account.creation.send_mail')
     def test_send_created_mail(self, send_mail, fake_new_account_request):
         send_created_mail(fake_new_account_request)
         send_mail.assert_called_once_with(
@@ -246,7 +258,7 @@ class TestSendMail:
             mock.ANY,
         )
 
-    @mock.patch('ocflib.misc.mail.send_mail')
+    @mock.patch('ocflib.account.creation.send_mail')
     def test_send_rejected_mail(self, send_mail, fake_new_account_request):
         send_rejected_mail(fake_new_account_request, 'some reason')
         send_mail.called_called_once_with(
