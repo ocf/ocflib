@@ -33,6 +33,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Integer
 from sqlalchemy import LargeBinary
 from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
@@ -73,16 +74,26 @@ class StoredNewAccountRequest(Base):
 
     __tablename__ = 'request'
 
+    # TODO: enforce these lengths during submission as errors
+    id = Column(Integer, primary_key=True)
+    user_name = Column(String(255), unique=True, nullable=False)
+    real_name = Column(String(255), nullable=False)
+    is_group = Column(Boolean, nullable=False)
+    calnet_uid = Column(Integer, nullable=True)
+    callink_oid = Column(Integer, nullable=True)
+    email = Column(String(255), nullable=False)
+    encrypted_password = Column(LargeBinary(510), nullable=False)
+    reason = Column(Text, nullable=False)
+
     def __str__(self):
-        # TODO: reasons
-        return '{self.user_name} ({type}), because of {reasons}'.format(
+        return '{self.user_name} ({type}), because: {reason}'.format(
             self=self,
             type='group' if self.is_group else 'individual',
-            reasons='reasons',
+            reason=self.reason,
         )
 
     @classmethod
-    def from_request(cls, request):
+    def from_request(cls, request, reason):
         """Create a StoredNewAccountRequest from a NewAccountRequest."""
         return cls(
             user_name=request.user_name,
@@ -92,6 +103,7 @@ class StoredNewAccountRequest(Base):
             callink_oid=request.callink_oid,
             email=request.email,
             encrypted_password=request.encrypted_password,
+            reason=reason,
         )
 
     def to_request(self, handle_warnings=NewAccountRequest.WARNINGS_CREATE):
@@ -104,16 +116,6 @@ class StoredNewAccountRequest(Base):
             },
             handle_warnings=handle_warnings,
         ))
-
-    # TODO: enforce these lengths during submission as errors
-    id = Column(Integer, primary_key=True)
-    user_name = Column(String(255), unique=True, nullable=False)
-    real_name = Column(String(255), nullable=False)
-    is_group = Column(Boolean, nullable=False)
-    calnet_uid = Column(Integer, nullable=True)
-    callink_oid = Column(Integer, nullable=True)
-    email = Column(String(255), nullable=False)
-    encrypted_password = Column(LargeBinary(510), nullable=False)
 
 
 class NewAccountResponse(namedtuple('NewAccountResponse', [
@@ -183,7 +185,7 @@ def get_tasks(celery_app, credentials=None):
             # anyway, submit the account for staff approval, or get a response
             # with a list of warnings for further inspection.
             if request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
-                stored_request = StoredNewAccountRequest.from_request(request)
+                stored_request = StoredNewAccountRequest.from_request(request, str(warnings))
 
                 session = get_session()
                 session.add(stored_request)  # TODO: error handling
@@ -264,19 +266,19 @@ def get_tasks(celery_app, credentials=None):
         ).first()
         session.delete(request_row)
         session.commit()
-        return request_row.to_request()
+        return request_row
 
     @celery_app.task
     def approve_request(user_name):
-        request = get_remove_row_by_user_name(user_name)
+        request = get_remove_row_by_user_name(user_name).to_request()
         create_account.delay(request)
         dispatch_event('ocflib.account_approved', request=request.to_dict())
 
     @celery_app.task
     def reject_request(user_name):
-        request = get_remove_row_by_user_name(user_name)
-        reason = 'TODO: come up with a reason'
-        send_rejected_mail(request, reason)
+        stored_request = get_remove_row_by_user_name(user_name)
+        request = stored_request.to_request()
+        send_rejected_mail(request, stored_request.reason)
         dispatch_event('ocflib.account_rejected', request=request.to_dict())
 
     return _AccountSubmissionTasks(

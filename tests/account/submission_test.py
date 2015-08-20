@@ -27,7 +27,7 @@ def session(fake_credentials):
 class TestUsernamePending:
 
     def test_pending(self, session, fake_new_account_request):
-        session.add(StoredNewAccountRequest.from_request(fake_new_account_request))
+        session.add(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason'))
         session.commit()
         assert username_pending(session, fake_new_account_request)
 
@@ -43,7 +43,7 @@ class TestUserHasRequestPending:
     ])
     def test_has_pending(self, session, fake_new_account_request, attrs):
         fake_new_account_request = fake_new_account_request._replace(**attrs)
-        session.add(StoredNewAccountRequest.from_request(fake_new_account_request))
+        session.add(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason'))
         session.commit()
         assert user_has_request_pending(session, fake_new_account_request)
 
@@ -57,7 +57,7 @@ class TestUserHasRequestPending:
             callink_oid=0,
             calnet_uid=None,
         )
-        session.add(StoredNewAccountRequest.from_request(fake_new_account_request))
+        session.add(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason'))
         session.commit()
         assert not user_has_request_pending(session, fake_new_account_request)
 
@@ -100,8 +100,11 @@ def tasks(session, celery_app, fake_credentials):
 
 @pytest.fixture
 def session_with_requests(session, fake_new_account_request):
-    session.add(StoredNewAccountRequest.from_request(fake_new_account_request))
-    session.add(StoredNewAccountRequest.from_request(fake_new_account_request._replace(user_name='other')))
+    session.add(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason'))
+    session.add(StoredNewAccountRequest.from_request(
+        fake_new_account_request._replace(user_name='other'),
+        'reason',
+    ))
     session.commit()
     assert len(session.query(StoredNewAccountRequest).all()) == 2
     return session
@@ -113,7 +116,7 @@ def test_approve_request(celery_app, fake_new_account_request, session_with_requ
 
     # we want to make sure we go through the same conversion process:
     # live -> stored -> live -> dict
-    request = StoredNewAccountRequest.from_request(fake_new_account_request).to_request()
+    request = StoredNewAccountRequest.from_request(fake_new_account_request, 'reason').to_request()
     tasks.create_account.delay.assert_called_once_with(request)
     assert celery_app._sent_messages == [
         {'type': 'ocflib.account_approved', 'request': request.to_dict()}
@@ -127,7 +130,7 @@ def test_reject_request(send_rejected_mail, celery_app, fake_new_account_request
 
     # we want to make sure we go through the same conversion process:
     # live -> stored -> live -> dict
-    request = StoredNewAccountRequest.from_request(fake_new_account_request).to_request()
+    request = StoredNewAccountRequest.from_request(fake_new_account_request, 'reason').to_request()
     assert celery_app._sent_messages == [
         {'type': 'ocflib.account_rejected', 'request': request.to_dict()}
     ]
@@ -140,8 +143,11 @@ def test_get_pending_requests(session_with_requests, tasks, fake_new_account_req
     request = fake_new_account_request
     pending_requests = tasks.get_pending_requests()
     assert set(request.to_request() for request in pending_requests) == {
-        StoredNewAccountRequest.from_request(request).to_request(),
-        StoredNewAccountRequest.from_request(request._replace(user_name='other')).to_request(),
+        StoredNewAccountRequest.from_request(request, 'reason').to_request(),
+        StoredNewAccountRequest.from_request(
+            request._replace(user_name='other'),
+            'reason',
+        ).to_request(),
     }
 
 
@@ -207,9 +213,11 @@ class TestValidateThenCreateAccount:
                 )
 
             if expected == NewAccountResponse.PENDING:
-                # TODO: replace mock.ANY with request.to_dict() once we have tracking of reasons
                 assert celery_app._sent_messages == [
-                    {'type': 'ocflib.account_submitted', 'request': mock.ANY}
+                    {
+                        'type': 'ocflib.account_submitted',
+                        'request': dict(request.to_dict(), reasons=['ok warning']),
+                    }
                 ]
                 assert len(session.query(StoredNewAccountRequest).all()) == 1
             else:
@@ -286,6 +294,6 @@ class TestStoredNewAccountRequest:
 
     def test_str(self, fake_new_account_request):
         assert (
-            str(StoredNewAccountRequest.from_request(fake_new_account_request)) ==
-            'someuser (individual), because of reasons'
+            str(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason')) ==
+            'someuser (individual), because: reason'
         )
