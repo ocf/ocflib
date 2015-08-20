@@ -155,31 +155,21 @@ def get_tasks(celery_app, credentials=None):
             disp.send(type=event_type, **kwargs)
 
     @celery_app.task
-    def create_account(request):
-        # status reporting
-        status = []
-        state = 'STARTED'
+    def validate_then_create_account(request):
+        """First run validation, then create.
 
-        def _report_status(line):
-            """Update task status by adding the given line."""
-            status.append(line)
-            create_account.update_state(
-                state=state,
-                meta={'status': status},
-            )
+        This is handy because this task runs quickly, so you can wait for it to
+        finish (unlike create_account, which is slow and uses a global lock).
 
-        @contextmanager
-        def report_status(start, stop, task):
-            _report_status(start + ' ' + task)
-            yield
-            _report_status(stop + ' ' + task)
+        If this task succeeds, it will launch create_account, and returns you
+        the new task ID.
 
-        # actual account creation
-        with report_status('Validating', 'Validated', 'account request'):
-            errors, warnings = validate_request(
-                request, credentials, get_session()
-            )
-
+        Assuming this task succeeds, it is almost certain that create_account
+        will succeed. However, create_account runs validation again, so it is
+        possible for it to fail (just exceedingly unlikely).
+        """
+        # TODO: docstring is not 100% correct
+        errors, warnings = validate_request(request, credentials, get_session())
         if errors:
             # Fatal errors; cannot be bypassed, even with staff approval
             return NewAccountResponse(
@@ -191,32 +181,56 @@ def get_tasks(celery_app, credentials=None):
             # anyway, submit the account for staff approval, or get a response
             # with a list of warnings for further inspection.
             if request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
-                with report_status('Submitting', 'Submitted', 'account for staff approval'):
-                    stored_request = StoredNewAccountRequest.from_request(request)
+                stored_request = StoredNewAccountRequest.from_request(request)
 
-                    session = get_session()
-                    session.add(stored_request)  # TODO: error handling
-                    session.commit()
+                session = get_session()
+                session.add(stored_request)  # TODO: error handling
+                session.commit()
 
-                    dispatch_event(
-                        'ocflib.account_submitted',
-                        request=dict(request.to_dict(), reasons=warnings),
-                    )
-                    return NewAccountResponse(
-                        status=NewAccountResponse.PENDING,
-                        errors=warnings,
-                    )
+                dispatch_event(
+                    'ocflib.account_submitted',
+                    request=dict(request.to_dict(), reasons=warnings),
+                )
+                return NewAccountResponse(
+                    status=NewAccountResponse.PENDING,
+                    errors=warnings,
+                )
             elif request.handle_warnings == NewAccountRequest.WARNINGS_WARN:
                 return NewAccountResponse(
                     status=NewAccountResponse.FLAGGED,
                     errors=warnings,
                 )
 
-        # change state to VALIDATED so frontends know that they can switch to
-        # async mode while waiting for the account to be created
-        state = 'VALIDATED'
-        _report_status('Finished validation.')
+        return create_account.delay(request).id
 
+    @celery_app.task
+    def create_account(request):
+        # TODO: docstring
+        # TODO: locking
+        # status reporting
+        status = []
+
+        def _report_status(line):
+            """Update task status by adding the given line."""
+            status.append(line)
+            create_account.update_state(meta={'status': status})
+
+        @contextmanager
+        def report_status(start, stop, task):
+            _report_status(start + ' ' + task)
+            yield
+            _report_status(stop + ' ' + task)
+
+        with report_status('Validating', 'Validated', 'request'):
+            errors, warnings = validate_request(request, credentials, get_session())
+
+        if errors:
+            return NewAccountResponse(
+                status=NewAccountResponse.REJECTED,
+                errors=(errors + warnings),
+            )
+
+        # actual account creation
         real_create_account(request, credentials, report_status)
         dispatch_event('ocflib.account_created', request=request.to_dict())
         return NewAccountResponse(
@@ -252,6 +266,7 @@ def get_tasks(celery_app, credentials=None):
         dispatch_event('ocflib.account_rejected', request=request.to_dict())
 
     return _AccountSubmissionTasks(
+        validate_then_create_account=validate_then_create_account,
         create_account=create_account,
         get_pending_requests=get_pending_requests,
         approve_request=approve_request,
@@ -259,6 +274,7 @@ def get_tasks(celery_app, credentials=None):
     )
 
 _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
+    'validate_then_create_account',
     'create_account',
     'get_pending_requests',
     'approve_request',

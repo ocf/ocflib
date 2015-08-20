@@ -73,7 +73,7 @@ def celery_app():
         # wrap everything in Mock so we can track calls
         return mock.Mock(
             side_effect=f,
-            delay=mock.Mock(side_effect=f),
+            delay=mock.Mock(),
             update_state=mock.Mock(side_effect=update_state),
         )
 
@@ -160,6 +160,76 @@ def mock_real_create_account():
         yield m
 
 
+class TestValidateThenCreateAccount:
+
+    def test_validate_no_issues(
+        self,
+        tasks,
+        fake_new_account_request,
+        mock_real_create_account,
+        fake_credentials,
+        celery_app,
+    ):
+        with mock_validate_request([], []):
+            resp = tasks.validate_then_create_account(fake_new_account_request)
+            tasks.create_account.delay.assert_called_once_with(fake_new_account_request)
+            assert resp == tasks.create_account.delay(fake_new_account_request).id
+
+    @pytest.mark.parametrize('handle_warnings,expected', [
+        (NewAccountRequest.WARNINGS_WARN, NewAccountResponse.FLAGGED),
+        (NewAccountRequest.WARNINGS_SUBMIT, NewAccountResponse.PENDING),
+        (NewAccountRequest.WARNINGS_CREATE, NewAccountResponse.CREATED),
+    ])
+    def test_validate_with_warnings(
+        self,
+        tasks,
+        fake_new_account_request,
+        fake_credentials,
+        handle_warnings,
+        expected,
+        celery_app,
+        session,
+    ):
+        assert len(session.query(StoredNewAccountRequest).all()) == 0
+        with mock_validate_request([], ['ok warning']):
+            request = fake_new_account_request._replace(
+                handle_warnings=handle_warnings,
+            )
+            resp = tasks.validate_then_create_account(request)
+
+            if expected == NewAccountResponse.CREATED:
+                tasks.create_account.delay.assert_called_once_with(request)
+                assert resp == tasks.create_account.delay(request).id
+            else:
+                assert resp == NewAccountResponse(
+                    status=expected,
+                    errors=['ok warning'],
+                )
+
+            if expected == NewAccountResponse.PENDING:
+                # TODO: replace mock.ANY with request.to_dict() once we have tracking of reasons
+                assert celery_app._sent_messages == [
+                    {'type': 'ocflib.account_submitted', 'request': mock.ANY}
+                ]
+                assert len(session.query(StoredNewAccountRequest).all()) == 1
+            else:
+                assert len(session.query(StoredNewAccountRequest).all()) == 0
+
+    def test_validate_with_errors(
+        self,
+        tasks,
+        fake_new_account_request,
+        fake_credentials,
+    ):
+        with mock_validate_request(['bad error'], ['ok warning']):
+            resp = tasks.validate_then_create_account(fake_new_account_request)
+            assert resp == NewAccountResponse(
+                status=NewAccountResponse.REJECTED,
+                errors=['bad error', 'ok warning'],
+            )
+            assert not tasks.create_account.delay.called
+
+
 class TestCreateAccount:
 
     def test_create_no_issues(
@@ -199,57 +269,6 @@ class TestCreateAccount:
                 errors=['bad error', 'ok warning'],
             )
             assert not mock_real_create_account.called
-
-    @pytest.mark.parametrize('handle_warnings,expected', [
-        (NewAccountRequest.WARNINGS_WARN, NewAccountResponse.FLAGGED),
-        (NewAccountRequest.WARNINGS_SUBMIT, NewAccountResponse.PENDING),
-        (NewAccountRequest.WARNINGS_CREATE, NewAccountResponse.CREATED),
-    ])
-    def test_create_with_warnings(
-        self,
-        tasks,
-        fake_new_account_request,
-        mock_real_create_account,
-        fake_credentials,
-        handle_warnings,
-        expected,
-        celery_app,
-        session,
-    ):
-        assert len(session.query(StoredNewAccountRequest).all()) == 0
-        with mock_validate_request([], ['ok warning']):
-            request = fake_new_account_request._replace(
-                handle_warnings=handle_warnings,
-            )
-            resp = tasks.create_account(request)
-
-            if expected == NewAccountResponse.CREATED:
-                mock_real_create_account.assert_called_once_with(
-                    request,
-                    fake_credentials,
-                    mock.ANY,
-                )
-                assert resp == NewAccountResponse(
-                    status=expected,
-                    errors=[],
-                )
-                assert celery_app._sent_messages == [
-                    {'type': 'ocflib.account_created', 'request': request.to_dict()}
-                ]
-            else:
-                assert resp == NewAccountResponse(
-                    status=expected,
-                    errors=['ok warning'],
-                )
-
-            if expected == NewAccountResponse.PENDING:
-                # TODO: replace mock.ANY with request.to_dict() once we have tracking of reasons
-                assert celery_app._sent_messages == [
-                    {'type': 'ocflib.account_submitted', 'request': mock.ANY}
-                ]
-                assert len(session.query(StoredNewAccountRequest).all()) == 1
-            else:
-                assert len(session.query(StoredNewAccountRequest).all()) == 0
 
 
 class TestStoredNewAccountRequest:
