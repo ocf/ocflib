@@ -4,6 +4,8 @@ from textwrap import dedent
 
 import mock
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 import ocflib.account.creation
 from ocflib.account.creation import _get_first_available_uid
@@ -25,7 +27,7 @@ from ocflib.account.creation import validate_username
 from ocflib.account.creation import ValidationError
 from ocflib.account.creation import ValidationWarning
 from ocflib.account.submission import AccountCreationCredentials
-
+from ocflib.account.submission import Base
 
 WEAK_KEY = dedent(
     """\
@@ -45,6 +47,13 @@ WEAK_KEY = dedent(
     CqXzvT0v5ZrGj+K9dWDb+pYvGWhc2iU/e40yyj0G9w==
     -----END RSA PRIVATE KEY-----"""
 )
+
+
+@pytest.fixture
+def session(fake_credentials):
+    engine = create_engine(fake_credentials.mysql_uri)
+    Base.metadata.create_all(engine)
+    return sessionmaker(bind=engine)()
 
 
 @pytest.yield_fixture
@@ -336,16 +345,6 @@ class TestValidatePassword:
             validate_password('ckuehl', password)
 
 
-def mock_session(response):
-    # TODO: this is crappy, use the one from submission_test instead
-    return mock.Mock(**{
-        'query.return_value': mock.Mock(
-            scalar=lambda: response[0][0],
-            first=lambda: response[0]
-        ),
-    })
-
-
 @pytest.yield_fixture
 def fake_credentials(mock_rsa_key):
     yield AccountCreationCredentials(
@@ -382,11 +381,12 @@ class TestValidateRequest:
         fake_new_account_request,
         fake_credentials,
         mock_valid_calnet_uid,
+        session,
     ):
         assert validate_request(
             fake_new_account_request,
             fake_credentials,
-            mock_session([[False]]),
+            session,
         ) == ([], [])
 
     @pytest.mark.parametrize('attrs', [
@@ -399,11 +399,12 @@ class TestValidateRequest:
         fake_credentials,
         mock_valid_calnet_uid,
         attrs,
+        session,
     ):
         errors, warnings = validate_request(
             fake_new_account_request._replace(**attrs),
             fake_credentials,
-            mock_session([[False]]),
+            session,
         )
         assert warnings
 
@@ -416,33 +417,37 @@ class TestValidateRequest:
         fake_credentials,
         mock_valid_calnet_uid,
         attrs,
+        session,
     ):
         errors, warnings = validate_request(
             fake_new_account_request._replace(**attrs),
             fake_credentials,
-            mock_session([[False]]),
+            session,
         )
         assert errors
 
-    def test_invalid_request_already_submitted_submitted(
+    def test_invalid_request_already_submitted(
         self,
         fake_new_account_request,
         fake_credentials,
         mock_valid_calnet_uid,
+        session,
     ):
+        # test where username has already been requested
         with mock.patch('ocflib.account.submission.username_pending', return_value=True):
             errors, warnings = validate_request(
                 fake_new_account_request,
                 fake_credentials,
-                mock_session([[False]]),
+                session,
             )
         assert errors
 
+        # test where this user (calnet/callink oid) has already submitted a request
         with mock.patch('ocflib.account.submission.user_has_request_pending', return_value=True):
             errors, warnings = validate_request(
                 fake_new_account_request,
                 fake_credentials,
-                mock_session([[False]]),
+                session,
             )
         assert errors
 
