@@ -145,13 +145,18 @@ def get_tasks(celery_app, credentials=None):
     # mysql, for stored account requests
     Session = None
 
+    @contextmanager
     def get_session():
         nonlocal Session
         if Session is None:
             Session = sessionmaker(
                 bind=create_engine(credentials.mysql_uri),
             )
-        return Session()
+        session = Session()
+        try:
+            yield session
+        finally:
+            session.close()
 
     # convenience function for dispatching Celery events
     def dispatch_event(event_type, **kwargs):
@@ -173,7 +178,8 @@ def get_tasks(celery_app, credentials=None):
         possible for it to fail (just exceedingly unlikely).
         """
         # TODO: docstring is not 100% correct
-        errors, warnings = validate_request(request, credentials, get_session())
+        with get_session() as session:
+            errors, warnings = validate_request(request, credentials, session)
         if errors:
             # Fatal errors; cannot be bypassed, even with staff approval
             return NewAccountResponse(
@@ -187,9 +193,9 @@ def get_tasks(celery_app, credentials=None):
             if request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
                 stored_request = StoredNewAccountRequest.from_request(request, str(warnings))
 
-                session = get_session()
-                session.add(stored_request)  # TODO: error handling
-                session.commit()
+                with get_session() as session:
+                    session.add(stored_request)  # TODO: error handling
+                    session.commit()
 
                 dispatch_event(
                     'ocflib.account_submitted',
@@ -231,8 +237,9 @@ def get_tasks(celery_app, credentials=None):
                 yield
                 _report_status(stop + ' ' + task)
 
-            with report_status('Validating', 'Validated', 'request'):
-                errors, warnings = validate_request(request, credentials, get_session())
+            with report_status('Validating', 'Validated', 'request'), \
+                    get_session() as session:
+                errors, warnings = validate_request(request, credentials, session)
 
             if errors:
                 send_rejected_mail(request, str(errors))
@@ -256,17 +263,18 @@ def get_tasks(celery_app, credentials=None):
 
     @celery_app.task
     def get_pending_requests():
-        return get_session().query(StoredNewAccountRequest).all()
+        with get_session() as session:
+            return session.query(StoredNewAccountRequest).all()
 
     def get_remove_row_by_user_name(user_name):
         """Fetch stored request, then remove it."""
-        session = get_session()
-        request_row = session.query(StoredNewAccountRequest).filter(
-            StoredNewAccountRequest.user_name == user_name
-        ).first()
-        session.delete(request_row)
-        session.commit()
-        return request_row
+        with get_session() as session:
+            request_row = session.query(StoredNewAccountRequest).filter(
+                StoredNewAccountRequest.user_name == user_name
+            ).first()
+            session.delete(request_row)
+            session.commit()
+            return request_row
 
     @celery_app.task
     def approve_request(user_name):
