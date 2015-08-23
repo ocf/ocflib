@@ -1,6 +1,7 @@
 # coverage 4.0a6 breaks python3
 coverage==3.7.1
 coveralls
+freezegun
 mock
 pytest
 twine

@@ -41,6 +41,9 @@ class DayHours(namedtuple('DayHours', ['name', 'open', 'close'])):
         if not when:
             when = date.today()
 
+        if isinstance(when, datetime):
+            when = when.date()
+
         my_name = when.strftime('%A')  # e.g. 'Thursday'
         my_hours = REGULAR_HOURS[when.weekday()]
 
@@ -57,13 +60,16 @@ class DayHours(namedtuple('DayHours', ['name', 'open', 'close'])):
         )
 
     def is_open(self, when=None):
-        if None in [self.open, self.close]:
-            return False
-
         if not when:
             when = datetime.now()
 
-        return self.open <= datetime.hour < self.close
+        if not isinstance(when, datetime):
+            raise ValueError('{} must be a datetime instance'.format(when))
+
+        if None in [self.open, self.close]:
+            return False
+
+        return self.open <= when.hour < self.close
 
 
 def get_hours(when=None):
