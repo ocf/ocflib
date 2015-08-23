@@ -27,6 +27,7 @@ setup(
         'pycrypto',
         'pymysql',
         'pysnmp',
+        'pyyaml',
         'redis',
         'requests',
         'sqlalchemy',
