@@ -1,4 +1,6 @@
 from collections import namedtuple
+from datetime import date
+from datetime import timedelta
 from hashlib import md5
 from urllib.parse import urlencode
 
@@ -53,3 +55,9 @@ def get_staff_hours():
             cancelled=hour['cancelled'],
         ) for hour in staff_hours['staff-hours']
     ]
+
+
+def get_staff_hours_soonest_first():
+    today = date.today()
+    days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
+    return sorted(get_staff_hours(), key=lambda hour: days.index(hour.day))

@@ -2,9 +2,11 @@ import mock
 import pytest
 import requests
 import yaml
+from freezegun import freeze_time
 
 from ocflib.lab.staff_hours import _load_staff_hours
 from ocflib.lab.staff_hours import get_staff_hours
+from ocflib.lab.staff_hours import get_staff_hours_soonest_first
 from ocflib.lab.staff_hours import Hour
 from ocflib.lab.staff_hours import Staffer
 
@@ -105,6 +107,17 @@ def test_get_staff_hours(mock_disk):
             cancelled=True,
         ),
     ]
+
+
+@pytest.mark.parametrize('time,expected', [
+    ('2015-08-23', ['Monday', 'Tuesday']),  # Sunday
+    ('2015-08-24', ['Monday', 'Tuesday']),  # Monday
+    ('2015-08-25', ['Tuesday', 'Monday']),  # Tuesday
+    ('2015-08-26', ['Monday', 'Tuesday']),  # Wednesday
+])
+def test_get_staff_hours_soonest_first(mock_disk, time, expected):
+    with freeze_time(time):
+        assert [hour.day for hour in get_staff_hours_soonest_first()] == expected
 
 
 @pytest.mark.parametrize('size', [10, 100, 1000])
