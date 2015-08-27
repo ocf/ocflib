@@ -6,8 +6,16 @@ import pytest
 from freezegun import freeze_time
 
 from ocflib.lab.hours import DayHours
+from ocflib.lab.hours import FRIDAY
 from ocflib.lab.hours import get_hours
 from ocflib.lab.hours import is_open
+from ocflib.lab.hours import MONDAY
+from ocflib.lab.hours import REGULAR_HOURS
+from ocflib.lab.hours import SATURDAY
+from ocflib.lab.hours import SUNDAY
+from ocflib.lab.hours import THURSDAY
+from ocflib.lab.hours import TUESDAY
+from ocflib.lab.hours import WEDNESDAY
 
 
 FAKE_HOLIDAYS = {
@@ -67,16 +75,24 @@ def test_is_open_fails_with_just_date():
 
 class TestDayHours:
 
-    @pytest.mark.parametrize('when,name,open,close', [
-        (date(2015, 3, 15), 'Sunday', 12, 17),
-        (datetime(2015, 3, 15), 'Sunday', 12, 17),
-        (datetime(2015, 3, 18), 'Wednesday', 9, 18),
-        (datetime(2015, 3, 14), 'Pi Day (Saturday)', None, None),
-        (date(2015, 3, 22), 'Random 3 Days (Sunday)', 1, 2),
-        (None, 'Saturday', 11, 18),
+    @pytest.mark.parametrize('when,name,holiday,open,close', [
+        (date(2015, 3, 15), 'Sunday', None, 12, 17),
+        (datetime(2015, 3, 15), 'Sunday', None, 12, 17),
+        (datetime(2015, 3, 18), 'Wednesday', None, 9, 18),
+        (datetime(2015, 3, 14), 'Saturday', 'Pi Day', None, None),
+        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', 1, 2),
+        (None, 'Saturday', None, 11, 18),
     ])
-    def test_creation(self, mock_hours, mock_today, when, name, open, close):
+    def test_creation(self, mock_hours, mock_today, when, name, holiday, open, close):
         for day_hours in [DayHours.from_date(when), get_hours(when)]:
             assert day_hours.name == name
             assert day_hours.open == open
+            assert day_hours.holiday == holiday
             assert day_hours.close == close
+
+
+def test_hours():
+    for day in (SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY):
+        open, close = REGULAR_HOURS[day]
+        assert isinstance(open, int)
+        assert isinstance(close, int)

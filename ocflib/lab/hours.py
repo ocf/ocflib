@@ -6,21 +6,22 @@ hours.
 
 All times are assumed to be OST (OCF Standard Time).
 """
+from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from datetime import datetime
 
-
-REGULAR_HOURS = {
-    0: (9, 18),  # Monday
-    1: (9, 18),  # Tuesday
-    2: (9, 18),  # Wednesday
-    3: (9, 18),  # Thursday
-    4: (9, 18),  # Friday
-    5: (11, 18),  # Saturday
-    6: (12, 17),  # Sunday
-}
-
+MONDAY = 0
+TUESDAY = 1
+WEDNESDAY = 2
+THURSDAY = 3
+FRIDAY = 4
+SATURDAY = 5
+SUNDAY = 6
+REGULAR_HOURS = defaultdict(lambda: (9, 18), {
+    SUNDAY: (12, 17),
+    SATURDAY: (11, 18),
+})
 HOLIDAYS = {
     # start date, end date, holiday name, hours (date ranges are inclusive)
     (date(2015, 8, 1), date(2015, 8, 25), 'Summer Break', (None, None)),
@@ -34,7 +35,7 @@ HOLIDAYS = {
 }
 
 
-class DayHours(namedtuple('DayHours', ['name', 'open', 'close'])):
+class DayHours(namedtuple('DayHours', ['name', 'holiday', 'open', 'close'])):
 
     @classmethod
     def from_date(cls, when=None):
@@ -45,16 +46,18 @@ class DayHours(namedtuple('DayHours', ['name', 'open', 'close'])):
             when = when.date()
 
         my_name = when.strftime('%A')  # e.g. 'Thursday'
+        my_holiday = None
         my_hours = REGULAR_HOURS[when.weekday()]
 
         for start, end, name, hours in HOLIDAYS:
             if start <= when <= end:
-                my_name = '{} ({})'.format(name, my_name)
+                my_holiday = name
                 my_hours = hours
                 break
 
         return cls(
             name=my_name,
+            holiday=my_holiday,
             open=my_hours[0],
             close=my_hours[1],
         )
@@ -79,7 +82,7 @@ def get_hours(when=None):
     DayHours('Thursday', 9, 18)
 
     >>> get_hours()
-    DayHours('Thanksgiving Break (Thursday)', None, None)
+    DayHours('Thursday', None, None)
     """
     return DayHours.from_date(when)
 
