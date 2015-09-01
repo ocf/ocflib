@@ -303,10 +303,10 @@ def validate_username(username, realname):
             'Username {} not based on real name {}'.format(username, realname))
 
     if any(word in username for word in constants.BAD_WORDS):
-        raise ValidationWarning('Username {} contains bad words')
+        raise ValidationWarning('Username {} contains bad words'.format(username))
 
     if any(word in username for word in constants.RESTRICTED_WORDS):
-        raise ValidationWarning('Username {} contains restricted words')
+        raise ValidationWarning('Username {} contains restricted words'.format(username))
 
 
 def similarity_heuristic(realname, username):
