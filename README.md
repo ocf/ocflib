@@ -57,9 +57,8 @@ testing.
 #### Testing in a sandbox
 
 Ideally, you should test your changes in a clean virtualenv (not the one you
-develop in). To do this, just run `make tox-pyenv`. This will take a few
-minutes as it downloads and compiles Python 3.2 and 3.4, creates virtualenvs
-for both, then installs ocflib and runs the tests inside of them.
+develop in). To do this, just run `make tox`. This will create a clean
+virtualenv, install ocflib inside of it, and then run the tests.
 
 Normally, it is sufficient to just run `make check` from your development
 environment, then push your changes. [Jenkins][jenkins] will run the tests in
@@ -76,7 +75,7 @@ Deploying changes involves:
 
 [Jenkins][jenkins] will automatically perform all of these steps for you on
 every push, including automatically generating a new version number. As long as
-`make tox-pyenv` passes, your code will be automatically deployed. You can
+`make tox` passes, your code will be automatically deployed. You can
 monitor the progress of your deploy [here][jenkins].
 
 [ocf]: https://www.ocf.berkeley.edu/
