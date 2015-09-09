@@ -295,5 +295,5 @@ class TestStoredNewAccountRequest:
     def test_str(self, fake_new_account_request):
         assert (
             str(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason')) ==
-            'someuser (individual), because: reason'
+            'someuser (individual: "Some User"), because: reason'
         )

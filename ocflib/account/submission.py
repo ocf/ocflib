@@ -87,10 +87,9 @@ class StoredNewAccountRequest(Base):
     reason = Column(Text, nullable=False)
 
     def __str__(self):
-        return '{self.user_name} ({type}), because: {reason}'.format(
+        return '{self.user_name} ({type}: "{self.real_name}"), because: {self.reason}'.format(
             self=self,
             type='group' if self.is_group else 'individual',
-            reason=self.reason,
         )
 
     @classmethod
