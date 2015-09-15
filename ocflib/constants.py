@@ -161,6 +161,7 @@ RESERVED_USERNAMES = [
     'saned',
     'secretary',
     'security',
+    'servers',
     'sexy',
     'sm',
     'spamd',
