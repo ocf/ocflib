@@ -115,17 +115,28 @@ def create_home_dir(user):
                 '--owner=' + user, path, os.path.join(home, '.' + name)])
 
 
-# TODO: is there a reason we make the user use makehttp, or should we just make
-# the public_html symlink at account creation?
 def create_web_dir(user):
-    """Create web directory for user with appropriate permissions. We start web
-    directories at 000; the user can later use makehttp to chmod them to
-    something readable by the webserver if they desire.
+    """Create web directory for user with appropriate permissions.
+
+    All users are given a working web directory and public_html symlink at
+    account creation. They can later use `makehttp` to fix these if they bork
+    the permissions or symlink.
     """
     path = utils.web_dir(user)
-    subprocess.check_call(
-        ['sudo', 'install', '-d', '--mode=0000', '--group=ocf',
-            '--owner=' + user, path])
+
+    # create web directory
+    subprocess.check_call([
+        'sudo', 'install',
+        '-d', '--mode=0755', '--group=ocf', '--owner=' + user,
+        '--',
+        path,
+    ])
+
+    # symlink it from ~user/public_html
+    subprocess.check_call([
+        'sudo', '-u', user,
+        'ln', '-fs', '--', path, os.path.join(utils.home_dir(user), 'public_html'),
+    ])
 
 
 def send_created_mail(request):

@@ -143,10 +143,16 @@ class TestCreateDirectories:
     @mock.patch('subprocess.check_call')
     def test_create_web_dir(self, check_call):
         create_web_dir('ckuehl')
-        check_call.assert_called_with(
-            ['sudo', 'install', '-d', '--mode=0000', '--group=ocf',
-                '--owner=ckuehl', '/services/http/users/c/ckuehl'],
-        )
+        check_call.assert_has_calls([
+            mock.call([
+                'sudo', 'install', '-d', '--mode=0755', '--group=ocf', '--owner=ckuehl',
+                '--', '/services/http/users/c/ckuehl',
+            ]),
+            mock.call([
+                'sudo', '-u', 'ckuehl', 'ln', '-fs', '--',
+                '/services/http/users/c/ckuehl', '/home/c/ck/ckuehl/public_html',
+            ]),
+        ])
 
 
 class TestUsernameBasedOnRealName:
