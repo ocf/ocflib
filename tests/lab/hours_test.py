@@ -75,7 +75,7 @@ def test_is_open_fails_with_just_date():
 
 class TestDayHours:
 
-    @pytest.mark.parametrize('when,name,holiday,open,close', [
+    @pytest.mark.parametrize('when,weekday,holiday,open,close', [
         (date(2015, 3, 15), 'Sunday', None, 12, 17),
         (datetime(2015, 3, 15), 'Sunday', None, 12, 17),
         (datetime(2015, 3, 18), 'Wednesday', None, 9, 18),
@@ -83,9 +83,18 @@ class TestDayHours:
         (date(2015, 3, 22), 'Sunday', 'Random 3 Days', 1, 2),
         (None, 'Saturday', None, 11, 18),
     ])
-    def test_creation(self, mock_hours, mock_today, when, name, holiday, open, close):
+    def test_creation(self, mock_hours, mock_today, when, weekday, holiday, open, close):
         for day_hours in [DayHours.from_date(when), get_hours(when)]:
-            assert day_hours.name == name
+            if when:
+                if isinstance(when, datetime):
+                    day = when.date()
+                else:
+                    day = when
+            else:
+                day = date.today()
+
+            assert day_hours.date == day
+            assert day_hours.weekday == weekday
             assert day_hours.open == open
             assert day_hours.holiday == holiday
             assert day_hours.close == close

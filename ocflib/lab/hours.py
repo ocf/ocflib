@@ -35,7 +35,7 @@ HOLIDAYS = {
 }
 
 
-class DayHours(namedtuple('DayHours', ['name', 'holiday', 'open', 'close'])):
+class DayHours(namedtuple('DayHours', ['date', 'weekday', 'holiday', 'open', 'close'])):
 
     @classmethod
     def from_date(cls, when=None):
@@ -45,7 +45,7 @@ class DayHours(namedtuple('DayHours', ['name', 'holiday', 'open', 'close'])):
         if isinstance(when, datetime):
             when = when.date()
 
-        my_name = when.strftime('%A')  # e.g. 'Thursday'
+        weekday = when.strftime('%A')  # e.g. 'Thursday'
         my_holiday = None
         my_hours = REGULAR_HOURS[when.weekday()]
 
@@ -56,7 +56,8 @@ class DayHours(namedtuple('DayHours', ['name', 'holiday', 'open', 'close'])):
                 break
 
         return cls(
-            name=my_name,
+            date=when,
+            weekday=weekday,
             holiday=my_holiday,
             open=my_hours[0],
             close=my_hours[1],
