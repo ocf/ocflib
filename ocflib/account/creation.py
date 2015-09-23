@@ -83,7 +83,7 @@ def _get_first_available_uid():
     We hard-code a value we know has already been reached and only select
     entries greater than that for performance.
     """
-    KNOWN_MIN = 33900
+    KNOWN_MIN = 35000
     with ldap_ocf() as c:
         c.search(
             constants.OCF_LDAP_PEOPLE,
@@ -147,8 +147,13 @@ Your OCF account has been created and is ready for use! Welcome aboard!
 Your account name is: {request.user_name}
 
 As a brand-new OCF member, you're welcome to use any and all of our services.
-You can find out more about them on our wiki:
+Some key highlights:
 
+    - Access to our swanky computer lab (6A Hearst Gym)
+    - 250 pages of free printing per semester
+    - Web hosting: https://www.ocf.berkeley.edu/~{request.user_name}/
+
+You can find out the cool things you can do on our wiki:
 https://ocf.io/wiki
 
 Keep in mind not to share your shiny new password with anyone, including OCF
@@ -156,15 +161,13 @@ staffers. You can always reset it online:
 
 https://ocf.io/password
 
-Finally, we would like to remind you that the OCF is run entirely by student
-volunteers, and as such, we are always looking for new staff. If you value the
-services that the OCF provides to the UC Berkeley community and want to assist
-us in continuing to offer them, please visit:
+Finally, we'd like to remind you that the OCF is run completely by student
+volunteers (people like you)! If you value the services we provide, check us
+out and consider getting involved!
 
 https://hello.ocf.berkeley.edu/
 
-If you have any other questions or problems, feel free to contact us by
-replying to this message.
+If you have any other questions, feel free to reply to this message!
 
 {signature}""".format(request=request,
                       signature=constants.MAIL_SIGNATURE)

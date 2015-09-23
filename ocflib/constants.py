@@ -43,6 +43,9 @@ The Open Computing Facility is an all-volunteer, student-run service
 group providing free printing, web hosting, disk space, and Unix shell
 accounts.
 
+We love free & open-source software. Sound like you? Get involved!
+https://hello.ocf.berkeley.edu/
+
 OCF volunteers hold weekly staff hours to provide support:
 https://ocf.io/staff-hours
 
