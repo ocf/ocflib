@@ -75,19 +75,20 @@ def create_account(request, creds, report_status):
 
 
 def _get_first_available_uid():
-    """Returns the first available UID number.
+    """Return the first available UID number.
 
     Searches our entire People ou in order to find it. It seems like there
     should be a better way to do this, but quick searches don't show any.
 
     We hard-code a value we know has already been reached and only select
-    entries greater than that for performance.
+    entries greater than that for performance. We then use a module-level
+    dict to cache our output for the next function call.
     """
-    KNOWN_MIN = 35000
+    min_uid = _cache['known_uid']
     with ldap_ocf() as c:
         c.search(
             constants.OCF_LDAP_PEOPLE,
-            '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=KNOWN_MIN),
+            '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=min_uid),
             attributes=['uidNumber'],
         )
         uids = [int(entry['attributes']['uidNumber'][0]) for entry in c.response]
@@ -95,8 +96,14 @@ def _get_first_available_uid():
             send_problem_report((
                 'Found {} accounts with UID >= {}, '
                 'you should bump the constant for speed.'
-            ).format(len(uids), KNOWN_MIN))
-        return max(uids) + 1
+            ).format(len(uids), min_uid))
+        if uids:
+            max_uid = max(uids)
+            _cache['known_uid'] = max_uid
+        else:
+            # If cached UID is later deleted, LDAP response will be empty.
+            max_uid = min_uid
+        return max_uid + 1
 
 
 def create_home_dir(user):
@@ -491,3 +498,8 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
             field: getattr(self, field)
             for field in self._fields if field != 'encrypted_password'
         }
+
+
+# We use a module-level dict to "cache" across function calls.
+_cache = {'known_uid': 35000}
+_get_first_available_uid()
