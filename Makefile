@@ -9,7 +9,7 @@ lint:
 
 test: autoversion
 	coverage erase
-	coverage run --source=ocflib,tests -m pytest tests
+	coverage run --source=ocflib,tests -m pytest -v tests
 	coverage report --show-missing
 
 # first set COVERALLS_REPO_TOKEN=<repo token> environment variable
