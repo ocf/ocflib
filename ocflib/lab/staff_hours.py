@@ -22,9 +22,8 @@ class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
 
     def gravatar(self, size=100):
         email = email_for_user(self.user_name)
-        hash = md5(email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{hash}?{params}'.format(
-            hash=hash,
+            hash=md5(email.lower().encode('utf-8')).hexdigest(),
             params=urlencode({'d': 'mm', 's': size}),
         )
 
