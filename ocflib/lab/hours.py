@@ -22,6 +22,11 @@ REGULAR_HOURS = defaultdict(lambda: (9, 18), {
     SUNDAY: (12, 17),
     SATURDAY: (11, 18),
 })
+# TODO: remove after 10/12
+NEW_REGULAR_HOURS = defaultdict(lambda: (9, 21), {
+    SUNDAY: (12, 17),
+    SATURDAY: (11, 18),
+})
 HOLIDAYS = {
     # start date, end date, holiday name, hours (date ranges are inclusive)
     (date(2015, 8, 1), date(2015, 8, 25), 'Summer Break', (None, None)),
@@ -47,7 +52,12 @@ class DayHours(namedtuple('DayHours', ['date', 'weekday', 'holiday', 'open', 'cl
 
         weekday = when.strftime('%A')  # e.g. 'Thursday'
         my_holiday = None
-        my_hours = REGULAR_HOURS[when.weekday()]
+
+        # TODO: remove after 10/12
+        if when >= date(2015, 10, 12):
+            my_hours = NEW_REGULAR_HOURS[when.weekday()]
+        else:
+            my_hours = REGULAR_HOURS[when.weekday()]
 
         for start, end, name, hours in HOLIDAYS:
             if start <= when <= end:
