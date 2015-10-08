@@ -15,12 +15,14 @@ past, code was split between approve, atool, create, chpass, sorry, signat,
 etc., which made it difficult to do things like share common password
 requirements.
 
+
 ## What belongs here
 
 In general, code which can be re-used should be here, but standalone
 applications or binaries shouldn't. For example, [atool][atool] uses ocflib
 code to change passwords and create accounts, but the Django web app doesn't
 belong here.
+
 
 ## Using on OCF
 
@@ -31,6 +33,7 @@ install it to python2 site-packages.
 We build [a Debian package][debian-pkg] which is installed by Puppet. We also
 publish new versions to [PyPI][pypi], which is useful because it allows easy
 installation into virtualenvs.
+
 
 ## Testing changes
 
@@ -45,24 +48,29 @@ ocflib in development mode:
 Now, if you import something from ocflib, you'll be using the version from your
 working copy.
 
+
 ### Testing and linting
 
-We use pytest to test our code, and flake8 to lint it. You should run `make
-check` before pushing to run both.
+We use pytest to test our code, and pre-commit to lint it. You should run `make
+test` before pushing to run both.
 
 The `tests` directory contains automated tests which you're encouraged to add
 to (and not break). The `tests-manual` directory contains scripts intended for
 testing.
 
-#### Testing in a sandbox
 
-Ideally, you should test your changes in a clean virtualenv (not the one you
-develop in). To do this, just run `make tox`. This will create a clean
-virtualenv, install ocflib inside of it, and then run the tests.
+#### Using pre-commit
 
-Normally, it is sufficient to just run `make check` from your development
-environment, then push your changes. [Jenkins][jenkins] will run the tests in
-the sandbox and catch any unexpected failures.
+We use [pre-commit][pre-commit] to lint our code before commiting. While some
+of the rules might seem a little arbitrary, it helps keep the style consistent,
+and ensure annoying things like trailing whitespace don't creep in.
+
+You can simply run `pre-commit install` to install the necessary git hooks;
+once installed, pre-commit will run every time you commit.
+
+Alternatively, if you'd rather not install any hooks, you can simply use `make
+test` as usual, which will also run the hooks.
+
 
 ## Deploying changes
 
@@ -85,3 +93,4 @@ monitor the progress of your deploy [here][jenkins].
 [apt]: http://apt.ocf.berkeley.edu/
 [jenkins]: https://jenkins.ocf.berkeley.edu/view/ocflib-deploy/
 [debian-pkg]: http://apt.ocf.berkeley.edu/pool/main/o/ocflib/
+[pre-commit]: http://pre-commit.com/
