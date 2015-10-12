@@ -5,31 +5,23 @@ import mock
 import pytest
 from freezegun import freeze_time
 
-from ocflib.lab.hours import DayHours
-from ocflib.lab.hours import FRIDAY
-from ocflib.lab.hours import get_hours
-from ocflib.lab.hours import is_open
-from ocflib.lab.hours import MONDAY
+from ocflib.lab.hours import Day
+from ocflib.lab.hours import Hour
 from ocflib.lab.hours import REGULAR_HOURS
-from ocflib.lab.hours import SATURDAY
-from ocflib.lab.hours import SUNDAY
-from ocflib.lab.hours import THURSDAY
-from ocflib.lab.hours import TUESDAY
-from ocflib.lab.hours import WEDNESDAY
 
 
-FAKE_HOLIDAYS = {
-    (date(2015, 3, 14), date(2015, 3, 14), 'Pi Day', (None, None)),
-    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', (1, 2)),
-}
+FAKE_HOLIDAYS = [
+    (date(2015, 3, 14), date(2015, 3, 14), 'Pi Day', []),
+    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(1, 2)]),
+]
 FAKE_REGULAR_HOURS = {
-    0: (9, 18),  # Monday
-    1: (9, 18),  # Tuesday
-    2: (9, 18),  # Wednesday
-    3: (9, 18),  # Thursday
-    4: (9, 18),  # Friday
-    5: (11, 18),  # Saturday
-    6: (12, 17),  # Sunday
+    Day.MONDAY: [Hour(9, 18)],
+    Day.TUESDAY: [Hour(9, 18)],
+    Day.WEDNESDAY: [Hour(9, 18)],
+    Day.THURSDAY: [Hour(9, 18)],
+    Day.FRIDAY: [Hour(9, 18)],
+    Day.SATURDAY: [Hour(11, 18)],
+    Day.SUNDAY: [Hour(12, 17)],
 }
 
 
@@ -65,43 +57,54 @@ def mock_today():
     (datetime(2015, 3, 20, 2, 0), False),
 ])
 def test_is_open(now, expected_open, mock_hours, mock_today):
-    assert is_open(now) == expected_open
+    assert Day.from_date(now).is_open(now) == expected_open
 
 
 def test_is_open_fails_with_just_date():
     with pytest.raises(ValueError):
-        is_open(date(2015, 3, 14))
+        Day.from_date().is_open(date(2015, 3, 14))
 
 
-class TestDayHours:
+class TestDay:
 
-    @pytest.mark.parametrize('when,weekday,holiday,open,close', [
-        (date(2015, 3, 15), 'Sunday', None, 12, 17),
-        (datetime(2015, 3, 15), 'Sunday', None, 12, 17),
-        (datetime(2015, 3, 18), 'Wednesday', None, 9, 18),
-        (datetime(2015, 3, 14), 'Saturday', 'Pi Day', None, None),
-        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', 1, 2),
-        (None, 'Saturday', None, 11, 18),
+    @pytest.mark.parametrize('when,weekday,holiday,hours', [
+        (date(2015, 3, 15), 'Sunday', None, [Hour(12, 17)]),
+        (datetime(2015, 3, 15), 'Sunday', None, [Hour(12, 17)]),
+        (datetime(2015, 3, 18), 'Wednesday', None, [Hour(9, 18)]),
+        (datetime(2015, 3, 14), 'Saturday', 'Pi Day', []),
+        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', [Hour(1, 2)]),
+        (None, 'Saturday', None, [Hour(11, 18)]),
     ])
-    def test_creation(self, mock_hours, mock_today, when, weekday, holiday, open, close):
-        for day_hours in [DayHours.from_date(when), get_hours(when)]:
-            if when:
-                if isinstance(when, datetime):
-                    day = when.date()
-                else:
-                    day = when
+    def test_creation(self, mock_hours, mock_today, when, weekday, holiday, hours):
+        day_hours = Day.from_date(when)
+        if when:
+            if isinstance(when, datetime):
+                day = when.date()
             else:
-                day = date.today()
+                day = when
+        else:
+            day = date.today()
 
-            assert day_hours.date == day
-            assert day_hours.weekday == weekday
-            assert day_hours.open == open
-            assert day_hours.holiday == holiday
-            assert day_hours.close == close
+        assert day_hours.date == day
+        assert day_hours.weekday == weekday
+        assert day_hours.hours == hours
+        assert day_hours.holiday == holiday
 
 
-def test_hours():
-    for day in (SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY):
-        open, close = REGULAR_HOURS[day]
-        assert isinstance(open, int)
-        assert isinstance(close, int)
+@pytest.mark.parametrize('day', [
+    Day.SUNDAY,
+    Day.MONDAY,
+    Day.TUESDAY,
+    Day.WEDNESDAY,
+    Day.THURSDAY,
+    Day.FRIDAY,
+    Day.SATURDAY,
+])
+def test_hours(day):
+    hours = REGULAR_HOURS[day]
+    assert isinstance(hours, list)
+    assert len(hours) >= 1
+
+    for hour in hours:
+        assert isinstance(hour.open, int)
+        assert isinstance(hour.close, int)

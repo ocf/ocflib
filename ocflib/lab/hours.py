@@ -1,51 +1,53 @@
 """Methods for dealing with OCF lab hours.
 
-For simplicity, we assume each day has one set of hours, and that they are
-contiguous (e.g. 9am-5pm). We don't support breaks in the middle or other weird
-hours.
-
 All times are assumed to be OST (OCF Standard Time).
+
+Usage:
+
+    >>> from ocflib.lab.hours import Day
+    >>> Day.from_date(date(2015, 10, 12))
+    Day(
+        date=datetime.date(2015, 10, 12),
+        weekday='Monday',
+        holiday=None,
+        hours=[Hour(open=9, close=21)],
+    )
 """
 from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from datetime import datetime
 
-MONDAY = 0
-TUESDAY = 1
-WEDNESDAY = 2
-THURSDAY = 3
-FRIDAY = 4
-SATURDAY = 5
-SUNDAY = 6
-REGULAR_HOURS = defaultdict(lambda: (9, 21), {
-    SUNDAY: (12, 17),
-    SATURDAY: (11, 18),
-})
-HOLIDAYS = {
-    # start date, end date, holiday name, hours (date ranges are inclusive)
-    (date(2015, 8, 1), date(2015, 8, 25), 'Summer Break', (None, None)),
-    (date(2015, 9, 7), date(2015, 9, 7), 'Labor Day', (None, None)),
-    (date(2015, 11, 11), date(2015, 11, 11), 'Veteran\'s Day', (None, None)),
-    (date(2015, 11, 24), date(2015, 11, 24), 'Thanksgiving Break', (9, 12)),
-    (date(2015, 11, 25), date(2015, 11, 27), 'Thanksgiving Break', (None, None)),
-    (date(2015, 12, 7), date(2015, 12, 13), 'R.R.R. Week', (11, 21)),
-    (date(2015, 12, 14), date(2015, 12, 17), 'Finals Week', (9, 21)),
-    (date(2015, 12, 18), date(2015, 12, 18), 'Last Day Fall 2015', (9, 12)),
-}
+
+class Hour(namedtuple('Hours', ['open', 'close'])):
+
+    def __contains__(self, when):
+        return self.open <= when.hour < self.close
 
 
-class DayHours(namedtuple('DayHours', ['date', 'weekday', 'holiday', 'open', 'close'])):
+class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
+
+    MONDAY = 0
+    TUESDAY = 1
+    WEDNESDAY = 2
+    THURSDAY = 3
+    FRIDAY = 4
+    SATURDAY = 5
+    SUNDAY = 6
 
     @classmethod
     def from_date(cls, when=None):
+        """Return whether a Day representing the given day.
+
+        If not provided, when defaults to today.
+        """
         if not when:
             when = date.today()
 
         if isinstance(when, datetime):
             when = when.date()
 
-        weekday = when.strftime('%A')  # e.g. 'Thursday'
+        # check if it's a holiday
         my_holiday = None
         my_hours = REGULAR_HOURS[when.weekday()]
 
@@ -57,37 +59,45 @@ class DayHours(namedtuple('DayHours', ['date', 'weekday', 'holiday', 'open', 'cl
 
         return cls(
             date=when,
-            weekday=weekday,
+            weekday=when.strftime('%A'),
             holiday=my_holiday,
-            open=my_hours[0],
-            close=my_hours[1],
+            hours=my_hours,
         )
 
     def is_open(self, when=None):
+        """Return whether the lab is open at the given time.
+
+        If not provided, when defaults to now.
+        """
         if not when:
             when = datetime.now()
 
         if not isinstance(when, datetime):
             raise ValueError('{} must be a datetime instance'.format(when))
 
-        if None in [self.open, self.close]:
-            return False
+        return any(when in hour for hour in self.hours)
 
-        return self.open <= when.hour < self.close
-
-
-def get_hours(when=None):
-    """Return a DayHours object representing the day's hours.
-
-    >>> get_hours()
-    DayHours('Thursday', 9, 18)
-
-    >>> get_hours()
-    DayHours('Thursday', None, None)
-    """
-    return DayHours.from_date(when)
+    @property
+    def closed_all_day(self):
+        return not self.hours
 
 
-def is_open(when=None):
-    """Returns a boolean whether the lab is currently open."""
-    return get_hours(when).is_open(when)
+REGULAR_HOURS = defaultdict(lambda: [Hour(9, 21)], {
+    Day.TUESDAY: [Hour(9, 18), Hour(19, 21)],  # closed 6pm-7pm for pubs meeting
+    Day.FRIDAY: [Hour(9, 8)],
+    Day.SATURDAY: [Hour(11, 19)],
+    Day.SUNDAY: [Hour(11, 19)],
+})
+
+HOLIDAYS = [
+    # start date, end date, holiday name, list of hours (date ranges are inclusive)
+    (date(2015, 8, 1), date(2015, 8, 25), 'Summer Break', []),
+    (date(2015, 9, 7), date(2015, 9, 7), 'Labor Day', []),
+    (date(2015, 11, 11), date(2015, 11, 11), 'Veteran\'s Day', []),
+    (date(2015, 11, 24), date(2015, 11, 24), 'Thanksgiving Break', [Hour(9, 12)]),
+    (date(2015, 11, 25), date(2015, 11, 27), 'Thanksgiving Break', []),
+    (date(2015, 12, 7), date(2015, 12, 13), 'R.R.R. Week', [Hour(11, 21)]),
+    (date(2015, 12, 14), date(2015, 12, 17), 'Finals Week', [Hour(9, 21)]),
+    (date(2015, 12, 18), date(2015, 12, 18), 'Last Day Fall 2015', [Hour(9, 12)]),
+    (date(2015, 12, 19), date(2016, 1, 19), 'Winter Break', []),
+]
