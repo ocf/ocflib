@@ -95,7 +95,7 @@ HOLIDAYS = [
     (date(2015, 9, 7), date(2015, 9, 7), 'Labor Day', []),
     (date(2015, 11, 11), date(2015, 11, 11), 'Veteran\'s Day', []),
     (date(2015, 11, 24), date(2015, 11, 24), 'Thanksgiving Break', [Hour(9, 12)]),
-    (date(2015, 11, 25), date(2015, 11, 27), 'Thanksgiving Break', []),
+    (date(2015, 11, 25), date(2015, 11, 29), 'Thanksgiving Break', []),
     (date(2015, 12, 7), date(2015, 12, 13), 'R.R.R. Week', [Hour(11, 21)]),
     (date(2015, 12, 14), date(2015, 12, 17), 'Finals Week', [Hour(9, 21)]),
     (date(2015, 12, 18), date(2015, 12, 18), 'Last Day Fall 2015', [Hour(9, 12)]),
