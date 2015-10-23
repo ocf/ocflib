@@ -56,7 +56,7 @@ Need to reset your account password?
 https://ocf.io/password"""
 
 # words not allowed in usernames
-BAD_WORDS = ['fuck', 'shit', 'cunt', 'crap', 'bitch', 'hell', 'ass', 'dick']
+BAD_WORDS = ['fuck', 'shit', 'cunt', 'bitch', 'dick']
 RESTRICTED_WORDS = ['ocf', 'ucb', 'cal']
 
 # don't bother listing accounts starting with 'ocf' here;

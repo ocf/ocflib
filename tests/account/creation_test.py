@@ -181,7 +181,6 @@ class TestUsernameBasedOnRealName:
 
     @pytest.mark.parametrize('username', [
         'shitup',
-        'hella',
         'ucbcop',
         'suxocf',
     ])
