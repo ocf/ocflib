@@ -1,4 +1,6 @@
 import ocflib.account.search as search
+import ocflib.constants as constants
+import ocflib.infra.ldap as ldap
 
 
 def get_calnet_names(uid):
@@ -13,7 +15,7 @@ def get_calnet_names(uid):
 def name_by_calnet_uid(uid):
     """Returns the name of CalNet person, searched by CalNet UID.
 
-    Returns None on faliure.
+    Returns None on failure.
     """
     names = get_calnet_names(uid)
 
@@ -33,3 +35,17 @@ def name_by_calnet_uid(uid):
 
         if display_name:
             return display_name
+
+
+def calnet_uids_by_name(name):
+    """Searches for people by name and returns any CalNet UIDs found.
+
+    >>> calnet_uids_by_name("Dara Adib")
+    [872544]
+    """
+    conds = ''.join(['(cn=*{}*)'.format(n) for n in name.split()])
+    ldap_filter = '(&{})'.format(conds)
+
+    with ldap.ldap_ucb() as c:
+        c.search(constants.UCB_LDAP_PEOPLE, ldap_filter, attributes=('uid',))
+        return [int(entry['attributes']['uid'][0]) for entry in c.response]

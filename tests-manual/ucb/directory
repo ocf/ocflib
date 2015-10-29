@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-import ocflib.calnet.directory as directory
+from pprint import pprint
+
+import ocflib.ucb.directory as directory
 
 if __name__ == '__main__':
-    print("Names for user 1034192:\n{}".format(
-        directory.get_calnet_names('1034192')))
+    print("Names for user 1034192:")
+    pprint(directory.get_calnet_names('1034192'))
 
-    print("Name for user 1034192:\n{}".format(
-        directory.name_by_calnet_uid('1034192')))
+    print("Name for user 1034192:")
+    pprint(directory.name_by_calnet_uid('1034192'))
+
+    print("CalNet UID of Dara Adib:")
+    pprint(directory.calnet_uids_by_name("Dara Adib"))

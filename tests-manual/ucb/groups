@@ -12,3 +12,9 @@ if __name__ == '__main__':
 
     print("ckuehl is signatory for groups:")
     pprint(groups.groups_by_student_signat(1034192))
+
+    print("Search finds 'Open Computing Facility':")
+    pprint(groups.list_groups(name="Open Computing Facility"))
+
+    print("Found OID of OCF:")
+    pprint(groups.group_by_oid(46187))

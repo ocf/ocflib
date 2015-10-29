@@ -18,12 +18,48 @@ _API = {
 }
 
 
-# TODO: add method(s) for using CalLinkOrganizations service
+def list_groups(name=None, oid=None, status=None, type=None, category=None):
+    """Return groups by a general CalLink search.
+
+    >>> list_groups(name="facility")
+    {46187: {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}}
+    """
+    def parser(root):
+        def parse(group):
+            oid = int(group.findtext('OrganizationId'))
+            return oid, {
+                'name': group.findtext('Name'),
+                'accounts':
+                    [] if oid == 0 else search.users_by_callink_oid(oid)}
+
+        xml_groups = root.findall('Items/Organization')
+        return {oid: name for oid, name in map(parse, xml_groups)}
+
+    return _get_osl({
+        'name': name or '',
+        'organizationId': str(oid) if oid else '',
+        'status': status or '',
+        'type': type or '',
+        'category': category or '',
+    }, _API['SERVICE']['ORGS'], parser)
+
+
+def group_by_oid(oid):
+    """Return the name and OCF account(s) of a group.
+
+    >>> group_name_by_oid(46187)
+    {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}
+    """
+    result = list_groups(oid=oid)
+    if not result:
+        return None
+    else:
+        return result[oid]
 
 
 # TODO: add option to not resolve accounts for speed
 def signatories_for_group(oid):
-    """Return list of signatories for a group, including name and OCF account.
+    """Return signatories for a group, including name and OCF account.
 
     >>> signatories_for_group(46187)
     {646431: {'accounts': ['sanjayk'], 'name': 'Sanjay Krishnan'},
@@ -71,7 +107,6 @@ def groups_by_student_signat(uid, service=_API['SERVICE']['SIGNAT_ACTIVE']):
 
         xml_groups = root.findall('StudentGroupData/StudentGroupDatum')
         return {oid: name for oid, name in map(parse, xml_groups)}
-
     return _get_osl({'UID': uid}, service, parser)
 
 
