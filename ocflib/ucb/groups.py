@@ -18,10 +18,10 @@ _API = {
 }
 
 
-def groups_by_name(name, oid=''):
-    """Return groups by matching name.
+def list_groups(name=None, oid=None, status=None, type=None, category=None):
+    """Return groups by a general CalLink search.
 
-    >>> groups_by_name("facility")
+    >>> list_groups(name="facility")
     {46187: {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}}
     """
     def parser(root):
@@ -36,22 +36,22 @@ def groups_by_name(name, oid=''):
         return {oid: name for oid, name in map(parse, xml_groups)}
 
     return _get_osl({
-        'name': name,
-        'organizationId': oid,
-        'status': '',
-        'type': '',
-        'category': '',
+        'name': name or '',
+        'organizationId': str(oid) if oid else '',
+        'status': status or '',
+        'type': type or '',
+        'category': category or '',
     }, _API['SERVICE']['ORGS'], parser)
 
 
-def group_name_by_oid(oid):
+def group_by_oid(oid):
     """Return the name and OCF account(s) of a group.
 
     >>> group_name_by_oid(46187)
     {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}
     """
-    result = groups_by_name('', oid)
-    if len(result) == 0:
+    result = list_groups(oid=oid)
+    if not result:
         return None
     else:
         return result[oid]
