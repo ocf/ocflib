@@ -18,12 +18,35 @@ _API = {
 }
 
 
-# TODO: add method(s) for using CalLinkOrganizations service
+def groups_by_name(name):
+    """Returns groups by matching name.
+
+    >>> groups_by_name("facility")
+    {46187: {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}}
+    """
+    def parser(root):
+        def parse(group):
+            oid = int(group.findtext('OrganizationId'))
+            return oid, {
+                'name': group.findtext('Name'),
+                'accounts':
+                    [] if oid == 0 else search.users_by_callink_oid(oid)}
+
+        xml_groups = root.findall('Items/Organization')
+        return {oid: name for oid, name in map(parse, xml_groups)}
+
+    return _get_osl({
+        'name': name,
+        'organizationId': '',
+        'status': '',
+        'type': '',
+        'category': '',
+    }, _API['SERVICE']['ORGS'], parser)
 
 
 # TODO: add option to not resolve accounts for speed
 def signatories_for_group(oid):
-    """Return list of signatories for a group, including name and OCF account.
+    """Return signatories for a group, including name and OCF account.
 
     >>> signatories_for_group(46187)
     {646431: {'accounts': ['sanjayk'], 'name': 'Sanjay Krishnan'},
@@ -71,7 +94,6 @@ def groups_by_student_signat(uid, service=_API['SERVICE']['SIGNAT_ACTIVE']):
 
         xml_groups = root.findall('StudentGroupData/StudentGroupDatum')
         return {oid: name for oid, name in map(parse, xml_groups)}
-
     return _get_osl({'UID': uid}, service, parser)
 
 
