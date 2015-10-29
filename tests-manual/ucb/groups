@@ -15,3 +15,6 @@ if __name__ == '__main__':
 
     print("Search finds 'Open Computing Facility':")
     pprint(groups.groups_by_name("Open Computing Facility"))
+
+    print("Found OID of OCF:")
+    pprint(groups.group_name_by_oid(46187))

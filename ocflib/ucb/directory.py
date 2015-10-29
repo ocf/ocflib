@@ -13,7 +13,7 @@ def get_calnet_names(uid):
 def name_by_calnet_uid(uid):
     """Returns the name of CalNet person, searched by CalNet UID.
 
-    Returns None on faliure.
+    Returns None on failure.
     """
     names = get_calnet_names(uid)
 

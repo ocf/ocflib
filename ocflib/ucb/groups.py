@@ -18,8 +18,8 @@ _API = {
 }
 
 
-def groups_by_name(name):
-    """Returns groups by matching name.
+def groups_by_name(name, oid=''):
+    """Return groups by matching name.
 
     >>> groups_by_name("facility")
     {46187: {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}}
@@ -37,11 +37,24 @@ def groups_by_name(name):
 
     return _get_osl({
         'name': name,
-        'organizationId': '',
+        'organizationId': oid,
         'status': '',
         'type': '',
         'category': '',
     }, _API['SERVICE']['ORGS'], parser)
+
+
+def group_name_by_oid(oid):
+    """Return the name and OCF account(s) of a group.
+
+    >>> group_name_by_oid(46187)
+    {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}
+    """
+    result = groups_by_name('', oid)
+    if len(result) == 0:
+        return None
+    else:
+        return result[oid]
 
 
 # TODO: add option to not resolve accounts for speed
