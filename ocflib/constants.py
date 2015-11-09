@@ -44,7 +44,7 @@ group providing free printing, web hosting, disk space, and Unix shell
 accounts.
 
 We love free & open-source software. Sound like you? Get involved!
-https://hello.ocf.berkeley.edu/
+https://www.ocf.berkeley.edu/about/staff
 
 OCF volunteers hold weekly staff hours to provide support:
 https://ocf.io/staff-hours

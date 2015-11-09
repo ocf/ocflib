@@ -172,7 +172,7 @@ Finally, we'd like to remind you that the OCF is run completely by student
 volunteers (people like you)! If you value the services we provide, check us
 out and consider getting involved!
 
-https://hello.ocf.berkeley.edu/
+https://www.ocf.berkeley.edu/about/staff
 
 If you have any other questions, feel free to reply to this message!
 
