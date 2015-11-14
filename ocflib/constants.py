@@ -36,7 +36,7 @@ MAIL_ROOT = 'root@ocf.berkeley.edu'
 MAIL_FROM = 'Open Computing Facility <help@ocf.berkeley.edu>'
 
 MAIL_SIGNATURE = """Thanks for flying OCF,
-The friendly staff of 6A Hearst Gym
+The friendly staff of 171 MLK
 
 =========
 The Open Computing Facility is an all-volunteer, student-run service
