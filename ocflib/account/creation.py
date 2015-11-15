@@ -147,7 +147,7 @@ def create_web_dir(user):
 
 
 def send_created_mail(request):
-    body = """Greetings from the Grotto of Hearst Gym,
+    body = """Greetings from the Open Computing Facility,
 
 Your OCF account has been created and is ready for use! Welcome aboard!
 
@@ -156,7 +156,7 @@ Your account name is: {request.user_name}
 As a brand-new OCF member, you're welcome to use any and all of our services.
 Some key highlights:
 
-    - Access to our swanky computer lab (6A Hearst Gym)
+    - Access to our swanky computer lab (171 MLK Student Union)
     - 250 pages of free printing per semester
     - Web hosting: https://www.ocf.berkeley.edu/~{request.user_name}/
 
@@ -183,7 +183,7 @@ If you have any other questions, feel free to reply to this message!
 
 
 def send_rejected_mail(request, reason):
-    body = """Greetings from the Grotto of Hearst Gym,
+    body = """Greetings from the Open Computing Facility,
 
 Your OCF account, {request.user_name} has been rejected for the following reason:
 
