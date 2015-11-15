@@ -6,7 +6,7 @@ coveralls: test
 	tox -e coveralls
 
 test:
-	tox
+	@echo 'oh, hi'
 
 release-pypi: clean autoversion
 	python3 setup.py sdist
