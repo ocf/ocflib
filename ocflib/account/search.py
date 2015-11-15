@@ -7,6 +7,7 @@ import ocflib.infra.ldap as ldap
 
 def users_by_filter(ldap_filter):
     """Returns a list of users matching an LDAP filter"""
+    # derp
     return []
 
 
