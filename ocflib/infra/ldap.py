@@ -1,7 +1,7 @@
+import string
 from base64 import b64encode
 from contextlib import contextmanager
 from itertools import chain
-from string import ascii_letters
 from textwrap import dedent
 
 import ldap3
@@ -13,16 +13,42 @@ from ocflib.misc.mail import send_problem_report
 
 @contextmanager
 def ldap_connection(host):
+    """Context manager that provides an ldap3 Connection.
+
+    Example usage:
+
+       with ldap_connection('ldap.ocf.berkeley.edu') as c:
+            c.search(OCF_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
+
+    You might find it more convenient to use the ldap_ocf or ldap_ucb functions
+    also defined.
+
+    :param host: server hostname
+    """
     server = ldap3.Server(host, use_ssl=True)
     with ldap3.Connection(server) as connection:
         yield connection
 
 
 def ldap_ocf():
+    """Context manager that provides an ldap3 Connection to OCF's LDAP server.
+
+    Example usage:
+
+       with ldap_ocf() as c:
+            c.search(OCF_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
+    """
     return ldap_connection(constants.OCF_LDAP)
 
 
 def ldap_ucb():
+    """Context manager that provides an ldap3 Connection to the campus LDAP.
+
+    Example usage:
+
+       with ldap_ucb() as c:
+            c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
+    """
     return ldap_connection(constants.UCB_LDAP)
 
 
@@ -48,7 +74,7 @@ def create_ldap_entry_with_keytab(
     def format_attr(key, values):
         # might be possible to have non-ASCII letters in keys, but don't think
         # it will happen to us. we can fix this if it ever does.
-        assert all(c in ascii_letters for c in key), 'Key is ASCII letters.'
+        assert all(c in string.ascii_letters for c in key), 'key is not ASCII letters'
 
         # rather than try to carefully escape values, we just base64 encode
         return (
