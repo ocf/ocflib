@@ -8,6 +8,10 @@ OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
 
 OCF_KRB_REALM = 'OCF.BERKELEY.EDU'
 
+# TODO: provide ip_network objects from ipaddress after we're on Python 3.4
+OCF_SUBNET_V4 = '169.229.226.0/24'
+OCF_SUBNET_V6 = '2607:f140:8801::/64'
+
 OCF_MAIL_HOST = 'anthrax.ocf.berkeley.edu'
 OCF_MAIL_PORT = 25
 
@@ -36,7 +40,7 @@ MAIL_ROOT = 'root@ocf.berkeley.edu'
 MAIL_FROM = 'Open Computing Facility <help@ocf.berkeley.edu>'
 
 MAIL_SIGNATURE = """Thanks for flying OCF,
-The friendly staff of 171 MLK
+The friendly staff of 171 MLK Student Union
 
 =========
 The Open Computing Facility is an all-volunteer, student-run service
