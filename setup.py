@@ -19,7 +19,6 @@ setup(
         'ocflib.account': ['rc/*'],
     },
     install_requires=(
-        'cached_property',
         'colorama',
         'cracklib',
         'dnspython3',

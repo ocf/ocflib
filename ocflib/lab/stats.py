@@ -3,7 +3,6 @@ from collections import namedtuple
 from datetime import timedelta
 
 import pymysql
-from cached_property import cached_property
 
 from ocflib.constants import OCF_LDAP_HOSTS
 from ocflib.infra.ldap import ldap_ocf
@@ -102,12 +101,12 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
     def in_use(self, when):
         return any(s[0] <= when and (not s[1] or when <= s[1]) for s in self.sessions)
 
-    @cached_property
+    @property
     def total_minutes(self):
         """The total number of minutes captured by this profile."""
         return (self.end - self.start).total_seconds() // 60
 
-    @cached_property
+    @property
     def minutes_busy(self):
         """The number of minutes the computer was busy."""
         minutes_busy = 0
@@ -121,7 +120,7 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
 
         return minutes_busy
 
-    @cached_property
+    @property
     def minutes_idle(self):
         """The number of minutes the computer was idle."""
         return self.total_minutes - self.minutes_busy
