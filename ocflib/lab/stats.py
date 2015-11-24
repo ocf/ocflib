@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections import namedtuple
 from datetime import timedelta
 
@@ -58,8 +59,45 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
                 hostname=hostname,
                 start=start,
                 end=end,
-                sessions=[(r['start'], r['end']) for r in c],
+                sessions={(r['start'], r['end']) for r in c},
             )
+
+    @classmethod
+    def from_hostnames(cls, hostnames, start, end):
+        def add_ocf(hostname):
+            if not hostname.endswith('.ocf.berkeley.edu'):
+                return hostname + '.ocf.berkeley.edu'
+            return hostname
+
+        hostnames = tuple(map(add_ocf, hostnames))
+
+        with get_connection() as c:
+            query = """
+                SELECT `host`, `start`, `end` FROM `session_duration_public`
+                    WHERE `host` IN ({}) AND (
+                        `start` BETWEEN %s AND %s OR
+                        `end` BETWEEN %s AND %s OR
+                        %s BETWEEN `start` AND `end` OR
+                        %s BETWEEN `start` AND `end` OR
+                        `start` <= %s AND `end` IS NULL )
+                    ORDER BY `start` ASC
+            """.format(','.join(['%s'] * len(hostnames)))
+
+            c.execute(query, hostnames + (start, end, start, end, start, end, start))
+
+            sessions = defaultdict(set)
+            for r in c:
+                sessions[r['host']].add((r['start'], r['end']))
+
+            return {
+                hostname: cls(
+                    hostname=hostname,
+                    start=start,
+                    end=end,
+                    sessions=sessions[hostname],
+                )
+                for hostname in hostnames
+            }
 
     def in_use(self, when):
         return any(s[0] <= when and (not s[1] or when <= s[1]) for s in self.sessions)
