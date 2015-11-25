@@ -25,9 +25,9 @@ def email_host_exists(email_addr):
 def valid_email(email):
     """Check the email with naive regex and check for the domain's MX record.
     Returns True for valid email, False for bad email."""
-    regex = r'^[a-zA-Z0-9._%\-+]+@([a-zA-Z0-9._%\-]+.[a-zA-Z]{2,6})$'
+    regex = r'^[a-z0-9._%\-+]+@([a-z0-9._%\-]+.[a-z]{2,})$'
 
-    m = re.match(regex, email)
+    m = re.match(regex, email, re.IGNORECASE)
     if m:
         domain = m.group(1)
         try:
