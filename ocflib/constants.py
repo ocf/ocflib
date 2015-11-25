@@ -98,6 +98,7 @@ RESERVED_USERNAMES = [
     'debmirror',
     'deforestation',
     'devnull',
+    'docs',
     'donations',
     'dovecot',
     'dump',
