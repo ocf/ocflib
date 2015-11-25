@@ -50,7 +50,6 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
                         %s BETWEEN `start` AND `end` OR
                         %s BETWEEN `start` AND `end` OR
                         `start` <= %s AND `end` IS NULL )
-                    ORDER BY `start` ASC
             """
 
             c.execute(query, (hostname, start, end, start, end, start, end, start))
@@ -80,10 +79,10 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
                         %s BETWEEN `start` AND `end` OR
                         %s BETWEEN `start` AND `end` OR
                         `start` <= %s AND `end` IS NULL )
-                    ORDER BY `start` ASC
             """.format(','.join(['%s'] * len(hostnames)))
 
             c.execute(query, hostnames + (start, end, start, end, start, end, start))
+            print(c._last_executed)
 
             sessions = defaultdict(set)
             for r in c:
