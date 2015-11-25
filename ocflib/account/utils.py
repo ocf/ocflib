@@ -1,4 +1,5 @@
 """Random account methods that don't fit anywhere else."""
+import grp
 import os.path
 import re
 
@@ -129,3 +130,11 @@ def home_dir(user):
 def web_dir(user):
     """Returns the user's web directory path."""
     return '/' + os.path.join('services', 'http', 'users', user[0], user)
+
+
+def is_staff(user, group='ocfstaff'):
+    """Return whether the user is a staff member.
+
+    :param group: UNIX group to use to determine if someone is a staff member.
+    """
+    return user in grp.getgrnam(group).gr_mem

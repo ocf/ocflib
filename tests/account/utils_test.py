@@ -7,6 +7,7 @@ from ocflib.account.utils import get_vhost_db
 from ocflib.account.utils import get_vhosts
 from ocflib.account.utils import has_vhost
 from ocflib.account.utils import home_dir
+from ocflib.account.utils import is_staff
 from ocflib.account.utils import password_matches
 from ocflib.account.utils import web_dir
 
@@ -213,3 +214,14 @@ class TestUserPaths:
     def test_web_dir_errors_bad_user(self, user):
         with pytest.raises(ValueError):
             web_dir(user)
+
+
+@pytest.mark.parametrize('user,group,expected', [
+    ('ckuehl', None, True),
+    ('ckuehl', 'approve', True),
+    ('bpreview', None, False),
+    ('bpreview', 'approve', False),
+])
+def test_is_staff(user, group, expected):
+    kwargs = {} if not group else {'group': group}
+    assert is_staff(user, **kwargs) is expected
