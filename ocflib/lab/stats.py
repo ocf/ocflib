@@ -82,7 +82,6 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
             """.format(','.join(['%s'] * len(hostnames)))
 
             c.execute(query, hostnames + (start, end, start, end, start, end, start))
-            print(c._last_executed)
 
             sessions = defaultdict(set)
             for r in c:
