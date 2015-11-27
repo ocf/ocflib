@@ -137,4 +137,12 @@ def is_staff(user, group='ocfstaff'):
 
     :param group: UNIX group to use to determine if someone is a staff member.
     """
-    return user in grp.getgrnam(group).gr_mem
+    return user in list_staff(group=group)
+
+
+def list_staff(group='ocfstaff'):
+    """Return a list of staff members.
+
+    :param group: UNIX group to use to determine if someone is a staff member.
+    """
+    return grp.getgrnam(group).gr_mem

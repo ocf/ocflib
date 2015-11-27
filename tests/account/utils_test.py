@@ -8,6 +8,7 @@ from ocflib.account.utils import get_vhosts
 from ocflib.account.utils import has_vhost
 from ocflib.account.utils import home_dir
 from ocflib.account.utils import is_staff
+from ocflib.account.utils import list_staff
 from ocflib.account.utils import password_matches
 from ocflib.account.utils import web_dir
 
@@ -225,3 +226,10 @@ class TestUserPaths:
 def test_is_staff(user, group, expected):
     kwargs = {} if not group else {'group': group}
     assert is_staff(user, **kwargs) is expected
+
+
+def test_list_staff():
+    staff = list_staff()
+    assert 'ckuehl' in staff
+    assert 'bpreview' not in staff
+    assert 5 <= len(staff) <= 50
