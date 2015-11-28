@@ -1,5 +1,6 @@
 from collections import defaultdict
 from collections import namedtuple
+from datetime import datetime
 from datetime import timedelta
 
 import pymysql
@@ -7,6 +8,22 @@ from cached_property import cached_property
 
 from ocflib.constants import OCF_LDAP_HOSTS
 from ocflib.infra.ldap import ldap_ocf
+
+
+class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
+
+    @classmethod
+    def from_row(cls, row):
+        return cls(
+            user=row['user'],
+            host=row['host'],
+            start=row['start'],
+            end=row.get('end'),
+        )
+
+    @property
+    def duration(self):
+        return (self.end or datetime.now()) - self.start
 
 
 def get_connection(user='anonymous', password=None):
@@ -18,6 +35,20 @@ def get_connection(user='anonymous', password=None):
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True,
     )
+
+
+def users_in_lab_count():
+    """Return number of users in the lab, including staff and pubstaff."""
+    with get_connection() as c:
+        c.execute('SELECT * FROM `users_in_lab_count_public`')
+        return int(c.fetchone()['count'])
+
+
+def staff_in_lab():
+    """Return list of Session objects for staff currently in the lab."""
+    with get_connection() as c:
+        c.execute('SELECT * FROM `staff_in_lab_public`')
+        return [Session.from_row(r) for r in c]
 
 
 def list_desktops(public_only=False):
