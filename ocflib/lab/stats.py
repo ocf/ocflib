@@ -1,13 +1,19 @@
 from collections import defaultdict
 from collections import namedtuple
+from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
 import pymysql
 from cached_property import cached_property
 
+from ocflib.constants import CURRENT_SEMESTER_START
 from ocflib.constants import OCF_LDAP_HOSTS
 from ocflib.infra.ldap import ldap_ocf
+
+
+# when we started keeping stats
+STATS_EPOCH = date(2014, 2, 15)
 
 
 class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
@@ -24,6 +30,9 @@ class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
     @property
     def duration(self):
         return (self.end or datetime.now()) - self.start
+
+
+UserTime = namedtuple('UserTime', ['user', 'time'])
 
 
 def get_connection(user='anonymous', password=None):
@@ -49,6 +58,39 @@ def staff_in_lab():
     with get_connection() as c:
         c.execute('SELECT * FROM `staff_in_lab_public`')
         return [Session.from_row(r) for r in c]
+
+
+def top_staff(start, end=date(3000, 1, 1)):
+    """Return a list of top staff users of the lab.
+
+    :since: date object
+    :return: list of UserTime objects.
+    """
+    with get_connection() as c:
+        query = '''
+            SELECT `user`, SUM(TIME_TO_SEC(`duration`)) as `seconds` FROM `staff_session_duration_public`
+            WHERE `start` BETWEEN %s AND %s OR `end` BETWEEN %s AND %s
+            GROUP BY `user`
+            ORDER BY `seconds` DESC
+        '''
+        c.execute(query, (start, end, start, end))
+        return [UserTime(user=r['user'], time=timedelta(seconds=int(r['seconds']))) for r in c]
+
+
+def top_staff_alltime():
+    """Return a list of top staff users of the lab since records began.
+
+    :return: list of UserTime objects.
+    """
+    return top_staff(date(1970, 1, 1))
+
+
+def top_staff_semester():
+    """Return a list of top staff users of the lab this semester.
+
+    :return: list of UserTime objects.
+    """
+    return top_staff(CURRENT_SEMESTER_START)
 
 
 def list_desktops(public_only=False):
