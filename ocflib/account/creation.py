@@ -6,6 +6,7 @@ import re
 import subprocess
 from collections import namedtuple
 from contextlib import contextmanager
+from datetime import datetime
 from grp import getgrnam
 
 from Crypto.Cipher import PKCS1_OAEP
@@ -55,6 +56,7 @@ def create_account(request, creds, report_status):
         'loginShell': ['/bin/bash'],
         'mail': [request.email],
         'userPassword': ['{SASL}' + request.user_name + '@OCF.BERKELEY.EDU'],
+        'creationTime': [datetime.now().strftime('%Y%m%d%H%M%SZ')],
     }
     if request.calnet_uid:
         attrs['calnetUid'] = [str(request.calnet_uid)]

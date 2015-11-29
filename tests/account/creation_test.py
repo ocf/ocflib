@@ -4,6 +4,7 @@ from textwrap import dedent
 
 import mock
 import pytest
+from freezegun import freeze_time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -480,7 +481,8 @@ class TestCreateAccount:
                 mock.patch('ocflib.account.creation.create_home_dir') as home_dir, \
                 mock.patch('ocflib.account.creation.create_web_dir') as web_dir, \
                 mock.patch('ocflib.account.creation.send_created_mail') as send_created_mail, \
-                mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42):
+                mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42), \
+                freeze_time('2015-08-22 14:11:44'):
 
             fake_new_account_request = fake_new_account_request._replace(
                 is_group=is_group,
@@ -509,6 +511,7 @@ class TestCreateAccount:
                     'loginShell': ['/bin/bash'],
                     'mail': ['some.user@ocf.berkeley.edu'],
                     'userPassword': ['{SASL}someuser@OCF.BERKELEY.EDU'],
+                    'creationTime': ['20150822141144Z'],
                 }, **expected),
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,
