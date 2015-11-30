@@ -200,7 +200,6 @@ RESERVED_USERNAMES = [
     'user',
     'uucp',
     'vhost',
-    'vhost',
     'web',
     'webmaster',
     'wheel',
