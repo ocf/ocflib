@@ -97,8 +97,7 @@ HOLIDAYS = [
     (date(2015, 11, 13), date(2015, 11, 15), 'Moving', []),
     (date(2015, 11, 24), date(2015, 11, 24), 'Thanksgiving Break (Early Close)', [Hour(9, 18)]),
     (date(2015, 11, 25), date(2015, 11, 29), 'Thanksgiving Break', []),
-    (date(2015, 12, 7), date(2015, 12, 13), 'R.R.R. Week', [Hour(11, 21)]),
-    (date(2015, 12, 14), date(2015, 12, 17), 'Finals Week', [Hour(9, 21)]),
+    (date(2015, 12, 7), date(2015, 12, 7), 'Early Close - OCF Event', [Hour(9, 19)]),
     (date(2015, 12, 18), date(2015, 12, 18), 'Last Day Fall 2015', [Hour(9, 12)]),
     (date(2015, 12, 19), date(2016, 1, 19), 'Winter Break', []),
 ]
