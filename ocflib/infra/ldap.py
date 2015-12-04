@@ -64,7 +64,6 @@ def create_ldap_entry_with_keytab(
     :param attributes: dict mapping attribute name to list of values
     :param keytab: path to the admin keytab
     :param admin_principal: admin principal to use with the keytab
-    :return: the password of the newly-created account
     """
     # LDAP attributes can have multiple values, but commonly we don't consider
     # that. So, let's sanity check the types we've received.
