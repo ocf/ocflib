@@ -43,6 +43,7 @@ from ocflib.account.creation import create_account as real_create_account
 from ocflib.account.creation import NewAccountRequest
 from ocflib.account.creation import send_rejected_mail
 from ocflib.account.creation import validate_request
+from ocflib.account.manage import change_password_with_keytab
 
 
 Base = declarative_base()
@@ -289,12 +290,29 @@ def get_tasks(celery_app, credentials=None):
         send_rejected_mail(request, stored_request.reason)
         dispatch_event('ocflib.account_rejected', request=request.to_dict())
 
+    @celery_app.task
+    def change_password(username, new_password):
+        """Change the password of a username.
+
+        Only passwords for a regular user can be changed (e.g. can't change a
+        /admin principal's password), and passwords are subject to validation.
+
+        Users are notified via email of the change.
+        """
+        change_password_with_keytab(
+            username=username,
+            password=new_password,
+            keytab=credentials.kerberos_keytab,
+            principal=credentials.kerberos_principal,
+        )
+
     return _AccountSubmissionTasks(
         validate_then_create_account=validate_then_create_account,
         create_account=create_account,
         get_pending_requests=get_pending_requests,
         approve_request=approve_request,
         reject_request=reject_request,
+        change_password=change_password,
     )
 
 _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
@@ -303,6 +321,7 @@ _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'get_pending_requests',
     'approve_request',
     'reject_request',
+    'change_password',
 ])
 
 AccountCreationCredentials = namedtuple('AccountCreationCredentials', [

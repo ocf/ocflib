@@ -297,3 +297,14 @@ class TestStoredNewAccountRequest:
             str(StoredNewAccountRequest.from_request(fake_new_account_request, 'reason')) ==
             'someuser (individual: "Some User"), because: reason'
         )
+
+
+def test_change_password(tasks, fake_credentials):
+    with mock.patch('ocflib.account.submission.change_password_with_keytab') as m:
+        tasks.change_password('ggroup', 'hello world')
+        m.assert_called_once_with(
+            username='ggroup',
+            password='hello world',
+            principal=fake_credentials.kerberos_principal,
+            keytab=fake_credentials.kerberos_keytab,
+        )
