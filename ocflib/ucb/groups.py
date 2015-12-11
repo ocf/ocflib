@@ -22,7 +22,19 @@ def list_groups(name=None, oid=None, status=None, type=None, category=None):
     """Return groups by a general CalLink search.
 
     >>> list_groups(name="facility")
-    {46187: {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}}
+    {
+        46187: {
+            'accounts': ['decal', 'linux', 'ggroup', 'group'],
+            'email': 'devnull@ocf.berkeley.edu',
+            'name': 'Open Computing Facility',
+            'primary_contact': {
+                'email': 'ckuehl@berkeley.edu',
+                'name': 'Chris Kuehl',
+            },
+            'short_name': 'OCF',
+            'website': 'https://www.ocf.berkeley.edu/',
+        },
+    }
     """
     def parser(root):
         def parse(group):
@@ -30,7 +42,15 @@ def list_groups(name=None, oid=None, status=None, type=None, category=None):
             return oid, {
                 'name': group.findtext('Name'),
                 'accounts':
-                    [] if oid == 0 else search.users_by_callink_oid(oid)}
+                    [] if oid == 0 else search.users_by_callink_oid(oid),
+                'email': group.findtext('Email'),
+                'website': group.findtext('ExternalWebsite'),
+                'short_name': group.findtext('ShortName'),
+                'primary_contact': {
+                    'name': group.findtext('PrimaryContactName'),
+                    'email': group.findtext('PrimaryContactCampusEmail'),
+                }
+            }
 
         xml_groups = root.findall('Items/Organization')
         return {oid: name for oid, name in map(parse, xml_groups)}
