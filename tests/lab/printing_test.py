@@ -63,11 +63,11 @@ def mock_snmp():
 
 
 def test_get_toner(mock_snmp):
-    assert get_toner('logjam') == [500, 24000]
+    assert get_toner('logjam') == (500, 24000)
 
 
 def test_get_maintkit(mock_snmp):
-    assert get_maintkit('logjam') == [2000, 100000]
+    assert get_maintkit('logjam') == (2000, 100000)
 
 
 def test_get_lifetime_pages(mock_snmp):

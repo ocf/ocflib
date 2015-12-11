@@ -31,15 +31,20 @@ def _snmp(host, oid):
 
 def get_toner(printer):
     """Returns (cur, max) toner tuple for the given printer."""
-    return [_snmp(printer, oid) for oid in (OID_TONER_CUR, OID_TONER_MAX)]
+    return tuple(
+        int(_snmp(printer, oid))
+        for oid in (OID_TONER_CUR, OID_TONER_MAX)
+    )
 
 
 def get_maintkit(printer):
     """Returns (cur, max) maintenance kit tuple for the given printer."""
-    return [_snmp(printer, oid) for oid
-            in (OID_MAINTKIT_CUR, OID_MAINTKIT_MAX)]
+    return tuple(
+        int(_snmp(printer, oid))
+        for oid in (OID_MAINTKIT_CUR, OID_MAINTKIT_MAX)
+    )
 
 
 def get_lifetime_pages(printer):
     """Returns lifetime pages printed for the given printer."""
-    return _snmp(printer, OID_LIFETIME_PAGES_PRINTED)
+    return int(_snmp(printer, OID_LIFETIME_PAGES_PRINTED))
