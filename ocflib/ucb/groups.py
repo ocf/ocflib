@@ -65,10 +65,20 @@ def list_groups(name=None, oid=None, status=None, type=None, category=None):
 
 
 def group_by_oid(oid):
-    """Return the name and OCF account(s) of a group.
+    """Return the group with the given OID.
 
-    >>> group_name_by_oid(46187)
-    {'name': 'Open Computing Facility', accounts: ['decal', 'linux']}
+    >>> group_by_oid(46187)
+    {
+        'accounts': ['decal', 'linux', 'ggroup', 'group'],
+        'email': 'devnull@ocf.berkeley.edu',
+        'name': 'Open Computing Facility',
+        'primary_contact': {
+            'email': 'ckuehl@berkeley.edu',
+            'name': 'Chris Kuehl',
+        },
+        'short_name': 'OCF',
+        'website': 'https://www.ocf.berkeley.edu/',
+    }
     """
     result = list_groups(oid=oid)
     if not result:
