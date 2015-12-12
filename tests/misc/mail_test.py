@@ -4,7 +4,6 @@ from email.parser import Parser
 import mock
 import pytest
 
-from ocflib.constants import MAIL_FROM
 from ocflib.constants import MAIL_ROOT
 from ocflib.constants import SENDMAIL_PATH
 from ocflib.misc.mail import email_for_user
@@ -88,6 +87,6 @@ class TestEmailSending:
 
         msg = self.get_message(mock_popen)
         assert msg['Subject'].startswith('[ocflib] Problem report')
-        assert msg['From'] == MAIL_FROM
+        assert msg['From'] == 'ocflib <root@ocf.berkeley.edu>'
         assert msg['To'] == MAIL_ROOT
         assert 'hellllo world' in msg.get_payload()

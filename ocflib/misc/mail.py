@@ -71,4 +71,6 @@ Callstack:
     send_mail(
         constants.MAIL_ROOT,
         '[ocflib] Problem report from ' + socket.getfqdn(),
-        body)
+        body,
+        sender='ocflib <root@ocf.berkeley.edu>',
+    )
