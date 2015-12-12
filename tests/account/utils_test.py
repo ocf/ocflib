@@ -219,9 +219,9 @@ class TestUserPaths:
 
 @pytest.mark.parametrize('user,group,expected', [
     ('ckuehl', None, True),
-    ('ckuehl', 'approve', True),
+    ('ckuehl', 'ocfroot', True),
     ('bpreview', None, False),
-    ('bpreview', 'approve', False),
+    ('bpreview', 'ocfroot', False),
 ])
 def test_is_staff(user, group, expected):
     kwargs = {} if not group else {'group': group}
