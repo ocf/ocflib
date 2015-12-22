@@ -34,7 +34,7 @@ def create_account(request, creds, report_status):
             creds.kerberos_principal,
             password=decrypt_password(
                 request.encrypted_password,
-                creds.encryption_key,
+                open(creds.encryption_key).read(),
             ),
         )
 
