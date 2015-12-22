@@ -67,14 +67,17 @@ def fake_new_account_request(mock_rsa_key):
         calnet_uid=123456,
         callink_oid=None,
         email='some.user@ocf.berkeley.edu',
-        encrypted_password=encrypt_password('hunter2000', mock_rsa_key),
+        encrypted_password=encrypt_password('hunter2000', RSA.importKey(WEAK_KEY)),
         handle_warnings=NewAccountRequest.WARNINGS_WARN,
     )
 
 
 @pytest.yield_fixture
 def mock_rsa_key(tmpdir):
-    yield RSA.importKey(WEAK_KEY)
+    test_key = tmpdir.join('test.key')
+    test_key.write((WEAK_KEY + '\n').encode('ascii'))
+    yield test_key.strpath
+    test_key.remove()
 
 
 class TestFirstAvailableUID:
@@ -290,8 +293,8 @@ class TestPasswordEncryption:
     ])
     def test_encrypt_decrypt_password(self, password, mock_rsa_key):
         assert decrypt_password(
-            encrypt_password(password, mock_rsa_key),
-            mock_rsa_key,
+            encrypt_password(password, RSA.importKey(WEAK_KEY)),
+            RSA.importKey(WEAK_KEY),
         ) == password
 
 

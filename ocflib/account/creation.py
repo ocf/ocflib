@@ -10,6 +10,7 @@ from datetime import datetime
 from grp import getgrnam
 
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
 
 import ocflib.account.search as search
 import ocflib.account.utils as utils
@@ -34,7 +35,7 @@ def create_account(request, creds, report_status):
             creds.kerberos_principal,
             password=decrypt_password(
                 request.encrypted_password,
-                open(creds.encryption_key).read(),
+                RSA.importKey(open(creds.encryption_key).read()),
             ),
         )
 
@@ -454,7 +455,7 @@ def validate_request(request, credentials, session):
     with validate_section():
         password = decrypt_password(
             request.encrypted_password,
-            credentials.encryption_key,
+            RSA.importKey(open(credentials.encryption_key).read()),
         )
         validate_password(request.user_name, password)
 
