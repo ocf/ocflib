@@ -10,7 +10,6 @@ from datetime import datetime
 from grp import getgrnam
 
 from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
 
 import ocflib.account.search as search
 import ocflib.account.utils as utils
@@ -390,7 +389,7 @@ def validate_password(username, password):
         raise ValidationError(str(ex))
 
 
-def encrypt_password(password, pubkey_path):
+def encrypt_password(password, pubkey):
     """Encrypts (not hashes) a user password to be stored on disk while it
     awaits approval.
 
@@ -400,17 +399,13 @@ def encrypt_password(password, pubkey_path):
     >>> open("private.pem", "w").write(key.exportKey())
     >>> open("public.pem", "w").write(key.publickey().exportKey())
     """
-    # TODO: is there any way we can save the hash instead? this is tricky
-    # because we need to stick it in kerberos, but this is bad as-is...
-    key = RSA.importKey(open(pubkey_path).read())
-    RSA_CIPHER = PKCS1_OAEP.new(key)
+    RSA_CIPHER = PKCS1_OAEP.new(pubkey)
     return RSA_CIPHER.encrypt(password.encode('ascii'))
 
 
-def decrypt_password(password, privkey_path):
+def decrypt_password(password, privkey):
     """Decrypts a user password."""
-    key = RSA.importKey(open(privkey_path).read())
-    RSA_CIPHER = PKCS1_OAEP.new(key)
+    RSA_CIPHER = PKCS1_OAEP.new(privkey)
     return RSA_CIPHER.decrypt(password).decode('ascii')
 
 

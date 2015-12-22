@@ -4,6 +4,7 @@ from textwrap import dedent
 
 import mock
 import pytest
+from Crypto.PublicKey import RSA
 from freezegun import freeze_time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -73,10 +74,7 @@ def fake_new_account_request(mock_rsa_key):
 
 @pytest.yield_fixture
 def mock_rsa_key(tmpdir):
-    test_key = tmpdir.join('test.key')
-    test_key.write((WEAK_KEY + '\n').encode('ascii'))
-    yield test_key.strpath
-    test_key.remove()
+    yield RSA.importKey(WEAK_KEY)
 
 
 class TestFirstAvailableUID:
