@@ -170,6 +170,7 @@ RESERVED_USERNAMES = [
     'puppet',
     'rabbitmq',
     'rancid',
+    'register',
     'root',
     'rt',
     'saned',
