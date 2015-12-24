@@ -518,7 +518,7 @@ class TestCreateAccount:
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,
             )
-            call.assert_called_once_with(('nscd', '-i', 'passwd'))
+            call.assert_called_once_with(('sudo', 'nscd', '-i', 'passwd'))
             home_dir.assert_called_once_with(fake_new_account_request.user_name)
             web_dir.assert_called_once_with(fake_new_account_request.user_name)
             send_created_mail.assert_called_once_with(fake_new_account_request)
