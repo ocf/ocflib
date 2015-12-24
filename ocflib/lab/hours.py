@@ -90,14 +90,8 @@ REGULAR_HOURS = defaultdict(lambda: [Hour(9, 21)], {
 
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
-    (date(2015, 8, 1), date(2015, 8, 25), 'Summer Break', []),
-    (date(2015, 9, 7), date(2015, 9, 7), 'Labor Day', []),
-    (date(2015, 11, 11), date(2015, 11, 11), 'Veteran\'s Day', []),
-    (date(2015, 11, 12), date(2015, 11, 12), 'Moving (Early Close)', [Hour(9, 18)]),
-    (date(2015, 11, 13), date(2015, 11, 15), 'Moving', []),
-    (date(2015, 11, 24), date(2015, 11, 24), 'Thanksgiving Break (Early Close)', [Hour(9, 18)]),
-    (date(2015, 11, 25), date(2015, 11, 29), 'Thanksgiving Break', []),
-    (date(2015, 12, 7), date(2015, 12, 7), 'Early Close - OCF Event', [Hour(9, 19)]),
-    (date(2015, 12, 18), date(2015, 12, 18), 'Early Close - Last Day', [Hour(9, 20)]),
-    (date(2015, 12, 19), date(2016, 1, 19), 'Winter Break', []),
+    (date(2015, 12, 19), date(2016, 1, 18), 'Winter Break', []),
+    (date(2016, 2, 15), date(2016, 2, 15), 'Academic Holiday', []),
+    (date(2016, 3, 19), date(2016, 3, 27), 'Spring Break', []),
+    (date(2016, 5, 14), date(2016, 8, 23), 'Summer Break', []),
 ]
