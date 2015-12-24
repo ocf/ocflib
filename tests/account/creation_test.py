@@ -483,6 +483,7 @@ class TestCreateAccount:
                 mock.patch('ocflib.account.creation.create_web_dir') as web_dir, \
                 mock.patch('ocflib.account.creation.send_created_mail') as send_created_mail, \
                 mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42), \
+                mock.patch('ocflib.account.creation.call') as call, \
                 freeze_time('2015-08-22 14:11:44'):
 
             fake_new_account_request = fake_new_account_request._replace(
@@ -517,6 +518,7 @@ class TestCreateAccount:
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,
             )
+            call.assert_called_once_with(('nscd', '-i', 'passwd'))
             home_dir.assert_called_once_with(fake_new_account_request.user_name)
             web_dir.assert_called_once_with(fake_new_account_request.user_name)
             send_created_mail.assert_called_once_with(fake_new_account_request)

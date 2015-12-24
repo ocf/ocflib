@@ -8,6 +8,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 from datetime import datetime
 from grp import getgrnam
+from subprocess import call
 
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -67,6 +68,11 @@ def create_account(request, creds, report_status):
         create_ldap_entry_with_keytab(
             dn, attrs, creds.kerberos_keytab, creds.kerberos_principal,
         )
+
+        # invalidate passwd cache so that we can immediately chown files
+        # XXX: sometimes this fails, but that's okay because it means
+        # nscd isn't running anyway
+        call(('sudo', 'nscd', '-i', 'passwd'))
 
     with report_status('Creating', 'Created', 'home and web directories'):
         create_home_dir(request.user_name)
