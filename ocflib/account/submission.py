@@ -291,19 +291,22 @@ def get_tasks(celery_app, credentials=None):
         dispatch_event('ocflib.account_rejected', request=request.to_dict())
 
     @celery_app.task
-    def change_password(username, new_password):
+    def change_password(username, new_password, comment=None):
         """Change the password of a username.
 
         Only passwords for a regular user can be changed (e.g. can't change a
         /admin principal's password), and passwords are subject to validation.
 
         Users are notified via email of the change.
+
+        :param comment: comment to include in notification email
         """
         change_password_with_keytab(
             username=username,
             password=new_password,
             keytab=credentials.kerberos_keytab,
             principal=credentials.kerberos_principal,
+            comment=comment,
         )
 
     return _AccountSubmissionTasks(
