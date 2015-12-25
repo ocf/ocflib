@@ -10,9 +10,12 @@ import ocflib.misc.shell as shell
 
 
 def change_password_with_staffer(username, password, principal,
-                                 admin_password):
+                                 admin_password, comment=None):
     """Change a user's Kerberos password using kadmin and a password, subject
-    to username and password validation."""
+    to username and password validation.
+
+    :param comment: comment to include in notification email
+    """
     validators.validate_username(username)
     validators.validate_password(username, password)
 
@@ -42,12 +45,15 @@ def change_password_with_staffer(username, password, principal,
     elif 'kadmin' in output:
         raise ValueError('kadmin Error: {}'.format(output))
 
-    _notify_password_change(username)
+    _notify_password_change(username, comment=comment)
 
 
-def change_password_with_keytab(username, password, keytab, principal):
+def change_password_with_keytab(username, password, keytab, principal, comment=None):
     """Change a user's Kerberos password using a keytab, subject to username
-    and password validation."""
+    and password validation.
+
+    :param comment: comment to include in notification email
+    """
     validators.validate_username(username, check_exists=True)
     validators.validate_password(username, password)
 
@@ -72,24 +78,34 @@ def change_password_with_keytab(username, password, keytab, principal):
     if 'kadmin' in output:
         raise ValueError('kadmin Error: {}'.format(output))
 
-    _notify_password_change(username)
+    _notify_password_change(username, comment=comment)
 
 
-def _notify_password_change(username):
-    """Send email about a password change."""
+def _notify_password_change(username, comment=None):
+    """Send email about a password change.
+
+    :param username:
+    :param comment: a string to include indicating how/why the password was
+                    reset
+
+    >>> _notify_password_change('ckuehl', comment='Your password was reset in the lab.')
+    """
 
     name = search.user_attrs(username)['cn'][0]
     body = """Howdy there {name},
 
 Just a quick heads up that your Open Computing Facility account password was
 just reset, hopefully by you.
-
+{comment_line}
 As a a reminder, your OCF username is: {username}
 
 If you're not sure why this happened, please reply to this email ASAP.
 
-{signature}""".format(name=name,
-                      username=username,
-                      signature=constants.MAIL_SIGNATURE)
+{signature}""".format(
+        name=name,
+        username=username,
+        signature=constants.MAIL_SIGNATURE,
+        comment_line=('\n' + comment + '\n') if comment else '',
+    )
 
     mail.send_mail_user(username, '[OCF] Account password changed', body)

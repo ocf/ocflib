@@ -39,7 +39,7 @@ class TestChangePasswordWithStaffer:
 
     def test_success(self, mock_spawn, mock_notify_password_change):
         self._chpass(mock_spawn)
-        mock_notify_password_change.assert_called_once_with('ggroup')
+        mock_notify_password_change.assert_called_once_with('ggroup', comment=None)
 
     @pytest.mark.parametrize('error', [
         'kadmin: cpw ggroup: Looping detected inside krb5_get_in_tkt',
@@ -76,7 +76,7 @@ class TestChangePasswordWithKeytab:
 
     def test_success(self, mock_spawn, mock_notify_password_change):
         self._chpass(mock_spawn)
-        mock_notify_password_change.assert_called_once_with('ggroup')
+        mock_notify_password_change.assert_called_once_with('ggroup', comment=None)
 
     def test_kadmin_failure(self, mock_spawn, mock_notify_password_change):
         mock_spawn.return_value.before.decode.return_value = (
@@ -87,7 +87,15 @@ class TestChangePasswordWithKeytab:
         assert not mock_notify_password_change.called
 
 
-@mock.patch('ocflib.misc.mail.send_mail_user')
-def test_notify_password_change(mock_send_mail_user):
-    _notify_password_change('ckuehl')
-    mock_send_mail_user.assert_called_once_with('ckuehl', mock.ANY, mock.ANY)
+class TestNotifyPasswordChange:
+
+    @mock.patch('ocflib.misc.mail.send_mail_user')
+    def test_without_comment(self, mock_send_mail_user):
+        _notify_password_change('ckuehl')
+        mock_send_mail_user.assert_called_once_with('ckuehl', mock.ANY, mock.ANY)
+
+    @mock.patch('ocflib.misc.mail.send_mail_user')
+    def test_with_comment(self, mock_send_mail_user):
+        _notify_password_change('ckuehl', comment='HERPDERP')
+        mock_send_mail_user.assert_called_once_with('ckuehl', mock.ANY, mock.ANY)
+        assert '\nHERPDERP\n' in mock_send_mail_user.call_args_list[0][0][2]
