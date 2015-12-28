@@ -5,11 +5,25 @@ from ocflib.misc.validators import host_exists
 from ocflib.misc.validators import valid_email
 
 
-REAL_HOSTS = ['ocf.berkeley.edu', 'google.com']
+REAL_HOSTS = [
+    'ocf.berkeley.edu',
+    'google.com',
+    'dev-ocf.berkeley.edu',
+    'mirrors.berkeley.edu',
+    'cs.berkeley.edu',
+    'cory.eecs.berkeley.edu',
+    'g.berkeley.edu',
+]
 FAKE_HOSTS = [
     'hello.waffle',
     'i am not a real host',
     'lashdfkjashgklhsadfsad.com',
+    'asdfghjkl.eecs.berkeley.edu',
+    'asdfghjkl.berkeley.edu',
+    'kljasdlgjlsafdfhsadf.berkeley.edu',
+    'jf0194y89v(*#14o1i9XC',
+    '@I$)!($U)!#Y%!)#()*(%!#',
+    'vns;alf iashf poasf bawen svn;',
 ]
 
 

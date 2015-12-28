@@ -1,17 +1,20 @@
 """Misc validators for things like emails, domains, etc."""
 import re
-import socket
 
+import dns
 import dns.resolver
+
+from ocflib.constants import OCF_DNS_RESOLVER
 
 
 def host_exists(host):
     try:
-        host_info = socket.getaddrinfo(host, None)
-    except socket.gaierror:
+        message = dns.message.make_query(host, dns.rdatatype.ANY)
+    except dns.name.EmptyLabel:
         return False
-    else:
-        return bool(host_info)
+
+    response = dns.query.udp(message, OCF_DNS_RESOLVER)
+    return bool(response.answer)
 
 
 def email_host_exists(email_addr):
