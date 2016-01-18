@@ -278,9 +278,10 @@ def validate_calnet_uid(uid):
 
 def eligible_for_account(affiliations):
     """Returns whether the list of affiliations makes one eligible for an
-    account."""
-
-    ALLOWED_AFFILIATES = [
+    account.
+    """
+    affiliations = set(affiliations)
+    ALLOWED_AFFILIATES = {
         'AFFILIATE-TYPE-CONSULTANT',
         'AFFILIATE-TYPE-LBLOP STAFF',
         'AFFILIATE-TYPE-VISITING SCHOLAR',
@@ -292,19 +293,25 @@ def eligible_for_account(affiliations):
         'AFFILIATE-TYPE-COMMITTEE MEMBER',
         'AFFILIATE-TYPE-STAFF OF UC/OP/AFFILIATED ORGS',
         'AFFILIATE-TYPE-CONTRACTOR',
-        'AFFILIATE-TYPE-CONCURR ENROLL']
+        'AFFILIATE-TYPE-CONCURR ENROLL',
+    }
 
-    if any(affiliation in ALLOWED_AFFILIATES for affiliation in affiliations) \
-            and 'AFFILIATE-STATUS-EXPIRED' not in affiliations:
+    if (
+            affiliations & ALLOWED_AFFILIATES and
+            'AFFILIATE-STATUS-EXPIRED' not in affiliations
+    ):
         return True
 
-    if ('EMPLOYEE-TYPE-ACADEMIC' in affiliations
-            or 'EMPLOYEE-TYPE-STAFF' in affiliations) \
-            and 'EMPLOYEE-STATUS-EXPIRED' not in affiliations:
+    if (
+            {'EMPLOYEE-TYPE-ACADEMIC', 'EMPLOYEE-TYPE-STAFF'} & affiliations and
+            'EMPLOYEE-STATUS-EXPIRED' not in affiliations
+    ):
         return True
 
-    if 'STUDENT-TYPE-REGISTERED' in affiliations and \
-            'STUDENT-STATUS-EXPIRED' not in affiliations:
+    if (
+            'STUDENT-TYPE-REGISTERED' in affiliations and
+            'STUDENT-STATUS-EXPIRED' not in affiliations
+    ):
         return True
 
     return False
