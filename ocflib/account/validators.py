@@ -16,8 +16,8 @@ def validate_username(username, check_exists=False):
     if username_reserved(username):
         raise ValueError('Username is reserved')
 
-    if not 3 <= len(username) <= 8:
-        raise ValueError('Username must be between 3 and 8 characters')
+    if not 3 <= len(username) <= 16:
+        raise ValueError('Username must be between 3 and 16 characters')
 
     if not all(c.islower() for c in username):
         raise ValueError('Username must be all lowercase letters')

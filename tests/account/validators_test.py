@@ -20,7 +20,7 @@ class TestValidateUsername:
         # bad length
         'a',
         '',
-        'hellooooo',
+        'hellooooooooooooo',
 
         # bad characters
         'Ckuehl',
