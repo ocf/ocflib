@@ -2,7 +2,7 @@ import datetime
 import os.path
 
 # update once a semester
-CURRENT_SEMESTER_START = datetime.date(2015, 8, 1)
+CURRENT_SEMESTER_START = datetime.date(2016, 1, 1)
 
 # ocf ldap
 OCF_LDAP = 'ldap.ocf.berkeley.edu'
