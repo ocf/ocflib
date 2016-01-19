@@ -69,7 +69,10 @@ def top_staff(start, end=date(3000, 1, 1)):
     with get_connection() as c:
         query = '''
             SELECT `user`, SUM(TIME_TO_SEC(`duration`)) as `seconds` FROM `staff_session_duration_public`
-            WHERE `start` BETWEEN %s AND %s OR `end` BETWEEN %s AND %s
+            WHERE (
+                (`start` BETWEEN %s AND %s OR `end` BETWEEN %s AND %s) AND
+                `duration` IS NOT NULL
+            )
             GROUP BY `user`
             ORDER BY `seconds` DESC
         '''
