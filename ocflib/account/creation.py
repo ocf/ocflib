@@ -332,7 +332,7 @@ def validate_username(username, realname):
     except ValueError as ex:
         raise ValidationError(str(ex))
 
-    SIMILARITY_THRESHOLD = 1
+    SIMILARITY_THRESHOLD = 2
 
     if similarity_heuristic(realname, username) > SIMILARITY_THRESHOLD:
         raise ValidationWarning(
