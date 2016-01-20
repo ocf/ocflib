@@ -29,7 +29,9 @@ setup(
         # https://github.com/pexpect/pexpect/issues/86
         'pexpect<3.2.999',
         'pycrypto',
-        'pymysql',
+        # TODO: Remove this version restriction after upgrade to jessie
+        #   Currently pymysql breaks with Python 3.2.x (rt#4267)
+        'pymysql<0.6.7',
         'pysnmp',
         'pyyaml',
         'redis',
