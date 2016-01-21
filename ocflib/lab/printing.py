@@ -13,18 +13,22 @@ OID_LIFETIME_PAGES_PRINTED = '1.3.6.1.2.1.43.10.2.1.4.1.1'
 
 
 def _snmp(host, oid):
-    err_indication, err_status, err_idx, response_kv = \
+    err_indication, err_status, err_idx, response_kv = (
         cmdgen.CommandGenerator().getCmd(
             cmdgen.CommunityData('my-agent', 'public', 0),
             cmdgen.UdpTransportTarget((host, 161)),
-            oid)
+            oid,
+        )
+    )
 
     if err_indication:
         raise IOError(
-            'Device returned error indication: {}'.format(err_indication))
+            'Device {} returned error indication: {}'.format(host, err_indication),
+        )
     elif err_status:
         raise IOError(
-            'Device returned error status: {}'.format(err_status))
+            'Device {} returned error status: {}'.format(host, err_status),
+        )
     else:
         return response_kv[0][1]
 
