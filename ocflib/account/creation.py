@@ -512,5 +512,5 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
 
 
 # We use a module-level dict to "cache" across function calls.
-_cache = {'known_uid': 35000}
+_cache = {'known_uid': 37500}
 _get_first_available_uid()
