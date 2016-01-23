@@ -3,7 +3,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # first set COVERALLS_REPO_TOKEN=<repo token> environment variable
 coveralls: test
-	tox -e coveralls
+	.tox/py34/bin/coveralls
 
 test:
 	tox
