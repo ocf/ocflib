@@ -8,6 +8,7 @@ import requests
 import yaml
 
 from ocflib.account.search import user_attrs
+from ocflib.account.utils import is_staff
 from ocflib.misc.mail import email_for_user
 
 
@@ -40,6 +41,15 @@ def _load_staff_hours():
 
 def get_staff_hours():
     staff_hours = _load_staff_hours()
+
+    def position(uid):
+        if uid in staff_hours['staff-positions']:
+            return staff_hours['staff-positions'][uid]
+        elif is_staff(uid, group='ocfroot'):
+            return 'Deputy Manager'
+        else:
+            return 'Staff Member'
+
     return [
         Hour(
             day=hour['day'],
@@ -48,7 +58,7 @@ def get_staff_hours():
                 Staffer(
                     user_name=attrs['uid'][0],
                     real_name=attrs['cn'][0],
-                    position=staff_hours['staff-positions'].get(attrs['uid'][0], 'Staff Member'),
+                    position=position(attrs['uid'][0]),
                 ) for attrs in map(user_attrs, hour['staff'])
             ],
             cancelled=hour['cancelled'],
