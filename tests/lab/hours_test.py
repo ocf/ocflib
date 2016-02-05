@@ -1,5 +1,6 @@
 from datetime import date
 from datetime import datetime
+from datetime import time
 
 import mock
 import pytest
@@ -12,16 +13,16 @@ from ocflib.lab.hours import REGULAR_HOURS
 
 FAKE_HOLIDAYS = [
     (date(2015, 3, 14), date(2015, 3, 14), 'Pi Day', []),
-    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(1, 2)]),
+    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(time(1), time(2))]),
 ]
 FAKE_REGULAR_HOURS = {
-    Day.MONDAY: [Hour(9, 18)],
-    Day.TUESDAY: [Hour(9, 18)],
-    Day.WEDNESDAY: [Hour(9, 18)],
-    Day.THURSDAY: [Hour(9, 18)],
-    Day.FRIDAY: [Hour(9, 18)],
-    Day.SATURDAY: [Hour(11, 18)],
-    Day.SUNDAY: [Hour(12, 17)],
+    Day.MONDAY: [Hour(time(9), time(18))],
+    Day.TUESDAY: [Hour(time(9), time(18))],
+    Day.WEDNESDAY: [Hour(time(9, 10), time(18))],
+    Day.THURSDAY: [Hour(time(9), time(18))],
+    Day.FRIDAY: [Hour(time(9), time(18))],
+    Day.SATURDAY: [Hour(time(11), time(18))],
+    Day.SUNDAY: [Hour(time(12), time(17))],
 }
 
 
@@ -68,12 +69,12 @@ def test_is_open_fails_with_just_date():
 class TestDay:
 
     @pytest.mark.parametrize('when,weekday,holiday,hours', [
-        (date(2015, 3, 15), 'Sunday', None, [Hour(12, 17)]),
-        (datetime(2015, 3, 15), 'Sunday', None, [Hour(12, 17)]),
-        (datetime(2015, 3, 18), 'Wednesday', None, [Hour(9, 18)]),
+        (date(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17))]),
+        (datetime(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17))]),
+        (datetime(2015, 3, 18), 'Wednesday', None, [Hour(time(9, 10), time(18))]),
         (datetime(2015, 3, 14), 'Saturday', 'Pi Day', []),
-        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', [Hour(1, 2)]),
-        (None, 'Saturday', None, [Hour(11, 18)]),
+        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', [Hour(time(1), time(2))]),
+        (None, 'Saturday', None, [Hour(time(11), time(18))]),
     ])
     def test_creation(self, mock_hours, mock_today, when, weekday, holiday, hours):
         day_hours = Day.from_date(when)
@@ -106,5 +107,5 @@ def test_hours(day):
     assert len(hours) >= 1
 
     for hour in hours:
-        assert isinstance(hour.open, int)
-        assert isinstance(hour.close, int)
+        assert isinstance(hour.open, time)
+        assert isinstance(hour.close, time)

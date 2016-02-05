@@ -17,12 +17,13 @@ from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from datetime import datetime
+from datetime import time
 
 
 class Hour(namedtuple('Hours', ['open', 'close'])):
 
     def __contains__(self, when):
-        return self.open <= when.hour < self.close
+        return self.open <= when.time() < self.close
 
 
 class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
@@ -82,11 +83,11 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
         return not self.hours
 
 
-REGULAR_HOURS = defaultdict(lambda: [Hour(9, 21)], {
-    Day.TUESDAY: [Hour(9, 18)],
-    Day.FRIDAY: [Hour(9, 20)],
-    Day.SATURDAY: [Hour(11, 19)],
-    Day.SUNDAY: [Hour(11, 19)],
+REGULAR_HOURS = defaultdict(lambda: [Hour(time(9), time(21))], {
+    Day.TUESDAY: [Hour(time(9, 10), time(18))],
+    Day.FRIDAY: [Hour(time(9), time(20))],
+    Day.SATURDAY: [Hour(time(11), time(19))],
+    Day.SUNDAY: [Hour(time(11), time(19))],
 })
 
 HOLIDAYS = [
