@@ -25,9 +25,7 @@ setup(
         'dnspython3',
         'ldap3',
         'paramiko',
-        # pexpect 3.3 (currently the latest) breaks with multiprocessing/celery
-        # https://github.com/pexpect/pexpect/issues/86
-        'pexpect<3.2.999',
+        'pexpect',
         'pycrypto',
         # TODO: Remove this version restriction after upgrade to jessie
         #   Currently pymysql breaks with Python 3.2.x (rt#4267)
