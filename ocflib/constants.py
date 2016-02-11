@@ -65,12 +65,12 @@ Need to reset your account password?
 https://ocf.io/password"""
 
 # words not allowed in usernames
-BAD_WORDS = ['fuck', 'shit', 'cunt', 'bitch', 'dick']
-RESTRICTED_WORDS = ['ocf', 'ucb', 'cal']
+BAD_WORDS = frozenset(('fuck', 'shit', 'cunt', 'bitch', 'dick'))
+RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal'))
 
 # don't bother listing accounts starting with 'ocf' here;
 # those are always reserved
-RESERVED_USERNAMES = [
+RESERVED_USERNAMES = frozenset((
     'about',
     'abuse',
     'account',
@@ -211,7 +211,7 @@ RESERVED_USERNAMES = [
     'www',
     'www-data',
     'zabbix',
-]
+))
 
 CREATE_PUBLIC_KEY = """\
 -----BEGIN PUBLIC KEY-----
