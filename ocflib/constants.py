@@ -164,6 +164,7 @@ RESERVED_USERNAMES = [
     'postgres',
     'postgrey',
     'postmaster',
+    'printing',
     'procmail',
     'projects',
     'proxy',
