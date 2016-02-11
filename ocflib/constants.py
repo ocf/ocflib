@@ -230,6 +230,33 @@ RESERVED_USERNAMES = frozenset((
     'www-data',
     'zabbix',
     'zookeeper',
+
+    # Usernames of some former staffers whose accounts were later lost
+    'adamj',     # Adam Richter (former account, still has User_Info)
+    'anniem',    # Ann Matsubara
+    'appel',     # Shannon Appel
+    'blojo',     # Jon Blow
+    'chamm',
+    'chaynges',  # Cynthia Haynes
+    'cjain',     # Chris Jain
+    'dpassage',  # David Paschich
+    'euphrasi',
+    'evil',
+    'glass',     # Adam Glass
+    'ianb',
+    'karat',     # Eddy Karat
+    'kinshuk',   # Kinshuk Govil
+    'kit',
+    'marko',     # Mark Nolte
+    'moray',
+    'nweaver',   # Nicholas Weaver
+    'pbrown',
+    'reiser',    # Hans Reiser
+    'rgm',       # Rob Menke
+    'shannona',  # Shannon Appel (former account, still has User_Info)
+    'steveg',
+    'welch',     # Sean Welch
+    'yukai',
 ))
 
 CREATE_PUBLIC_KEY = """\
