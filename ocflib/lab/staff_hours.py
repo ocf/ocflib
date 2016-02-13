@@ -57,13 +57,18 @@ def get_staff_hours():
             staff=[
                 Staffer(
                     user_name=attrs['uid'][0],
-                    real_name=attrs['cn'][0],
+                    real_name=_remove_middle_names(attrs['cn'][0]),
                     position=position(attrs['uid'][0]),
                 ) for attrs in map(user_attrs, hour['staff'])
             ],
             cancelled=hour['cancelled'],
         ) for hour in staff_hours['staff-hours']
     ]
+
+
+def _remove_middle_names(name):
+    names = name.split(' ')
+    return names[0] + ' ' + names[-1]
 
 
 def get_staff_hours_soonest_first():
