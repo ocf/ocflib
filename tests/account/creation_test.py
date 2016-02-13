@@ -10,6 +10,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import ocflib.account.creation
+import ocflib.constants as constants
+from ocflib.account.creation import _cache
 from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import create_account
 from ocflib.account.creation import create_home_dir
@@ -30,6 +32,7 @@ from ocflib.account.creation import ValidationError
 from ocflib.account.creation import ValidationWarning
 from ocflib.account.submission import AccountCreationCredentials
 from ocflib.account.submission import Base
+from ocflib.infra.ldap import ldap_ocf
 
 WEAK_KEY = dedent(
     """\
@@ -82,8 +85,7 @@ def mock_rsa_key(tmpdir):
 
 class TestFirstAvailableUID:
 
-    @mock.patch('ocflib.account.creation.send_problem_report')
-    def test_first_uid(self, send_problem_report):
+    def test_first_uid(self):
         connection = mock.Mock(response=[
             {'attributes': {'uidNumber': [999000]}},
             {'attributes': {'uidNumber': [999200]}},
@@ -98,24 +100,32 @@ class TestFirstAvailableUID:
             next_uid = _get_first_available_uid()
 
         assert next_uid == 999201
-        assert not send_problem_report.called
 
-    @mock.patch('ocflib.account.creation.send_problem_report')
-    def test_alerts_staff_if_too_many(self, send_problem_report):
-        connection = mock.Mock(response=[
-            {'attributes': {'uidNumber': [n]}}
-            for n in range(100000, 100000 + 5000)
-        ])
+    def test_max_uid_constant_not_too_small(self):
+        """Test that the known_min constant is sufficiently large.
 
-        @contextmanager
-        def ldap_ocf():
-            yield connection
+        The way we find the next available UID is very slow because there is no
+        way to do a query like "find the max UID from all users" in LDAP.
+        We instead have to find all users and take the max ourselves. This can
+        take ~15 seconds.
 
-        with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
-            next_uid = _get_first_available_uid()
+        By hardcoding a known min, we just select accounts with uid >
+        known_min, which is much faster. But it means we need to bump the
+        constant occasionally to keep it fast.
+        """
+        known_uid = _cache['known_uid']
+        with ldap_ocf() as c:
+            c.search(
+                constants.OCF_LDAP_PEOPLE,
+                '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=known_uid),
+                attributes=['uidNumber'],
+            )
+            num_uids = len(c.response)
 
-        assert next_uid == 105000
-        assert send_problem_report.called
+        if num_uids > 2500:
+            raise AssertionError((
+                'Found {} accounts with UID >= {}, you should bump the constant for speed.'
+            ).format(num_uids, known_uid))
 
 
 class TestCreateDirectories:
