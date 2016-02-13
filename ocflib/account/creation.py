@@ -21,7 +21,6 @@ from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.misc.mail import send_mail
-from ocflib.misc.mail import send_problem_report
 from ocflib.misc.validators import valid_email
 
 
@@ -100,18 +99,13 @@ def _get_first_available_uid():
             attributes=['uidNumber'],
         )
         uids = [int(entry['attributes']['uidNumber'][0]) for entry in c.response]
-        if len(uids) > 2500:
-            send_problem_report((
-                'Found {} accounts with UID >= {}, '
-                'you should bump the constant for speed.'
-            ).format(len(uids), min_uid))
-        if uids:
-            max_uid = max(uids)
-            _cache['known_uid'] = max_uid
-        else:
-            # If cached UID is later deleted, LDAP response will be empty.
-            max_uid = min_uid
-        return max_uid + 1
+    if uids:
+        max_uid = max(uids)
+        _cache['known_uid'] = max_uid
+    else:
+        # If cached UID is later deleted, LDAP response will be empty.
+        max_uid = min_uid
+    return max_uid + 1
 
 
 def create_home_dir(user):
@@ -512,5 +506,7 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
 
 
 # We use a module-level dict to "cache" across function calls.
+# TODO: This prevents importing this module when LDAP is unavailable.
+# https://github.com/ocf/ocfweb/issues/103
 _cache = {'known_uid': 37500}
 _get_first_available_uid()
