@@ -37,5 +37,8 @@ setup(
         'redis',
         'requests',
         'sqlalchemy',
-    )
+    ),
+    classifiers=[
+        'Programming Language :: Python :: 3',
+    ],
 )
