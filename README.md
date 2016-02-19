@@ -8,8 +8,8 @@ ocflib
 ocflib is a Python library for working with [Open Computing Facility][ocf]
 services (in particular, accounts and server management).
 
-The library targets Python 3.2 and 3.4 (the versions available in Debian wheezy
-and jessie). Python 2.7 compatibility is a plus but not required or tested.
+The library targets Python 3.4 and 3.5 (the versions available in Debian jessie
+and stretch).
 
 The goal of the library is to make it easier to re-use OCF python code. In the
 past, code was split between approve, atool, create, chpass, sorry, signat,
@@ -20,7 +20,7 @@ requirements.
 ## What belongs here
 
 In general, code which can be re-used should be here, but standalone
-applications or binaries shouldn't. For example, [atool][atool] uses ocflib
+applications or binaries shouldn't. For example, [ocfweb][ocfweb] uses ocflib
 code to change passwords and create accounts, but the Django web app doesn't
 belong here.
 
@@ -88,7 +88,7 @@ every push, including automatically generating a new version number. As long as
 monitor the progress of your deploy [here][jenkins].
 
 [ocf]: https://www.ocf.berkeley.edu/
-[atool]: https://github.com/ocf/atool/
+[ocfweb]: https://github.com/ocf/ocfweb/
 [puppet]: https://github.com/ocf/puppet/
 [pypi]: https://pypi.python.org/pypi/ocflib
 [apt]: http://apt.ocf.berkeley.edu/
