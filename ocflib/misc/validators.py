@@ -4,7 +4,7 @@ import re
 import dns
 import dns.resolver
 
-from ocflib.constants import OCF_DNS_RESOLVER
+from ocflib.infra.net import OCF_DNS_RESOLVER
 
 
 def host_exists(host):
@@ -13,7 +13,7 @@ def host_exists(host):
     except dns.name.EmptyLabel:
         return False
 
-    response = dns.query.udp(message, OCF_DNS_RESOLVER)
+    response = dns.query.udp(message, str(OCF_DNS_RESOLVER))
     return bool(response.answer)
 
 
