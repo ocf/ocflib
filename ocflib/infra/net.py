@@ -39,3 +39,21 @@ def ipv4_to_ipv6(ipv4):
     return ip_address(
         int.from_bytes(OCF_SUBNET_V6_COMPAT.network_address.packed, 'big') | last_group
     )
+
+
+def is_ocf_ip(ip):
+    """Return whether this IP is owned by the OCF.
+
+    Accepts both IPv4 and IPv6 addresses in object form from the ipaddress
+    module.
+
+    >>> from ipaddress import ip_address
+    >>> is_ocf_ip(ip_address('169.229.226.12'))
+    True
+    """
+    if isinstance(ip, IPv4Address):
+        return ip in OCF_SUBNET_V4
+    elif isinstance(ip, IPv6Address):
+        return ip in OCF_SUBNET_V6
+    else:
+        raise AssertionError('You must pass in an IPv4Address or IPv6Address object.')

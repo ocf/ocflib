@@ -4,6 +4,7 @@ import pytest
 
 from ocflib.infra.net import ipv4_to_ipv6
 from ocflib.infra.net import ipv6_to_ipv4
+from ocflib.infra.net import is_ocf_ip
 
 
 TEST_IPV4_IPV6 = (
@@ -49,3 +50,22 @@ def test_6to4(ipv4, ipv6):
 def test_6to4_failure(ipv6):
     with pytest.raises(AssertionError):
         ipv6_to_ipv4(ipv6)
+
+
+@pytest.mark.parametrize('ip,expected', [
+    (ip_address('169.229.226.12'), True),
+    (ip_address('169.229.226.1'), True),
+    (ip_address('169.229.226.212'), True),
+    (ip_address('2607:f140:8801::10'), True),
+    (ip_address('2607:f140:8801::1:10'), True),
+
+    (ip_address('8.8.8.8'), False),
+    (ip_address('cafe:f140:8801::1:10'), False),
+])
+def test_is_ocf_ip(ip, expected):
+    assert is_ocf_ip(ip) is expected
+
+
+def test_is_ocf_ip_failure():
+    with pytest.raises(AssertionError):
+        is_ocf_ip('169.229.226.12')
