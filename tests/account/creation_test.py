@@ -264,7 +264,9 @@ class TestAccountEligibility:
         (['EMPLOYEE-STATUS-EXPIRED', 'STUDENT-TYPE-REGISTERED'], True),
 
         (['STUDENT-TYPE-REGISTERED'], True),
+        (['STUDENT-TYPE-NOT REGISTERED'], True),
         (['STUDENT-TYPE-REGISTERED', 'STUDENT-STATUS-EXPIRED'], False),
+        (['STUDENT-TYPE-NOT REGISTERED', 'STUDENT-STATUS-EXPIRED'], False),
         (['STUDENT-STATUS-EXPIRED'], False),
 
         ([], False),

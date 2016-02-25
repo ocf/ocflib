@@ -302,8 +302,14 @@ def eligible_for_account(affiliations):
     ):
         return True
 
+    # It seems that "NOT REGISTERED" students indicates students who have
+    # registration blocks or who haven't paid their university fees.
+    #
+    # BoD voted to allow these members to create accounts because in most cases
+    # they are still students and will eventually become registered. See
+    # rt#4282 for more details.
     if (
-            'STUDENT-TYPE-REGISTERED' in affiliations and
+            {'STUDENT-TYPE-REGISTERED', 'STUDENT-TYPE-NOT REGISTERED'} & affiliations and
             'STUDENT-STATUS-EXPIRED' not in affiliations
     ):
         return True
