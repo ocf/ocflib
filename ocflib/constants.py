@@ -61,7 +61,7 @@ https://ocf.io/password"""
 
 # words not allowed in usernames
 BAD_WORDS = frozenset(('fuck', 'shit', 'cunt', 'bitch', 'dick'))
-RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal'))
+RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal', 'berkeley', 'university'))
 
 # don't bother listing accounts starting with 'ocf' here;
 # those are always reserved
