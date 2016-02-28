@@ -1,4 +1,3 @@
-import os.path
 from contextlib import contextmanager
 from textwrap import dedent
 
@@ -9,7 +8,6 @@ from freezegun import freeze_time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import ocflib.account.creation
 import ocflib.constants as constants
 from ocflib.account.creation import _cache
 from ocflib.account.creation import _get_first_available_uid
@@ -138,17 +136,6 @@ class TestCreateDirectories:
             ['sudo', 'install', '-d', '--mode=0700', '--group=ocf',
                 '--owner=ckuehl', '/home/c/ck/ckuehl'],
         )]
-
-        for name in ['bashrc', 'bash_profile', 'bash_logout']:
-            path = os.path.join(os.path.dirname(
-                ocflib.account.creation.__file__),
-                'rc',
-                name,
-            )
-            calls.append(mock.call(
-                ['sudo', 'install', '--mode=0600', '--group=ocf',
-                    '--owner=ckuehl', path, '/home/c/ck/ckuehl/.' + name],
-            ))
 
         check_call.assert_has_calls(calls)
 
