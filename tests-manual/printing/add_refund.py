@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add a test job."""
+"""Add a test refund."""
 import getpass
 import random
 import string

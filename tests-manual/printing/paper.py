@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add a test job."""
+"""Print the quota of a user."""
 from ocflib.printing.quota import get_connection
 from ocflib.printing.quota import get_quota
 

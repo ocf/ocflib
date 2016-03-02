@@ -170,9 +170,9 @@ def get_schema():
                 DETERMINISTIC
                 BEGIN
                 IF MONTH(d) > 8 THEN
-                    RETURN MAKEDATE(YEAR(d), 213);
+                    RETURN MAKEDATE(YEAR(d), 213);  -- roughly august 1st
                 ELSE
-                        RETURN MAKEDATE(YEAR(d), 1);
+                    RETURN MAKEDATE(YEAR(d), 1);
                 END IF;
             END$$
         DELIMITER ;

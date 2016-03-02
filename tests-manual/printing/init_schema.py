@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Initialize the ocfprinting DB schema."""
+"""Print the ocfprinting DB schema, to be piped to mysql."""
 from ocflib.printing.quota import get_schema
 
 
