@@ -117,12 +117,6 @@ def create_home_dir(user):
         ['sudo', 'install', '-d', '--mode=0700', '--group=ocf',
             '--owner=' + user, home])
 
-    for name in ['bashrc', 'bash_profile', 'bash_logout']:
-        path = os.path.join(os.path.dirname(__file__), 'rc', name)
-        subprocess.check_call(
-            ['sudo', 'install', '--mode=0600', '--group=ocf',
-                '--owner=' + user, path, os.path.join(home, '.' + name)])
-
 
 def create_web_dir(user):
     """Create web directory for user with appropriate permissions.
