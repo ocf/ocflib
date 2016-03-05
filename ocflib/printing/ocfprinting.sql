@@ -24,9 +24,7 @@ CREATE TABLE IF NOT EXISTS `refunds` (
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 
-DROP INDEX jobs_idx on jobs;
 CREATE INDEX `jobs_idx` ON `jobs` (`user`, `time`, `pages`);
-DROP INDEX refunds_idx on refunds;
 CREATE INDEX `refunds_idx` ON `refunds` (`user`, `time`, `pages`);
 
 DROP FUNCTION IF EXISTS semester_start;
@@ -59,7 +57,7 @@ CREATE VIEW `printed_today` AS
         COALESCE(SUM(jobs_today.pages), 0) - COALESCE(SUM(refunds_today.pages), 0) AS today
     FROM jobs_today
     LEFT OUTER JOIN refunds_today
-    WHERE jobs_today.user = refunds_today.user
+    ON jobs_today.user = refunds_today.user
     GROUP BY jobs_today.user
     ORDER BY user;
 
@@ -80,7 +78,7 @@ CREATE VIEW `printed_semester` AS
         COALESCE(SUM(jobs_semester.pages), 0) - COALESCE(SUM(refunds_semester.pages), 0) AS semester
     FROM jobs_semester
     LEFT OUTER JOIN refunds_semester
-    WHERE jobs_semester.user = refunds_semester.user
+    ON jobs_semester.user = refunds_semester.user
     GROUP BY jobs_semester.user
     ORDER BY user;
 
