@@ -25,6 +25,11 @@ from ocflib.printing.quota import WEEKEND_QUOTA
 
 
 MYSQL_TIMEOUT = 10
+
+TODAY = datetime.today()
+YESTERDAY = TODAY - timedelta(days=1)
+LAST_SEMESTER = TODAY - timedelta(days=365)
+
 TEST_JOB = Job(
     user='nobody',
     time=datetime.now(),
@@ -112,10 +117,6 @@ def test_several_jobs_today(mysql_connection):
 def test_several_jobs_previous_days_and_semesters(mysql_connection):
     """Multiple jobs should decrease quota correctly over different days,
     semesters, and users."""
-    TODAY = datetime.today()
-    YESTERDAY = TODAY - timedelta(days=1)
-    LAST_SEMESTER = TODAY - timedelta(days=365)
-
     for user in ('nobody', 'somebody', 'yobody'):
         assert_quota(mysql_connection, user, 0, 0)
 
@@ -144,10 +145,6 @@ def test_several_jobs_previous_days_and_semesters(mysql_connection):
 def test_get_quota_user_not_printed_today(mysql_connection):
     """If a user hasn't printed today, we should still be able to get their
     quota."""
-    TODAY = datetime.today()
-    YESTERDAY = TODAY - timedelta(days=1)
-    LAST_SEMESTER = TODAY - timedelta(days=365)
-
     # a user who printed only yesterday
     add_job(mysql_connection, TEST_JOB._replace(user='nobody', pages=13, time=YESTERDAY))
     assert_quota(mysql_connection, 'nobody', 0, -13)
@@ -188,6 +185,41 @@ def test_jobs_and_refunds_today(mysql_connection):
     add_refund(mysql_connection, TEST_REFUND._replace(pages=30, user='somebody'))
     assert_quota(mysql_connection, 'somebody', 33, 33)
     assert_quota(mysql_connection, 'nobody', -4, -4)
+
+
+def test_several_jobs_refunds_previous_days_and_semesters(mysql_connection):
+    """Multiple jobs and refunds should change the quota correctly over
+    different days, semesters, and users."""
+
+    for user in ('nobody', 'somebody', 'yobody'):
+        assert_quota(mysql_connection, user, 0, 0)
+
+        # add some jobs and refunds today
+        add_job(mysql_connection, TEST_JOB._replace(user=user, pages=1, time=TODAY))
+        assert_quota(mysql_connection, user, -1, -1)
+
+        add_refund(mysql_connection, TEST_REFUND._replace(user=user, pages=30))
+        assert_quota(mysql_connection, user, 29, 29)
+
+        add_job(mysql_connection, TEST_JOB._replace(user=user, pages=15, time=TODAY))
+        assert_quota(mysql_connection, user, 14, 14)
+
+        add_refund(mysql_connection, TEST_REFUND._replace(user=user, pages=3))
+        assert_quota(mysql_connection, user, 17, 17)
+
+        # add some refunds yesterday
+        add_refund(mysql_connection, TEST_REFUND._replace(user=user, pages=3, time=YESTERDAY))
+        assert_quota(mysql_connection, user, 17, 20)
+
+        add_refund(mysql_connection, TEST_REFUND._replace(user=user, pages=8, time=YESTERDAY))
+        assert_quota(mysql_connection, user, 17, 28)
+
+        # add some refunds last semester
+        add_refund(mysql_connection, TEST_REFUND._replace(user=user, pages=8, time=LAST_SEMESTER))
+        assert_quota(mysql_connection, user, 17, 28)
+
+        add_refund(mysql_connection, TEST_REFUND._replace(user=user, pages=3, time=LAST_SEMESTER))
+        assert_quota(mysql_connection, user, 17, 28)
 
 
 @pytest.fixture(scope='session')
