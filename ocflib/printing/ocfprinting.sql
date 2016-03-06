@@ -42,19 +42,23 @@ DELIMITER ;
 
 DROP VIEW IF EXISTS jobs_today;
 CREATE VIEW jobs_today AS
-    SELECT * FROM jobs
-    WHERE DATE(jobs.time) = CURDATE();
+    SELECT user, SUM(pages) AS pages
+    FROM jobs
+    WHERE DATE(jobs.time) = CURDATE()
+    GROUP BY user;
 
 DROP VIEW IF EXISTS refunds_today;
 CREATE VIEW refunds_today AS
-    SELECT * FROM refunds
-    WHERE DATE(refunds.time) = CURDATE();
+    SELECT user, SUM(pages) AS pages
+    FROM refunds
+    WHERE DATE(refunds.time) = CURDATE()
+    GROUP BY user;
 
 DROP VIEW IF EXISTS printed_today;
 CREATE VIEW `printed_today` AS
     SELECT
         jobs_today.user AS user,
-        COALESCE(SUM(jobs_today.pages), 0) - COALESCE(SUM(refunds_today.pages), 0) AS today
+        COALESCE(jobs_today.pages, 0) - COALESCE(refunds_today.pages, 0) AS today
     FROM jobs_today
     LEFT OUTER JOIN refunds_today
     ON jobs_today.user = refunds_today.user
@@ -63,19 +67,23 @@ CREATE VIEW `printed_today` AS
 
 DROP VIEW IF EXISTS jobs_semester;
 CREATE VIEW jobs_semester AS
-    SELECT * FROM jobs
-    WHERE DATE(jobs.time) > semester_start(CURDATE());
+    SELECT user, SUM(pages) AS pages
+    FROM jobs
+    WHERE DATE(jobs.time) > semester_start(CURDATE())
+    GROUP BY user;
 
 DROP VIEW IF EXISTS refunds_semester;
 CREATE VIEW refunds_semester AS
-    SELECT * FROM refunds
-    WHERE DATE(refunds.time) > semester_start(CURDATE());
+    SELECT user, SUM(pages) AS pages
+    FROM refunds
+    WHERE DATE(refunds.time) > semester_start(CURDATE())
+    GROUP BY user;
 
 DROP VIEW IF EXISTS printed_semester;
 CREATE VIEW `printed_semester` AS
     SELECT
         jobs_semester.user AS user,
-        COALESCE(SUM(jobs_semester.pages), 0) - COALESCE(SUM(refunds_semester.pages), 0) AS semester
+        COALESCE(jobs_semester.pages, 0) - COALESCE(refunds_semester.pages, 0) AS semester
     FROM jobs_semester
     LEFT OUTER JOIN refunds_semester
     ON jobs_semester.user = refunds_semester.user
@@ -85,9 +93,9 @@ CREATE VIEW `printed_semester` AS
 DROP VIEW IF EXISTS printed;
 CREATE VIEW `printed` AS
     SELECT
-        printed_today.user AS user,
-        printed_today.today AS today,
-        printed_semester.semester AS semester
+        printed_semester.user AS user,
+        COALESCE(printed_today.today, 0) AS today,
+        COALESCE(printed_semester.semester, 0) AS semester
     FROM printed_today
     RIGHT OUTER JOIN printed_semester
     ON printed_today.user = printed_semester.user

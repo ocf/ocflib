@@ -66,21 +66,6 @@ def test_quotas_are_sane():
     assert WEEKEND_QUOTA < SEMESTERLY_QUOTA
 
 
-@pytest.mark.parametrize('user', ('nobody', 'ckuehl'))
-def test_quota_user_not_in_db(user, mysql_connection):
-    assert (
-        get_quota(mysql_connection, user) ==
-        UserQuota(user, daily_quota(), SEMESTERLY_QUOTA)
-    )
-
-
-def test_pubstaff_has_infinite_quota(mysql_connection):
-    assert (
-        get_quota(mysql_connection, 'pubstaff') ==
-        UserQuota('pubstaff', 500, 500)
-    )
-
-
 def assert_quota(c, user, diff_daily, diff_semesterly):
     """Assert the quota for a user is what we expect.
 
@@ -91,6 +76,18 @@ def assert_quota(c, user, diff_daily, diff_semesterly):
     assert (
         get_quota(c, user) ==
         UserQuota(user, start[0] + diff_daily, start[1] + diff_semesterly)
+    )
+
+
+@pytest.mark.parametrize('user', ('nobody', 'ckuehl'))
+def test_quota_user_not_in_db(user, mysql_connection):
+    assert_quota(mysql_connection, user, 0, 0)
+
+
+def test_pubstaff_has_infinite_quota(mysql_connection):
+    assert (
+        get_quota(mysql_connection, 'pubstaff') ==
+        UserQuota('pubstaff', 500, 500)
     )
 
 
@@ -144,6 +141,22 @@ def test_several_jobs_previous_days_and_semesters(mysql_connection):
         assert_quota(mysql_connection, user, -3, -11)
 
 
+def test_get_quota_user_not_printed_today(mysql_connection):
+    """If a user hasn't printed today, we should still be able to get their
+    quota."""
+    TODAY = datetime.today()
+    YESTERDAY = TODAY - timedelta(days=1)
+    LAST_SEMESTER = TODAY - timedelta(days=365)
+
+    # a user who printed only yesterday
+    add_job(mysql_connection, TEST_JOB._replace(user='nobody', pages=13, time=YESTERDAY))
+    assert_quota(mysql_connection, 'nobody', 0, -13)
+
+    # a user who printed only last semester
+    add_job(mysql_connection, TEST_JOB._replace(user='somebody', pages=13, time=LAST_SEMESTER))
+    assert_quota(mysql_connection, 'somebody', 0, 0)
+
+
 def test_jobs_and_refunds_today(mysql_connection):
     """Refunds should add back pages correctly."""
     assert_quota(mysql_connection, 'nobody', 0, 0)
@@ -167,9 +180,13 @@ def test_jobs_and_refunds_today(mysql_connection):
     assert_quota(mysql_connection, 'somebody', -5, -5)
     assert_quota(mysql_connection, 'nobody', -4, -4)
 
-    # and another refund for that user
+    # and some refunds for that user
     add_refund(mysql_connection, TEST_REFUND._replace(pages=8, user='somebody'))
     assert_quota(mysql_connection, 'somebody', 3, 3)
+    assert_quota(mysql_connection, 'nobody', -4, -4)
+
+    add_refund(mysql_connection, TEST_REFUND._replace(pages=30, user='somebody'))
+    assert_quota(mysql_connection, 'somebody', 33, 33)
     assert_quota(mysql_connection, 'nobody', -4, -4)
 
 
