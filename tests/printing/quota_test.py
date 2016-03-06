@@ -213,6 +213,7 @@ def mysqld_socket(mysqld_path, tmpdir_factory):
 
     check_call((
         mysqld_path.join('usr', 'bin', 'mysql_install_db').strpath,
+        '--no-defaults',
         '--basedir=' + mysqld_path.join('usr').strpath,
         '--datadir=' + data_dir.strpath,
     ))
