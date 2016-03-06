@@ -96,6 +96,23 @@ def test_pubstaff_has_infinite_quota(mysql_connection):
     )
 
 
+def test_semesterly_quota_limits_daily_quota(mysql_connection):
+    """The daily quota should be limited by the semesterly quota."""
+    assert_quota(mysql_connection, 'nobody', 0, 0)
+
+    DAILY_QUOTA = daily_quota()
+
+    add_job(mysql_connection, TEST_JOB._replace(pages=SEMESTERLY_QUOTA - 5, time=YESTERDAY))
+    assert_quota(mysql_connection, 'nobody', -DAILY_QUOTA + 5, -SEMESTERLY_QUOTA + 5)
+
+    add_job(mysql_connection, TEST_JOB._replace(pages=5, time=YESTERDAY))
+    assert_quota(mysql_connection, 'nobody', -DAILY_QUOTA, -SEMESTERLY_QUOTA)
+
+    # and now we should hit a floor at zero even if we somehow exceeded the quota
+    add_job(mysql_connection, TEST_JOB._replace(pages=3, time=YESTERDAY))
+    assert_quota(mysql_connection, 'nobody', -DAILY_QUOTA, -SEMESTERLY_QUOTA)
+
+
 def test_several_jobs_today(mysql_connection):
     """Multiple jobs should decrease quota correctly."""
     assert_quota(mysql_connection, 'nobody', 0, 0)
