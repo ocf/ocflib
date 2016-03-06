@@ -16,7 +16,7 @@ setup(
     url='https://www.ocf.berkeley.edu',
     packages=find_packages(),
     package_data={
-        'ocflib.account': ['rc/*'],
+        'ocflib.printing': ['ocfprinting.schema'],
     },
     install_requires=(
         'cached_property',

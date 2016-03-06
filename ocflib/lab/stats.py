@@ -36,6 +36,13 @@ UserTime = namedtuple('UserTime', ['user', 'time'])
 
 
 def get_connection(user='anonymous', password=None):
+    """Return a connection to MySQL.
+
+    By default, returns an unprivileged connection which can be used for
+    querying most data.
+
+    If you need rw access, pass a user and password argument.
+    """
     return pymysql.connect(
         host='mysql.ocf.berkeley.edu',
         user=user,
