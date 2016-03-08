@@ -13,7 +13,7 @@ release-pypi: clean autoversion
 	twine upload dist/*
 
 builddeb: autoversion
-	dpkg-buildpackage -us -uc -b
+	dpkg-buildpackage -us -uc
 
 clean: autoversion
 	python3 setup.py clean
