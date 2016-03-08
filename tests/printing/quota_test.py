@@ -7,6 +7,7 @@ from subprocess import check_call
 from subprocess import PIPE
 from subprocess import Popen
 
+import mock
 import pkg_resources
 import pymysql
 import pytest
@@ -25,6 +26,9 @@ from ocflib.printing.quota import WEEKEND_QUOTA
 
 
 MYSQL_TIMEOUT = 10
+
+FAKE_DAILY_QUOTA = 1000
+FAKE_SEMESTERLY_QUOTA = 10000
 
 TODAY = datetime.today()
 YESTERDAY = TODAY - timedelta(days=1)
@@ -77,11 +81,13 @@ def assert_quota(c, user, diff_daily, diff_semesterly):
     Typically, you want to pass a negative number for diff_daily and
     diff_semesterly. This number is added to the start quota before assertion.
     """
-    start = daily_quota(), SEMESTERLY_QUOTA
-    assert (
-        get_quota(c, user) ==
-        UserQuota(user, start[0] + diff_daily, start[1] + diff_semesterly)
-    )
+    start = 1000, 10000
+    with mock.patch('ocflib.printing.quota.daily_quota', return_value=start[0]), \
+            mock.patch('ocflib.printing.quota.SEMESTERLY_QUOTA', start[1]):
+        assert (
+            get_quota(c, user) ==
+            UserQuota(user, FAKE_DAILY_QUOTA + diff_daily, FAKE_SEMESTERLY_QUOTA + diff_semesterly)
+        )
 
 
 @pytest.mark.parametrize('user', ('nobody', 'ckuehl'))
@@ -100,17 +106,15 @@ def test_semesterly_quota_limits_daily_quota(mysql_connection):
     """The daily quota should be limited by the semesterly quota."""
     assert_quota(mysql_connection, 'nobody', 0, 0)
 
-    DAILY_QUOTA = daily_quota()
-
-    add_job(mysql_connection, TEST_JOB._replace(pages=SEMESTERLY_QUOTA - 5, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', -DAILY_QUOTA + 5, -SEMESTERLY_QUOTA + 5)
+    add_job(mysql_connection, TEST_JOB._replace(pages=FAKE_SEMESTERLY_QUOTA - 5, time=YESTERDAY))
+    assert_quota(mysql_connection, 'nobody', -FAKE_DAILY_QUOTA + 5, -FAKE_SEMESTERLY_QUOTA + 5)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=5, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', -DAILY_QUOTA, -SEMESTERLY_QUOTA)
+    assert_quota(mysql_connection, 'nobody', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
 
     # and now we should hit a floor at zero even if we somehow exceeded the quota
     add_job(mysql_connection, TEST_JOB._replace(pages=3, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', -DAILY_QUOTA, -SEMESTERLY_QUOTA)
+    assert_quota(mysql_connection, 'nobody', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
 
 
 def test_several_jobs_today(mysql_connection):
