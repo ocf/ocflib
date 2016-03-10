@@ -5,6 +5,10 @@ import ocflib.constants as constants
 import ocflib.infra.ldap as ldap
 
 
+# TODO: add switch here
+HOST_TYPES_WITH_IPV6 = frozenset({'server', 'desktop', 'dhcp'})
+
+
 def hosts_by_filter(ldap_filter):
     """Return a list of hosts satisfying the LDAP filter."""
 
