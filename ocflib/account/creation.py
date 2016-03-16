@@ -22,6 +22,7 @@ from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.misc.mail import send_mail
 from ocflib.misc.validators import valid_email
+from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 
 def create_account(request, creds, report_status):
@@ -153,7 +154,7 @@ As a brand-new OCF member, you're welcome to use any and all of our services.
 Some key highlights:
 
     - Access to our swanky computer lab (171 MLK Student Union)
-    - 250 pages of free printing per semester
+    - {semesterly_quota} pages of free printing per semester
     - Web hosting: https://www.ocf.berkeley.edu/~{request.user_name}/
 
 You can find out the cool things you can do on our wiki:
@@ -172,8 +173,11 @@ https://www.ocf.berkeley.edu/about/staff
 
 If you have any other questions, feel free to reply to this message!
 
-{signature}""".format(request=request,
-                      signature=constants.MAIL_SIGNATURE)
+{signature}""".format(
+        request=request,
+        signature=constants.MAIL_SIGNATURE,
+        semesterly_quota=SEMESTERLY_QUOTA,
+    )
 
     send_mail(request.email, '[OCF] Your account has been created!', body)
 
