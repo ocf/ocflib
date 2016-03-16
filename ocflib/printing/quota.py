@@ -97,7 +97,7 @@ def add_refund(c, refund):
     c.execute(*_namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
 
 
-def get_connection(user='anonymous', password=None):
+def get_connection(user='anonymous', password=None, db='ocfprinting', **kwargs):
     """Return a connection to MySQL.
 
     By default, returns an unprivileged connection which can be used for
@@ -105,11 +105,14 @@ def get_connection(user='anonymous', password=None):
 
     If you need rw access, pass a user and password argument.
     """
+    if 'unix_socket' not in kwargs:
+        kwargs.setdefault('host', 'mysql.ocf.berkeley.edu')
     return pymysql.connect(
-        host='mysql.ocf.berkeley.edu',
         user=user,
         password=password,
-        db='ocfprinting',
+        db=db,
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True,
+        charset='utf8',
+        **kwargs
     )

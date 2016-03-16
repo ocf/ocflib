@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
     `doc_name` varchar(510) NOT NULL,
     `filesize` int unsigned NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `refunds` (
     `id` int NOT NULL AUTO_INCREMENT,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `refunds` (
     `staffer` varchar(255) NOT NULL,
     `reason` varchar(510) NOT NULL,
     PRIMARY KEY(`id`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 CREATE INDEX `jobs_idx` ON `jobs` (`user`, `time`, `pages`);
 CREATE INDEX `refunds_idx` ON `refunds` (`user`, `time`, `pages`);

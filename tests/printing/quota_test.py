@@ -16,6 +16,7 @@ from freezegun import freeze_time
 from ocflib.printing.quota import add_job
 from ocflib.printing.quota import add_refund
 from ocflib.printing.quota import daily_quota
+from ocflib.printing.quota import get_connection as real_get_connection
 from ocflib.printing.quota import get_quota
 from ocflib.printing.quota import Job
 from ocflib.printing.quota import Refund
@@ -100,6 +101,20 @@ def test_pubstaff_has_infinite_quota(mysql_connection):
         get_quota(mysql_connection, 'pubstaff') ==
         UserQuota('pubstaff', 500, 500)
     )
+
+
+@pytest.mark.parametrize('doc_name', [
+    'éóñəå  ⊂(◉‿◉)つ(ノ≥∇≤)ノ',
+    '¯\_(ツ)_/¯',
+    '♪┏(・o･)┛♪┗ ( ･o･) ┓♪┏ ( ) ┛♪┗ (･o･ ) ┓♪┏(･o･)┛♪',
+    'éóñå',
+])
+def test_job_with_weird_chars_works(doc_name, mysql_connection):
+    """Jobs with non-ASCII characters should still be added."""
+    assert_quota(mysql_connection, 'nobody', 0, 0)
+
+    add_job(mysql_connection, TEST_JOB._replace(pages=5, doc_name=doc_name))
+    assert_quota(mysql_connection, 'nobody', -5, -5)
 
 
 def test_semesterly_quota_limits_daily_quota(mysql_connection):
@@ -301,15 +316,8 @@ def mysql_ready(socket):
         return True
 
 
-def get_connection(socket, **kwargs):
-    return pymysql.connect(
-        user='root',
-        password=None,
-        unix_socket=socket.strpath,
-        autocommit=True,
-        cursorclass=pymysql.cursors.DictCursor,
-        **kwargs
-    )
+def get_connection(socket, db=None, **kwargs):
+    return real_get_connection(unix_socket=socket.strpath, user='root', db=db, **kwargs)
 
 
 @pytest.yield_fixture
