@@ -2,6 +2,8 @@
 -- This is kept here mostly to allow us to document the existing schema.
 --
 
+ALTER DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `jobs` (
     `id` int NOT NULL AUTO_INCREMENT,
     `user` varchar(255) NOT NULL,
@@ -12,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
     `doc_name` varchar(510) NOT NULL,
     `filesize` int unsigned NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `refunds` (
     `id` int NOT NULL AUTO_INCREMENT,
@@ -22,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `refunds` (
     `staffer` varchar(255) NOT NULL,
     `reason` varchar(510) NOT NULL,
     PRIMARY KEY(`id`)
-) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB;
 
 CREATE INDEX `jobs_idx` ON `jobs` (`user`, `time`, `pages`);
 CREATE INDEX `refunds_idx` ON `refunds` (`user`, `time`, `pages`);

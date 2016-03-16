@@ -113,6 +113,6 @@ def get_connection(user='anonymous', password=None, db='ocfprinting', **kwargs):
         db=db,
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True,
-        charset='utf8',
+        charset='utf8mb4',
         **kwargs
     )
