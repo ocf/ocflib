@@ -108,6 +108,7 @@ def test_pubstaff_has_infinite_quota(mysql_connection):
     '¯\_(ツ)_/¯',
     '♪┏(・o･)┛♪┗ ( ･o･) ┓♪┏ ( ) ┛♪┗ (･o･ ) ┓♪┏(･o･)┛♪',
     'éóñå',
+    '😺 😸 😻 😽 😼 🙀 😿 😹 😾',
 ])
 def test_job_with_weird_chars_works(doc_name, mysql_connection):
     """Jobs with non-ASCII characters should still be added."""
