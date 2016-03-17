@@ -11,13 +11,24 @@ def test_shell_quote():
     assert ocflib.misc.shell.escape_arg
 
 
-def test_color_wrappers():
-    for color in ocflib.misc.shell.COLORS:
+@pytest.mark.parametrize('color', ocflib.misc.shell.COLORS)
+def test_color_wrappers_with_tty(color):
+    with mock.patch('sys.stdout.isatty', return_value=True):
         fore = getattr(ocflib.misc.shell, color)
-        assert fore('hi') == getattr(Fore, color.upper()) + 'hi' + Fore.RESET
+        assert fore('hi') == fore('hi', tty_only=True) == getattr(Fore, color.upper()) + 'hi' + Fore.RESET
 
         bg = getattr(ocflib.misc.shell, 'bg_' + color)
-        assert bg('hi') == getattr(Back, color.upper()) + 'hi' + Back.RESET
+        assert bg('hi') == bg('hi', tty_only=True) == getattr(Back, color.upper()) + 'hi' + Back.RESET
+
+
+@pytest.mark.parametrize('color', ocflib.misc.shell.COLORS)
+def test_color_wrappers_without_tty(color):
+    with mock.patch('sys.stdout.isatty', return_value=False):
+        fore = getattr(ocflib.misc.shell, color)
+        assert fore('hi') == 'hi'
+
+        bg = getattr(ocflib.misc.shell, 'bg_' + color)
+        assert bg('hi') == 'hi'
 
 
 @pytest.mark.parametrize('env,expected', [

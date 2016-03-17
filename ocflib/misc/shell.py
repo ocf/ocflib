@@ -2,6 +2,7 @@
 import getpass
 import os
 import subprocess
+import sys
 import tempfile
 
 from colorama import Back
@@ -84,7 +85,15 @@ def _wrap_colorama(color, reset):
     >>> red('hello')
     '\x1b[31mhello\x1b[39m'
     """
-    def wrapper(string):
+    def wrapper(string, tty_only=True):
+        """Return colorized string.
+
+        Takes an optional tty_only argument (defaults to True). When tty_only
+        is set, colors will only be applied if stdout is a tty.  This is useful
+        when you don't want color output (e.g. if redirecting to a file).
+        """
+        if tty_only and not sys.stdout.isatty():
+            return string
         return '{color}{string}{reset}'.format(
             color=color,
             string=string,
