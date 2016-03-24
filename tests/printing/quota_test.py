@@ -36,7 +36,7 @@ YESTERDAY = TODAY - timedelta(days=1)
 LAST_SEMESTER = TODAY - timedelta(days=365)
 
 TEST_JOB = Job(
-    user='nobody',
+    user='mattmcal',
     time=datetime.now(),
     pages=3,
     queue='double',
@@ -45,7 +45,7 @@ TEST_JOB = Job(
     filesize=12,
 )
 TEST_REFUND = Refund(
-    user='nobody',
+    user='mattmcal',
     time=datetime.now(),
     pages=3,
     staffer='ckuehl',
@@ -91,7 +91,7 @@ def assert_quota(c, user, diff_daily, diff_semesterly):
         )
 
 
-@pytest.mark.parametrize('user', ('nobody', 'ckuehl'))
+@pytest.mark.parametrize('user', ('mattmcal', 'ckuehl'))
 def test_quota_user_not_in_db(user, mysql_connection):
     assert_quota(mysql_connection, user, 0, 0)
 
@@ -126,49 +126,49 @@ def test_non_existent_users_have_zero_quota(mysql_connection):
 ])
 def test_job_with_weird_chars_works(doc_name, mysql_connection):
     """Jobs with non-ASCII characters should still be added."""
-    assert_quota(mysql_connection, 'nobody', 0, 0)
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=5, doc_name=doc_name))
-    assert_quota(mysql_connection, 'nobody', -5, -5)
+    assert_quota(mysql_connection, 'mattmcal', -5, -5)
 
 
 def test_semesterly_quota_limits_daily_quota(mysql_connection):
     """The daily quota should be limited by the semesterly quota."""
-    assert_quota(mysql_connection, 'nobody', 0, 0)
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=FAKE_SEMESTERLY_QUOTA - 5, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', -FAKE_DAILY_QUOTA + 5, -FAKE_SEMESTERLY_QUOTA + 5)
+    assert_quota(mysql_connection, 'mattmcal', -FAKE_DAILY_QUOTA + 5, -FAKE_SEMESTERLY_QUOTA + 5)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=5, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
+    assert_quota(mysql_connection, 'mattmcal', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
 
     # and now we should hit a floor at zero even if we somehow exceeded the quota
     add_job(mysql_connection, TEST_JOB._replace(pages=3, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
+    assert_quota(mysql_connection, 'mattmcal', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
 
 
 def test_several_jobs_today(mysql_connection):
     """Multiple jobs should decrease quota correctly."""
-    assert_quota(mysql_connection, 'nobody', 0, 0)
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=3))
-    assert_quota(mysql_connection, 'nobody', -3, -3)
+    assert_quota(mysql_connection, 'mattmcal', -3, -3)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=8))
-    assert_quota(mysql_connection, 'nobody', -11, -11)
+    assert_quota(mysql_connection, 'mattmcal', -11, -11)
 
     # now add another user
-    assert_quota(mysql_connection, 'somebody', 0, 0)
+    assert_quota(mysql_connection, 'ckuehl', 0, 0)
 
-    add_job(mysql_connection, TEST_JOB._replace(pages=5, user='somebody'))
-    assert_quota(mysql_connection, 'somebody', -5, -5)
-    assert_quota(mysql_connection, 'nobody', -11, -11)
+    add_job(mysql_connection, TEST_JOB._replace(pages=5, user='ckuehl'))
+    assert_quota(mysql_connection, 'ckuehl', -5, -5)
+    assert_quota(mysql_connection, 'mattmcal', -11, -11)
 
 
 def test_several_jobs_previous_days_and_semesters(mysql_connection):
     """Multiple jobs should decrease quota correctly over different days,
     semesters, and users."""
-    for user in ('nobody', 'somebody', 'yobody'):
+    for user in ('mattmcal', 'ckuehl', 'jvperrin'):
         assert_quota(mysql_connection, user, 0, 0)
 
         # add some jobs today
@@ -197,52 +197,52 @@ def test_get_quota_user_not_printed_today(mysql_connection):
     """If a user hasn't printed today, we should still be able to get their
     quota."""
     # a user who printed only yesterday
-    add_job(mysql_connection, TEST_JOB._replace(user='nobody', pages=13, time=YESTERDAY))
-    assert_quota(mysql_connection, 'nobody', 0, -13)
+    add_job(mysql_connection, TEST_JOB._replace(user='mattmcal', pages=13, time=YESTERDAY))
+    assert_quota(mysql_connection, 'mattmcal', 0, -13)
 
     # a user who printed only last semester
-    add_job(mysql_connection, TEST_JOB._replace(user='somebody', pages=13, time=LAST_SEMESTER))
-    assert_quota(mysql_connection, 'somebody', 0, 0)
+    add_job(mysql_connection, TEST_JOB._replace(user='ckuehl', pages=13, time=LAST_SEMESTER))
+    assert_quota(mysql_connection, 'ckuehl', 0, 0)
 
 
 def test_jobs_and_refunds_today(mysql_connection):
     """Refunds should add back pages correctly."""
-    assert_quota(mysql_connection, 'nobody', 0, 0)
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=3))
-    assert_quota(mysql_connection, 'nobody', -3, -3)
+    assert_quota(mysql_connection, 'mattmcal', -3, -3)
 
     add_job(mysql_connection, TEST_JOB._replace(pages=5))
-    assert_quota(mysql_connection, 'nobody', -8, -8)
+    assert_quota(mysql_connection, 'mattmcal', -8, -8)
 
     add_refund(mysql_connection, TEST_REFUND._replace(pages=1))
-    assert_quota(mysql_connection, 'nobody', -7, -7)
+    assert_quota(mysql_connection, 'mattmcal', -7, -7)
 
     add_refund(mysql_connection, TEST_REFUND._replace(pages=3))
-    assert_quota(mysql_connection, 'nobody', -4, -4)
+    assert_quota(mysql_connection, 'mattmcal', -4, -4)
 
     # now add another user
-    assert_quota(mysql_connection, 'somebody', 0, 0)
+    assert_quota(mysql_connection, 'ckuehl', 0, 0)
 
-    add_job(mysql_connection, TEST_JOB._replace(pages=5, user='somebody'))
-    assert_quota(mysql_connection, 'somebody', -5, -5)
-    assert_quota(mysql_connection, 'nobody', -4, -4)
+    add_job(mysql_connection, TEST_JOB._replace(pages=5, user='ckuehl'))
+    assert_quota(mysql_connection, 'ckuehl', -5, -5)
+    assert_quota(mysql_connection, 'mattmcal', -4, -4)
 
     # and some refunds for that user
-    add_refund(mysql_connection, TEST_REFUND._replace(pages=8, user='somebody'))
-    assert_quota(mysql_connection, 'somebody', 3, 3)
-    assert_quota(mysql_connection, 'nobody', -4, -4)
+    add_refund(mysql_connection, TEST_REFUND._replace(pages=8, user='ckuehl'))
+    assert_quota(mysql_connection, 'ckuehl', 3, 3)
+    assert_quota(mysql_connection, 'mattmcal', -4, -4)
 
-    add_refund(mysql_connection, TEST_REFUND._replace(pages=30, user='somebody'))
-    assert_quota(mysql_connection, 'somebody', 33, 33)
-    assert_quota(mysql_connection, 'nobody', -4, -4)
+    add_refund(mysql_connection, TEST_REFUND._replace(pages=30, user='ckuehl'))
+    assert_quota(mysql_connection, 'ckuehl', 33, 33)
+    assert_quota(mysql_connection, 'mattmcal', -4, -4)
 
 
 def test_several_jobs_refunds_previous_days_and_semesters(mysql_connection):
     """Multiple jobs and refunds should change the quota correctly over
     different days, semesters, and users."""
 
-    for user in ('nobody', 'somebody', 'yobody'):
+    for user in ('mattmcal', 'ckuehl', 'jvperrin'):
         assert_quota(mysql_connection, user, 0, 0)
 
         # add some jobs and refunds today
