@@ -27,13 +27,21 @@ class TestValidateUsername:
         'ckuehl!',
         '123123',
         'f00f00',
-
-        # does not exist
-        'nonexist',
     ])
     def test_failure(self, username):
         with pytest.raises(ValueError):
             validate_username(username, check_exists=True)
+
+    def test_failure_nonexist(self):
+        """Test that it fails with a nonexistent username.
+
+        We can't just use "nonexist" since this is also a reserved username. We
+        need mocking to avoid flakiness if somebody registers that account.
+        """
+        with mock.patch('ocflib.account.validators.user_exists', return_value=False) as m, \
+                pytest.raises(ValueError):
+            validate_username('asdf', check_exists=True)
+        m.assert_called_once_with('asdf')
 
     @pytest.mark.parametrize('username', ['ckuehl', 'daradib'])
     def test_success(fail, username):
