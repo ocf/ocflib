@@ -25,9 +25,9 @@ def users_by_callink_oid(callink_oid):
 
 
 def user_attrs(uid, connection=ldap.ldap_ocf, base=constants.OCF_LDAP_PEOPLE):
-    """Returns a dictionary of LDAP attributes for a given LDAP UID in
-    the form:
+    """Returns a dictionary of LDAP attributes for a given LDAP UID.
 
+    The returned dictionary looks like:
     {
       'uid': ['somebody'],
       'objectClass': ['ocfAccount', 'account', 'posixAccount'],
@@ -49,11 +49,11 @@ def user_attrs_ucb(uid):
 
 
 def user_exists(account):
-    """Returns True if an OCF user exists with specified account name"""
+    """Returns whether username is an OCF account."""
     return bool(user_attrs(account))
 
 
 def user_is_group(username):
-    """Returns True if an OCF user account exists and is a group account"""
+    """Returns whether username is an OCF group account."""
     attrs = user_attrs(username)
     return 'callinkOid' in attrs

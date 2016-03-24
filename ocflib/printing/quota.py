@@ -3,6 +3,9 @@ from datetime import datetime
 
 import pymysql
 
+from ocflib.account.search import user_exists
+from ocflib.account.search import user_is_group
+
 
 WEEKDAY_QUOTA = 8
 WEEKEND_QUOTA = 16
@@ -52,6 +55,9 @@ def get_quota(c, user):
     """Return a UserQuota representing the user's quota."""
     if user == 'pubstaff':
         return UserQuota('pubstaff', 500, 500)
+
+    if not user_exists(user) or user_is_group(user):
+        return UserQuota(user, 0, 0)
 
     c.execute(
         'SELECT `today`, `semester` FROM `printed` WHERE `user` = %s',

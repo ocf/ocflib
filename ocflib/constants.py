@@ -156,6 +156,7 @@ RESERVED_USERNAMES = frozenset((
     'noc',
     'nogroup',
     'nomail',
+    'nonexist',
     'noreply',
     'nslcd',
     'ntp',

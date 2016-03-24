@@ -103,6 +103,20 @@ def test_pubstaff_has_infinite_quota(mysql_connection):
     )
 
 
+def test_groups_have_zero_quota(mysql_connection):
+    assert (
+        get_quota(mysql_connection, 'ggroup') ==
+        UserQuota('ggroup', 0, 0)
+    )
+
+
+def test_non_existent_users_have_zero_quota(mysql_connection):
+    assert (
+        get_quota(mysql_connection, 'nonexist') ==
+        UserQuota('nonexist', 0, 0)
+    )
+
+
 @pytest.mark.parametrize('doc_name', [
     'éóñəå  ⊂(◉‿◉)つ(ノ≥∇≤)ノ',
     '¯\_(ツ)_/¯',
