@@ -65,6 +65,17 @@ CREATE VIEW `printed_today` AS
     LEFT OUTER JOIN refunds_today
     ON jobs_today.user = refunds_today.user
     GROUP BY jobs_today.user
+
+    UNION
+
+    SELECT
+        refunds_today.user AS user,
+        COALESCE(jobs_today.pages, 0) - COALESCE(refunds_today.pages, 0) AS today
+    FROM jobs_today
+    RIGHT OUTER JOIN refunds_today
+    ON jobs_today.user = refunds_today.user
+    GROUP BY refunds_today.user
+
     ORDER BY user;
 
 DROP VIEW IF EXISTS jobs_semester;
@@ -90,6 +101,17 @@ CREATE VIEW `printed_semester` AS
     LEFT OUTER JOIN refunds_semester
     ON jobs_semester.user = refunds_semester.user
     GROUP BY jobs_semester.user
+
+    UNION
+
+    SELECT
+        refunds_semester.user AS user,
+        COALESCE(jobs_semester.pages, 0) - COALESCE(refunds_semester.pages, 0) AS semester
+    FROM jobs_semester
+    RIGHT OUTER JOIN refunds_semester
+    ON jobs_semester.user = refunds_semester.user
+    GROUP BY refunds_semester.user
+
     ORDER BY user;
 
 DROP VIEW IF EXISTS printed;

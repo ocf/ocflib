@@ -205,6 +205,37 @@ def test_get_quota_user_not_printed_today(mysql_connection):
     assert_quota(mysql_connection, 'ckuehl', 0, 0)
 
 
+def test_refunds_without_jobs(mysql_connection):
+    """We should be able to calculate quotas correctly for a user with a refund
+    but no jobs."""
+    # a user with no jobs at all but a refund today
+    assert_quota(mysql_connection, 'ckuehl', 0, 0)
+
+    add_refund(mysql_connection, TEST_REFUND._replace(user='ckuehl', pages=10))
+    assert_quota(mysql_connection, 'ckuehl', 10, 10)
+
+    # a user with no jobs today and a refund earlier in the semester
+    add_job(mysql_connection, TEST_JOB._replace(user='mattmcal', pages=5, time=YESTERDAY))
+    assert_quota(mysql_connection, 'mattmcal', 0, -5)
+
+    add_refund(mysql_connection, TEST_REFUND._replace(user='mattmcal', pages=10, time=YESTERDAY))
+    assert_quota(mysql_connection, 'mattmcal', 0, 5)
+
+    # a user with no jobs today and a refund today
+    add_job(mysql_connection, TEST_JOB._replace(user='jvperrin', pages=5, time=YESTERDAY))
+    assert_quota(mysql_connection, 'jvperrin', 0, -5)
+
+    add_refund(mysql_connection, TEST_REFUND._replace(user='jvperrin', pages=10))
+    assert_quota(mysql_connection, 'jvperrin', 10, 5)
+
+    # a user with just one job (today) but a refund earlier in the semester
+    add_job(mysql_connection, TEST_JOB._replace(user='kpengboy', pages=5))
+    assert_quota(mysql_connection, 'kpengboy', -5, -5)
+
+    add_refund(mysql_connection, TEST_REFUND._replace(user='kpengboy', pages=10, time=YESTERDAY))
+    assert_quota(mysql_connection, 'kpengboy', -5, 5)
+
+
 def test_jobs_and_refunds_today(mysql_connection):
     """Refunds should add back pages correctly."""
     assert_quota(mysql_connection, 'mattmcal', 0, 0)
