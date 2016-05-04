@@ -1,5 +1,4 @@
 import datetime
-import os.path
 
 # update once a semester
 CURRENT_SEMESTER_START = datetime.date(2016, 1, 1)
@@ -24,8 +23,7 @@ UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
 CAS_URL = 'https://auth.berkeley.edu/cas/'
 
 # paths
-KADMIN_PATH = '/usr/sbin/kadmin' if os.path.isfile('/usr/sbin/kadmin') \
-    else '/usr/bin/kadmin'
+KADMIN_PATH = '/usr/bin/kadmin'
 SENDMAIL_PATH = '/usr/sbin/sendmail'
 
 QUEUED_ACCOUNTS_PATH = '/opt/create/public/approved.users'
