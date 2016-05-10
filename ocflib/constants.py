@@ -14,6 +14,8 @@ OCF_KRB_REALM = 'OCF.BERKELEY.EDU'
 OCF_MAIL_HOST = 'anthrax.ocf.berkeley.edu'
 OCF_MAIL_PORT = 25
 
+SORRIED_SHELL = '/opt/share/utils/bin/sorried'
+
 # university ldap
 UCB_LDAP = 'ldap.berkeley.edu'
 UCB_LDAP_URL = 'ldaps://' + UCB_LDAP

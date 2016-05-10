@@ -4,6 +4,7 @@ from ocflib.account.search import user_attrs
 from ocflib.account.search import user_attrs_ucb
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
+from ocflib.account.search import user_is_sorried
 from ocflib.account.search import users_by_callink_oid
 from ocflib.account.search import users_by_calnet_uid
 from ocflib.account.search import users_by_filter
@@ -75,6 +76,14 @@ class TestUserAttrsUCB:
 ])
 def test_user_exists(user, exists):
     assert user_exists(user) == exists
+
+
+@pytest.mark.parametrize('user,sorried', [
+    ('ckuehl', False),
+    ('sanjay', True),
+])
+def test_user_is_sorried(user, sorried):
+    assert user_is_sorried(user) == sorried
 
 
 class TestUserIsGroup:

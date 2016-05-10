@@ -53,6 +53,11 @@ def user_exists(account):
     return bool(user_attrs(account))
 
 
+def user_is_sorried(account):
+    shell, = user_attrs(account)['loginShell']
+    return shell == constants.SORRIED_SHELL
+
+
 def user_is_group(username):
     """Returns whether username is an OCF group account."""
     attrs = user_attrs(username)
