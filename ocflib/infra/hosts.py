@@ -22,3 +22,24 @@ def hosts_by_filter(ldap_filter):
         )
 
         return [entry['attributes'] for entry in c.response]
+
+
+def hostname_from_domain(fqdn):
+    """Extracts the hostname from its canonical domain.
+
+    >>> hostname_from_domain('death.ocf.berkeley.edu')
+    'death'
+    """
+    return fqdn.split('.')[0]
+
+
+def type_of_host(hostname):
+    """Returns the type of a host as specified in LDAP.
+
+    >>> type_of_host('eruption')
+    'desktop'
+    >>> type_of_host('supernova')
+    'server'
+    """
+    hosts = hosts_by_filter('(cn={})'.format(hostname))
+    return hosts[0]['type'][0] if hosts else None

@@ -1,6 +1,8 @@
 import pytest
 
+from ocflib.infra.hosts import hostname_from_domain
 from ocflib.infra.hosts import hosts_by_filter
+from ocflib.infra.hosts import type_of_host
 
 
 class TestHostsByFilter:
@@ -13,7 +15,7 @@ class TestHostsByFilter:
         ('(cn=doesnotexist)', []),
         ('(herp=derp)', []),
     ])
-    def test_users_by_filter(self, filter_str, expected):
+    def test_hosts_by_filter(self, filter_str, expected):
         results = self._hostnames(hosts_by_filter(filter_str))
         assert set(results) == set(expected)
 
@@ -30,3 +32,30 @@ class TestHostsByFilter:
         # renamed.
         assert ('death' in
                 self._hostnames(hosts_by_filter('(puppetClass=ocf_www)')))
+
+
+@pytest.mark.parametrize('fqdn,expected', [
+    ('death.ocf.berkeley.edu', 'death'),
+    ('death', 'death'),
+    ('', ''),
+])
+def test_hostname_from_domain(fqdn, expected):
+    assert hostname_from_domain(fqdn) == expected
+
+# This will similarly break if death or eruption are renamed.
+#
+# The former is unlikely, as explained above. The latter is less likely than
+# any other desktop, since it is configured specially as the staff-only
+# computer and the hostname will probably be reused when desktop machines are
+# changed out.
+
+
+@pytest.mark.parametrize('hostname,expected', [
+    ('death.ocf.berkeley.edu', None),
+    ('death', 'server'),
+    ('eruption', 'desktop'),
+    ('doesnotexist', None),
+    ('', None),
+])
+def test_type_of_host(hostname, expected):
+    assert type_of_host(hostname) == expected
