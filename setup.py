@@ -20,7 +20,6 @@ setup(
     },
     install_requires=(
         'cached_property',
-        'colorama',
         'cracklib',
         'dnspython3',
         'ldap3',

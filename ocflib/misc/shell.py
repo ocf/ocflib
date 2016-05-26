@@ -5,9 +5,6 @@ import subprocess
 import sys
 import tempfile
 
-from colorama import Back
-from colorama import Fore
-
 # shlex.quote is new in Python 3.3
 try:  # pragma: no cover
     from shlex import quote as escape_arg  # noqa
@@ -78,9 +75,9 @@ def prompt_for_new_password(
 
 # terminal text color wrappers;
 # this is pretty ugly, but defining them manually lets us avoid hacking flake8
-def _wrap_colorama(color, reset):
+def _wrap_colors(color, reset):
     """Create functions like red('hello') and bg_red('hello') for wrapping
-    strings in ASNI color escapes.
+    strings in ANSI color escapes.
 
     >>> red('hello')
     '\x1b[31mhello\x1b[39m'
@@ -101,33 +98,54 @@ def _wrap_colorama(color, reset):
         )
     return wrapper
 
+COLORS = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white']
 
-COLORS = [
-    'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'
-]
+# Define ANSI color codes
+FG_COLORS = {
+    'black': 30,
+    'red': 31,
+    'green': 32,
+    'yellow': 33,
+    'blue': 34,
+    'magenta': 35,
+    'cyan': 36,
+    'white': 37,
+    'reset': 39
+}
 
-black = _wrap_colorama(Fore.BLACK, Fore.RESET)
-bg_black = _wrap_colorama(Back.BLACK, Back.RESET)
+BG_COLORS = {k: v + 10 for k, v in FG_COLORS.items()}
 
-red = _wrap_colorama(Fore.RED, Fore.RESET)
-bg_red = _wrap_colorama(Back.RED, Back.RESET)
 
-green = _wrap_colorama(Fore.GREEN, Fore.RESET)
-bg_green = _wrap_colorama(Back.GREEN, Back.RESET)
+def code_to_chars(code):
+    """Convert each numeric code to its corresponding characters"""
+    return '\033[' + str(code) + 'm'
 
-yellow = _wrap_colorama(Fore.YELLOW, Fore.RESET)
-bg_yellow = _wrap_colorama(Back.YELLOW, Back.RESET)
+FG_CODES = {k: code_to_chars(v) for k, v in FG_COLORS.items()}
+BG_CODES = {k: code_to_chars(v) for k, v in BG_COLORS.items()}
 
-blue = _wrap_colorama(Fore.BLUE, Fore.RESET)
-bg_blue = _wrap_colorama(Back.BLUE, Back.RESET)
 
-magenta = _wrap_colorama(Fore.MAGENTA, Fore.RESET)
-bg_magenta = _wrap_colorama(Back.MAGENTA, Back.RESET)
+black = _wrap_colors(FG_CODES['black'], FG_CODES['reset'])
+bg_black = _wrap_colors(BG_CODES['black'], BG_CODES['reset'])
 
-cyan = _wrap_colorama(Fore.CYAN, Fore.RESET)
-bg_cyan = _wrap_colorama(Back.CYAN, Back.RESET)
+red = _wrap_colors(FG_CODES['red'], FG_CODES['reset'])
+bg_red = _wrap_colors(BG_CODES['red'], BG_CODES['reset'])
 
-white = _wrap_colorama(Fore.WHITE, Fore.RESET)
-bg_white = _wrap_colorama(Back.WHITE, Back.RESET)
+green = _wrap_colors(FG_CODES['green'], FG_CODES['reset'])
+bg_green = _wrap_colors(BG_CODES['green'], BG_CODES['reset'])
 
-bold = _wrap_colorama('\033[1m', '\033[0m')
+yellow = _wrap_colors(FG_CODES['yellow'], FG_CODES['reset'])
+bg_yellow = _wrap_colors(BG_CODES['yellow'], BG_CODES['reset'])
+
+blue = _wrap_colors(FG_CODES['blue'], FG_CODES['reset'])
+bg_blue = _wrap_colors(BG_CODES['blue'], BG_CODES['reset'])
+
+magenta = _wrap_colors(FG_CODES['magenta'], FG_CODES['reset'])
+bg_magenta = _wrap_colors(BG_CODES['magenta'], BG_CODES['reset'])
+
+cyan = _wrap_colors(FG_CODES['cyan'], FG_CODES['reset'])
+bg_cyan = _wrap_colors(BG_CODES['cyan'], BG_CODES['reset'])
+
+white = _wrap_colors(FG_CODES['white'], FG_CODES['reset'])
+bg_white = _wrap_colors(BG_CODES['white'], BG_CODES['reset'])
+
+bold = _wrap_colors('\033[1m', '\033[0m')
