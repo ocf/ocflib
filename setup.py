@@ -16,7 +16,7 @@ setup(
     url='https://www.ocf.berkeley.edu',
     packages=find_packages(),
     package_data={
-        'ocflib.account': ['mail_templates'],
+        'ocflib.account': ['mail_templates/*'],
         'ocflib.printing': ['ocfprinting.schema'],
     },
     install_requires=(
