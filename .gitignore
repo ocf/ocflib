@@ -59,3 +59,4 @@ debian/files
 debian/python3-ocflib/
 debian/python3-ocflib.substvars
 debian/*.debhelper
+/venv

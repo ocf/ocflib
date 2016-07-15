@@ -1,20 +1,25 @@
-# http://stackoverflow.com/a/23324703
-ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-
 # first set COVERALLS_REPO_TOKEN=<repo token> environment variable
+.PHONY: coveralls
 coveralls: test
 	.tox/py34/bin/coveralls
 
+venv: setup.py requirements-dev.txt
+	bin/venv-update -ppython3.5 venv -- -r requirements-dev.txt -e .
+
+.PHONY: test
 test:
 	tox
 
+.PHONY: release-pypi
 release-pypi: clean autoversion
 	python3 setup.py sdist
 	twine upload dist/*
 
+.PHONY: builddeb
 builddeb: autoversion
 	dpkg-buildpackage -us -uc
 
+.PHONY: clean
 clean: autoversion
 	python3 setup.py clean
 	rm -rf dist deb_dist
@@ -23,6 +28,7 @@ clean: autoversion
 #   - appending a SHA
 #   - leading zeros before version components (e.g. "09" for September becomes "9")
 # Unfortunately, PyPI enforces these restrictions.
+.PHONY: autoversion
 autoversion:
 	date +%Y.%-m.%-d.%-H.%-M > .version
 	rm -f debian/changelog

@@ -1,0 +1,39 @@
+Greetings from the Open Computing Facility,
+
+Your OCF account has been created and is ready for use! Welcome aboard!
+
+Your account name is: {{request.user_name}}
+
+As a brand-new OCF member, you're welcome to use any and all of our services.
+Some key highlights:
+
+    - Access to our swanky computer lab (171 MLK Student Union)
+{%- if not request.is_group %}
+    - {{semesterly_quota}} pages of free printing per semester
+{%- endif %}
+    - Web hosting: https://www.ocf.berkeley.edu/~{{request.user_name}}/
+
+You can find out the cool things you can do on our website:
+https://ocf.io/docs
+{%- if request.is_group %}
+
+Since this is a group account, you're probably interested in setting up a shiny
+new website, like mygroup.berkeley.edu. This is something we call "virtual
+hosting", and it isn't enabled by default. To learn more about virtual hosting
+and how to request it be enabled, see https://ocf.io/vhost
+{%- endif %}
+
+Keep in mind not to share your shiny new password with anyone, including OCF
+staffers. You can always reset it online:
+
+https://ocf.io/password
+
+Finally, we'd like to remind you that the OCF is run completely by student
+volunteers (people like you)! If you value the services we provide, check us
+out and consider getting involved!
+
+https://www.ocf.berkeley.edu/about/staff
+
+If you have any other questions, feel free to reply to this message!
+
+{{mail_signature}}

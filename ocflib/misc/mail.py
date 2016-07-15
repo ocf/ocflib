@@ -5,9 +5,18 @@ import socket
 import subprocess
 from email.utils import parseaddr
 
+from jinja2 import Environment
+from jinja2 import PackageLoader
+
 import ocflib.account.validators
 import ocflib.constants as constants
 import ocflib.misc.validators as validators
+
+
+jinja_mail_env = Environment(loader=PackageLoader('ocflib', ''))
+jinja_mail_env.globals = {
+    'mail_signature': constants.MAIL_SIGNATURE,
+}
 
 
 def email_for_user(username):
