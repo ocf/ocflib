@@ -1,13 +1,8 @@
-# coverage 4.0a6 breaks python3
-coverage==3.7.1
+coverage
 coveralls
 freezegun
+ipdb
 mock
 pre-commit
 pytest
-
-# by default we get an old-as-dirt version of setuptools that errors when we
-# try to install cracklib
-setuptools >= 17
-
 twine

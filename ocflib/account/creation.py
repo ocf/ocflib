@@ -20,6 +20,7 @@ import ocflib.constants as constants
 from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
+from ocflib.misc.mail import jinja_mail_env
 from ocflib.misc.mail import send_mail
 from ocflib.misc.validators import valid_email
 from ocflib.printing.quota import SEMESTERLY_QUOTA
@@ -144,76 +145,30 @@ def create_web_dir(user):
 
 
 def send_created_mail(request):
-    body = """Greetings from the Open Computing Facility,
-
-Your OCF account has been created and is ready for use! Welcome aboard!
-
-Your account name is: {request.user_name}
-
-As a brand-new OCF member, you're welcome to use any and all of our services.
-Some key highlights:
-
-    - Access to our swanky computer lab (171 MLK Student Union)
-    - {semesterly_quota} pages of free printing per semester
-    - Web hosting: https://www.ocf.berkeley.edu/~{request.user_name}/
-
-You can find out the cool things you can do on our wiki:
-https://ocf.io/wiki
-
-Keep in mind not to share your shiny new password with anyone, including OCF
-staffers. You can always reset it online:
-
-https://ocf.io/password
-
-Finally, we'd like to remind you that the OCF is run completely by student
-volunteers (people like you)! If you value the services we provide, check us
-out and consider getting involved!
-
-https://www.ocf.berkeley.edu/about/staff
-
-If you have any other questions, feel free to reply to this message!
-
-{signature}""".format(
+    body = jinja_mail_env.get_template(
+        'account/mail_templates/account-created.jinja',
+    ).render(
         request=request,
-        signature=constants.MAIL_SIGNATURE,
         semesterly_quota=SEMESTERLY_QUOTA,
     )
-
     send_mail(request.email, '[OCF] Your account has been created!', body)
 
 
 def send_rejected_mail(request, reason):
-    body = """Greetings from the Open Computing Facility,
-
-Your OCF account, {request.user_name} has been rejected for the following reason:
-
-{reason}
-
-For information about account eligibility, see:
-
-https://wiki.ocf.berkeley.edu/membership/
-
-If you have any other questions or problems, feel free to contact us by
-replying to this message.
-
-{signature}""".format(request=request,
-                      reason=reason,
-                      signature=constants.MAIL_SIGNATURE)
-
-    send_mail(
-        request.email, '[OCF] Your account request has been rejected', body)
+    body = jinja_mail_env.get_template(
+        'account/mail_templates/account-rejected.jinja',
+    ).render(request=request, reason=reason)
+    send_mail(request.email, '[OCF] Your account request has been rejected', body)
 
 
-class ValidationWarning(ValueError):
+class ValidationWarning(Exception):
     """Warning exception raised by validators when a staff member needs to
     manually approve an account."""
-    pass
 
 
-class ValidationError(ValueError):
+class ValidationError(Exception):
     """Error exception raised by validators when a request should be
     rejected."""
-    pass
 
 
 def validate_callink_oid(oid):

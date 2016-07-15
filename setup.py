@@ -16,6 +16,7 @@ setup(
     url='https://www.ocf.berkeley.edu',
     packages=find_packages(),
     package_data={
+        'ocflib.account': ['mail_templates'],
         'ocflib.printing': ['ocfprinting.schema'],
     },
     install_requires=(
@@ -23,6 +24,7 @@ setup(
         'colorama',
         'cracklib',
         'dnspython3',
+        'jinja2',
         'ldap3',
         'paramiko',
         'pexpect',

@@ -264,14 +264,34 @@ class TestAccountEligibility:
 
 class TestSendMail:
 
+    FREE_PRINTING_TEXT = 'pages of free printing per semester'
+    VHOST_TEXT = 'virtual hosting'
+
     @mock.patch('ocflib.account.creation.send_mail')
-    def test_send_created_mail(self, send_mail, fake_new_account_request):
+    def test_send_created_mail_individual(self, send_mail, fake_new_account_request):
+        fake_new_account_request = fake_new_account_request._replace(is_group=False)
         send_created_mail(fake_new_account_request)
         send_mail.assert_called_once_with(
             fake_new_account_request.email,
             '[OCF] Your account has been created!',
             mock.ANY,
         )
+        body = send_mail.call_args[0][2]
+        assert self.FREE_PRINTING_TEXT in body
+        assert self.VHOST_TEXT not in body
+
+    @mock.patch('ocflib.account.creation.send_mail')
+    def test_send_created_mail_group(self, send_mail, fake_new_account_request):
+        fake_new_account_request = fake_new_account_request._replace(is_group=True)
+        send_created_mail(fake_new_account_request)
+        send_mail.assert_called_once_with(
+            fake_new_account_request.email,
+            '[OCF] Your account has been created!',
+            mock.ANY,
+        )
+        body = send_mail.call_args[0][2]
+        assert self.FREE_PRINTING_TEXT not in body
+        assert self.VHOST_TEXT in body
 
     @mock.patch('ocflib.account.creation.send_mail')
     def test_send_rejected_mail(self, send_mail, fake_new_account_request):
