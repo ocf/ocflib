@@ -18,7 +18,7 @@ _API = {
 }
 
 
-def list_groups(name=None, oid=None, status=None, type=None, category=None):
+def list_groups(name='', oid='', status='', type='', category=''):
     """Return groups by a general CalLink search.
 
     >>> list_groups(name="facility")
@@ -56,11 +56,11 @@ def list_groups(name=None, oid=None, status=None, type=None, category=None):
         return {oid: name for oid, name in map(parse, xml_groups)}
 
     return _get_osl({
-        'name': name or '',
-        'organizationId': str(oid) if oid else '',
-        'status': status or '',
-        'type': type or '',
-        'category': category or '',
+        'name': name,
+        'organizationId': str(oid),
+        'status': status,
+        'type': type,
+        'category': category,
     }, _API['SERVICE']['ORGS'], parser)
 
 
