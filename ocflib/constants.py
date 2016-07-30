@@ -72,6 +72,7 @@ RESERVED_USERNAMES = frozenset((
     'accounts',
     'admin',
     'administrator',
+    'alums',
     'announce',
     'apphost',
     'applicationhost',
