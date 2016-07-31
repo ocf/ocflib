@@ -84,7 +84,7 @@ Deploying changes involves:
 
 [Jenkins][jenkins] will automatically perform all of these steps for you on
 every push, including automatically generating a new version number. As long as
-`make tox` passes, your code will be automatically deployed. You can
+`make test` passes, your code will be automatically deployed. You can
 monitor the progress of your deploy [here][jenkins].
 
 [ocf]: https://www.ocf.berkeley.edu/
