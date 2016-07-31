@@ -5,6 +5,11 @@ import pytest
 from ocflib.infra.net import ipv4_to_ipv6
 from ocflib.infra.net import ipv6_to_ipv4
 from ocflib.infra.net import is_ocf_ip
+from ocflib.infra.net import OCF_DNS_RESOLVER
+from ocflib.infra.net import OCF_GATEWAY_V4
+from ocflib.infra.net import OCF_GATEWAY_V6
+from ocflib.infra.net import OCF_SUBNET_V4
+from ocflib.infra.net import OCF_SUBNET_V6
 
 
 TEST_IPV4_IPV6 = (
@@ -12,6 +17,12 @@ TEST_IPV4_IPV6 = (
     ('169.229.226.10', '2607:f140:8801::1:10'),
     ('169.229.226.208', '2607:f140:8801::1:208'),
 )
+
+
+def test_constants_are_sane():
+    assert OCF_DNS_RESOLVER in OCF_SUBNET_V4
+    assert OCF_GATEWAY_V4 in OCF_SUBNET_V4
+    assert OCF_GATEWAY_V6 in OCF_SUBNET_V6
 
 
 @pytest.mark.parametrize('ipv4,ipv6', TEST_IPV4_IPV6)
