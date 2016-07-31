@@ -22,8 +22,8 @@ def ipv6_to_ipv4(ipv6):
     hexadecimal, whereas IPv4 is written in decimal. For the benefit of humans,
     we make the human-readable portion the same, not the binary representation.
     """
-    assert isinstance(ipv6, IPv6Address)
-    assert ipv6 in OCF_SUBNET_V6_COMPAT
+    assert isinstance(ipv6, IPv6Address), type(ipv6)
+    assert ipv6 in OCF_SUBNET_V6_COMPAT, ipv6
     last_group = int(ipv6.exploded.split(':')[-1])
     return ip_address(
         int.from_bytes(OCF_SUBNET_V4.network_address.packed, 'big') | last_group
@@ -31,12 +31,12 @@ def ipv6_to_ipv4(ipv6):
 
 
 def ipv4_to_ipv6(ipv4):
-    """Convert an OCF IPv4 address to its equivalent compatibility IPv4.
+    """Convert an OCF IPv4 address to its equivalent compatibility IPv6.
 
-    For a description of the compability IPv6 subnet, see `ipv6_to_ipv4` above.
+    For a description of the compability IPv6 subnet, see `ipv6_to_ipv4`.
     """
-    assert isinstance(ipv4, IPv4Address)
-    assert ipv4 in OCF_SUBNET_V4
+    assert isinstance(ipv4, IPv4Address), type(ipv4)
+    assert ipv4 in OCF_SUBNET_V4, ipv4
     last_group = int(ipv4.exploded.split('.')[-1], 16)
     return ip_address(
         int.from_bytes(OCF_SUBNET_V6_COMPAT.network_address.packed, 'big') | last_group
