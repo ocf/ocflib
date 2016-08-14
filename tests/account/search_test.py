@@ -13,14 +13,15 @@ from ocflib.account.search import users_by_filter
 class TestUsersByFilter:
 
     @pytest.mark.parametrize('filter_str,results', [
-        ('(uid=ckuehl)', ['ckuehl']),
-        ('(uidNumber=28460)', ['ckuehl']),
-        ('(|(uidNumber=28460)(uid=daradib))', ['ckuehl', 'daradib']),
-        ('(uid=doesnotexist)', []),
-        ('(herp=derp)', []),
+        ('(uid=ckuehl)', {'ckuehl'}),
+        ('(uidNumber=28460)', {'ckuehl'}),
+        ('(|(uidNumber=28460)(uid=daradib))', {'ckuehl', 'daradib'}),
+        ('(uid=doesnotexist)', set()),
+        ('(herp=derp)', set()),
+        ('(!(uid=*))', set()),
     ])
     def test_users_by_filter(self, filter_str, results):
-        assert set(users_by_filter(filter_str)) == set(results)
+        assert set(users_by_filter(filter_str)) == results
 
     @pytest.mark.parametrize('filter_str', ['', 'uid=ckuehl', '42', 'asdf'])
     def test_invalid_filters(self, filter_str):

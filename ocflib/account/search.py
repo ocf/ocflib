@@ -8,7 +8,12 @@ import ocflib.infra.ldap as ldap
 def users_by_filter(ldap_filter):
     """Returns a list of users matching an LDAP filter"""
     with ldap.ldap_ocf() as c:
-        c.search(constants.OCF_LDAP_PEOPLE, ldap_filter, attributes=('uid',))
+        c.search(
+            constants.OCF_LDAP_PEOPLE,
+            ldap_filter,
+            attributes=('uid',),
+            search_scope=ldap3.LEVEL,
+        )
         return [entry['attributes']['uid'][0] for entry in c.response]
 
 
