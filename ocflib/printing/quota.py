@@ -115,6 +115,7 @@ def get_connection(user='anonymous', password=None, db='ocfprinting', **kwargs):
         user=user,
         password=password,
         db=db,
+        host='mysql.ocf.berkeley.edu',
         cursorclass=pymysql.cursors.DictCursor,
         autocommit=True,
         charset='utf8mb4',
