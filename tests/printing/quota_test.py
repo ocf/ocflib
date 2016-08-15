@@ -1,22 +1,14 @@
-import random
-import string
-import time
 from datetime import datetime
 from datetime import timedelta
-from subprocess import check_call
-from subprocess import PIPE
-from subprocess import Popen
 
 import mock
 import pkg_resources
-import pymysql
 import pytest
 from freezegun import freeze_time
 
 from ocflib.printing.quota import add_job
 from ocflib.printing.quota import add_refund
 from ocflib.printing.quota import daily_quota
-from ocflib.printing.quota import get_connection as real_get_connection
 from ocflib.printing.quota import get_quota
 from ocflib.printing.quota import Job
 from ocflib.printing.quota import Refund
@@ -25,8 +17,6 @@ from ocflib.printing.quota import UserQuota
 from ocflib.printing.quota import WEEKDAY_QUOTA
 from ocflib.printing.quota import WEEKEND_QUOTA
 
-
-MYSQL_TIMEOUT = 10
 
 FAKE_DAILY_QUOTA = 1000
 FAKE_SEMESTERLY_QUOTA = 10000
@@ -304,92 +294,14 @@ def test_several_jobs_refunds_previous_days_and_semesters(mysql_connection):
         assert_quota(mysql_connection, user, 17, 28)
 
 
-@pytest.fixture(scope='session')
-def mysqld_path(tmpdir_factory):
-    """Download and extract a local copy of mysqld."""
-    tmpdir = tmpdir_factory.mktemp('mysql')
-    with tmpdir.as_cwd():
-        check_call(('apt-get', 'download', 'mariadb-server-10.0'))
-        check_call(('apt-get', 'download', 'mariadb-server-core-10.0'))
-        check_call(('apt-get', 'download', 'mariadb-client-core-10.0'))
-        for deb in tmpdir.listdir(lambda f: f.fnmatch('*.deb')):
-            check_call(('dpkg', '-x', deb.strpath, '.'))
-    return tmpdir
-
-
-@pytest.yield_fixture(scope='session')
-def mysqld_socket(mysqld_path, tmpdir_factory):
-    """Yield a socket to a running MySQL instance."""
-    tmpdir = tmpdir_factory.mktemp('var')
-    socket = tmpdir.join('socket')
-    data_dir = tmpdir.join('data')
-    data_dir.ensure_dir()
-
-    check_call((
-        mysqld_path.join('usr', 'bin', 'mysql_install_db').strpath,
-        '--no-defaults',
-        '--basedir=' + mysqld_path.join('usr').strpath,
-        '--datadir=' + data_dir.strpath,
-    ))
-    proc = Popen((
-        mysqld_path.join('usr', 'sbin', 'mysqld').strpath,
-        '--no-defaults',
-        '--skip-networking',
-        '--lc-messages-dir', mysqld_path.join('usr', 'share', 'mysql').strpath,
-        '--datadir', data_dir.strpath,
-        '--socket', socket.strpath,
-    ))
-
-    elapsed = 0
-    step = 0.1
-    while elapsed < MYSQL_TIMEOUT and not mysql_ready(socket):
-        elapsed += step
-        time.sleep(step)
-
-    try:
-        yield socket
-    finally:
-        proc.terminate()
-        proc.wait()
-
-
-def mysql_ready(socket):
-    try:
-        get_connection(socket)
-    except pymysql.err.OperationalError:
-        return False
-    else:
-        return True
-
-
-def get_connection(socket, db=None, **kwargs):
-    return real_get_connection(unix_socket=socket.strpath, user='root', db=db, **kwargs)
-
-
 @pytest.yield_fixture
-def mysql_connection(mysqld_path, mysqld_socket, request, tmpdir):
-    db_name = 'test_' + ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
-    with get_connection(mysqld_socket) as c:
-        c.execute('CREATE DATABASE {};'.format(db_name))
-
-    mysql = Popen(
-        (
-            mysqld_path.join('usr', 'bin', 'mysql').strpath,
-            '-h', 'localhost',
-            '-u', 'root',
-            '--password=',
-            '--database', db_name,
-            '--socket', mysqld_socket.strpath,
-        ),
-        stdin=PIPE,
-    )
+def mysql_connection(mysql_database):
     schema = pkg_resources.resource_string('ocflib.printing', 'ocfprinting.sql')
     schema = schema.replace(  # pretty hacky...
         b'GRANT SELECT ON `ocfprinting`.',
-        b'GRANT SELECT ON `' + db_name.encode('ascii') + b'`.',
+        b'GRANT SELECT ON `' + mysql_database.db_name.encode('ascii') + b'`.',
     )
-    mysql.communicate(schema)
-    assert mysql.wait() == 0
+    mysql_database.run_cli_query(schema)
 
-    with get_connection(mysqld_socket, db=db_name) as c:
+    with mysql_database.connection() as c:
         yield c

@@ -4,7 +4,7 @@ coveralls: test
 	.tox/py34/bin/coveralls
 
 venv: setup.py requirements-dev.txt
-	bin/venv-update -ppython3.5 venv -- -r requirements-dev.txt -e .
+	bin/venv-update -ppython3 venv -- -r requirements-dev.txt -e .
 
 .PHONY: test
 test:
