@@ -18,6 +18,7 @@ setup(
     package_data={
         'ocflib.account': ['mail_templates/*'],
         'ocflib.printing': ['ocfprinting.schema'],
+        'ocflib.vhost': ['ocfmail.schema'],
     },
     install_requires=(
         'cached_property',

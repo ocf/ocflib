@@ -111,8 +111,6 @@ def get_connection(user='anonymous', password=None, db='ocfprinting', **kwargs):
 
     If you need rw access, pass a user and password argument.
     """
-    if 'unix_socket' not in kwargs:
-        kwargs.setdefault('host', 'mysql.ocf.berkeley.edu')
     return pymysql.connect(
         user=user,
         password=password,
