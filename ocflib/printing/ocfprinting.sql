@@ -34,7 +34,7 @@ DELIMITER $$
 CREATE FUNCTION semester_start (d date) RETURNS date
         DETERMINISTIC
         BEGIN
-        IF MONTH(d) > 8 THEN
+        IF MONTH(d) >= 8 THEN
             RETURN MAKEDATE(YEAR(d), 213);  -- roughly august 1st
         ELSE
             RETURN MAKEDATE(YEAR(d), 1);
