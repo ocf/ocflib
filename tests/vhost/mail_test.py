@@ -61,6 +61,13 @@ def test_vhosts_for_user():
     assert vhosts_for_user('jvperrin') == set()
 
 
+def _normalize_times(addrs):
+    return {
+        addr._replace(last_updated=None)
+        for addr in addrs
+    }
+
+
 def test_add_and_remove_addresses(
         mysql_connection,
         example_vhost,
@@ -72,19 +79,21 @@ def test_add_and_remove_addresses(
         'ckuehl@dev-vhost.ocf.berkeley.edu',
         'hunter2',
         'ckuehl@ocf.berkeley.edu',
+        None,
     )
     addr2 = MailForwardingAddress(
         '@dev-vhost.ocf.berkeley.edu',
         None,
         'ckuehl@ocf.berkeley.edu',
+        None,
     )
 
     # add one-by-one
     example_vhost.add_forwarding_address(mysql_connection, addr1)
-    assert example_vhost.get_forwarding_addresses(mysql_connection) == {addr1}
+    assert _normalize_times(example_vhost.get_forwarding_addresses(mysql_connection)) == {addr1}
 
     example_vhost.add_forwarding_address(mysql_connection, addr2)
-    assert example_vhost.get_forwarding_addresses(mysql_connection) == {addr1, addr2}
+    assert _normalize_times(example_vhost.get_forwarding_addresses(mysql_connection)) == {addr1, addr2}
 
     # unrelated vhost should have no addresses
     assert another_example_vhost.get_forwarding_addresses(mysql_connection) == set()
@@ -94,7 +103,7 @@ def test_add_and_remove_addresses(
         mysql_connection,
         'ckuehl@dev-vhost.ocf.berkeley.edu',
     )
-    assert example_vhost.get_forwarding_addresses(mysql_connection) == {addr2}
+    assert _normalize_times(example_vhost.get_forwarding_addresses(mysql_connection)) == {addr2}
 
     example_vhost.remove_forwarding_address(
         mysql_connection,

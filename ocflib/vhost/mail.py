@@ -13,7 +13,7 @@ class MailVirtualHost(namedtuple('MailVirtualHost', ('user', 'domain'))):
     def get_forwarding_addresses(self, c):
         """Return list of MailForwardingAddress objects."""
         c.execute(
-            'SELECT `address`, `password`, `forward_to`'
+            'SELECT `address`, `password`, `forward_to`, `last_updated`'
             'FROM `addresses`'
             'WHERE `address` LIKE %s',
             ('%@' + self.domain,),
@@ -23,6 +23,7 @@ class MailVirtualHost(namedtuple('MailVirtualHost', ('user', 'domain'))):
                 address=r['address'],
                 crypt_password=r['password'],
                 forward_to=r['forward_to'],
+                last_updated=r['last_updated'],
             )
             for r in c
         }
@@ -47,6 +48,7 @@ MailForwardingAddress = namedtuple('MailForwardingAddress', (
     'address',
     'crypt_password',
     'forward_to',
+    'last_updated',
 ))
 
 
