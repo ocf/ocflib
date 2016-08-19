@@ -35,7 +35,7 @@ class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
 UserTime = namedtuple('UserTime', ['user', 'time'])
 
 
-def get_connection(user='anonymous', password=None):
+def get_connection(user='anonymous', password=None, **kwargs):
     """Return a connection to MySQL.
 
     By default, returns an unprivileged connection which can be used for
@@ -49,7 +49,7 @@ def get_connection(user='anonymous', password=None):
         password=password,
         db='ocfstats',
         cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True,
+        **dict({'autocommit': True}, **kwargs)
     )
 
 
