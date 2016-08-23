@@ -1,3 +1,4 @@
+import crypt
 from collections import namedtuple
 
 import pymysql
@@ -78,6 +79,11 @@ def get_mail_vhosts():
 def vhosts_for_user(user):
     """Return MailVirtualHost objects for the user."""
     return {vhost for vhost in get_mail_vhosts() if vhost.user == user}
+
+
+def crypt_password(password):
+    """Return hashed password, compatible with the vhost database."""
+    return crypt.crypt(password, salt=crypt.METHOD_SHA512)
 
 
 def get_connection(user, password, db='ocfmail', **kwargs):

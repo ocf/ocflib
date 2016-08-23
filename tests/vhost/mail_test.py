@@ -1,8 +1,11 @@
+import crypt
+
 import mock
 import pkg_resources
 import pytest
 
 import ocflib.vhost.mail
+from ocflib.vhost.mail import crypt_password
 from ocflib.vhost.mail import get_mail_vhosts
 from ocflib.vhost.mail import MailForwardingAddress
 from ocflib.vhost.mail import MailVirtualHost
@@ -110,6 +113,26 @@ def test_add_and_remove_addresses(
         '@dev-vhost.ocf.berkeley.edu',
     )
     assert example_vhost.get_forwarding_addresses(mysql_connection) == set()
+
+
+@pytest.mark.parametrize('password', [
+    '',
+    'correct horse battery staple',
+    'hunter2',
+    '12yuCV*()AYY!@)+R*_yf9-()@#$)_&!YU($12\'"!#$!@)[]}\\',
+])
+def test_crypt_password(password):
+    crypted = crypt_password(password)
+
+    # it should be a sha512 hash
+    assert crypted.startswith('$6$')
+
+    # verify password against hash succeeds
+    assert crypt.crypt(password, crypted) == crypted
+
+    # verify not-the-password against hash fails
+    for not_password in ['', password + ' ', 'hunter3']:
+        assert crypt.crypt(password, crypt_password(not_password)) != crypted
 
 
 @pytest.yield_fixture
