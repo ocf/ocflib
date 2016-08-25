@@ -41,7 +41,7 @@ def validate_password(username, password, strength_check=True):
             raise ValueError('Password is too similar to username')
 
         try:
-            cracklib.FascistCheck(password)
+            cracklib.VeryFascistCheck(password)
         except ValueError as e:
             raise ValueError('Password problem: {}'.format(e))
 
