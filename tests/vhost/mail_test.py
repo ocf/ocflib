@@ -71,6 +71,32 @@ def _normalize_times(addrs):
     }
 
 
+@pytest.mark.parametrize(('forward_to', 'expected'), (
+    ('a@a.com,b@b.com', {'a@a.com', 'b@b.com'}),
+    (' a@a.com  , b@b.com ', {'a@a.com', 'b@b.com'}),
+    (', a@a.com  ,', {'a@a.com'}),
+    ('', set()),
+    (' ', set()),
+    (' , , ', set()),
+))
+def test_get_forwarding_addresses_forward_to_parsing(
+        forward_to,
+        expected,
+        example_vhost,
+):
+    """Make sure we're a little tolerant in forward_to parsing."""
+    fake_connection = mock.Mock(
+        __iter__=lambda _: iter(({
+            'address': 'test@test.com',
+            'password': None,
+            'forward_to': forward_to,
+            'last_updated': None,
+        },))
+    )
+    result, = example_vhost.get_forwarding_addresses(fake_connection)
+    assert result.forward_to == expected
+
+
 def test_add_and_remove_addresses(
         mysql_connection,
         example_vhost,
@@ -81,13 +107,13 @@ def test_add_and_remove_addresses(
     addr1 = MailForwardingAddress(
         'ckuehl@dev-vhost.ocf.berkeley.edu',
         'hunter2',
-        'ckuehl@ocf.berkeley.edu',
+        frozenset(['ckuehl@ocf.berkeley.edu']),
         None,
     )
     addr2 = MailForwardingAddress(
         '@dev-vhost.ocf.berkeley.edu',
         None,
-        'ckuehl@ocf.berkeley.edu',
+        frozenset(['ckuehl@ocf.berkeley.edu', 'daradib@ocf.berkeley.edu']),
         None,
     )
 

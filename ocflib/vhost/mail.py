@@ -23,18 +23,22 @@ class MailVirtualHost(namedtuple('MailVirtualHost', ('user', 'domain'))):
             MailForwardingAddress(
                 address=r['address'],
                 crypt_password=r['password'],
-                forward_to=r['forward_to'],
+                forward_to=frozenset(addr.strip() for addr in r['forward_to'].split(',') if addr.strip()),
                 last_updated=r['last_updated'],
             )
             for r in c
         }
 
     def add_forwarding_address(self, c, addr):
+        # sanity check: forward_to should be a non-empty list-ish
+        assert len(addr.forward_to) > 0, addr.forward_to
+        assert not isinstance(addr.forward_to, str)
+
         c.execute(
             'INSERT INTO `addresses`'
             '(`address`, `password`, `forward_to`)'
             'VALUES (%s, %s, %s)',
-            (addr.address, addr.crypt_password, addr.forward_to),
+            (addr.address, addr.crypt_password, ','.join(addr.forward_to)),
         )
 
     def remove_forwarding_address(self, c, addr):
