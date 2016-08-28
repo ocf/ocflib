@@ -12,7 +12,7 @@ test:
 
 .PHONY: release-pypi
 release-pypi: clean autoversion
-	python3 setup.py sdist
+	python3 setup.py sdist bdist_wheel
 	twine upload dist/*
 
 .PHONY: builddeb
