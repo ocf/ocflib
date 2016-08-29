@@ -45,10 +45,7 @@ def create_account(request, creds, report_status):
     with report_status('Finding', 'Found', 'first available UID'):
         new_uid = _get_first_available_uid()
 
-    dn = 'uid={user},{base_people}'.format(
-        user=request.user_name,
-        base_people=constants.OCF_LDAP_PEOPLE,
-    )
+    dn = utils.dn_for_username(request.user_name)
     attrs = {
         'objectClass': ['ocfAccount', 'account', 'posixAccount'],
         'cn': [request.real_name],

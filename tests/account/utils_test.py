@@ -2,6 +2,7 @@ import mock
 import pexpect
 import pytest
 
+from ocflib.account.utils import dn_for_username
 from ocflib.account.utils import extract_username_from_principal
 from ocflib.account.utils import get_vhost_db
 from ocflib.account.utils import get_vhosts
@@ -233,3 +234,8 @@ def test_list_staff():
     assert 'ckuehl' in staff
     assert 'bpreview' not in staff
     assert 5 <= len(staff) <= 50
+
+
+def test_dn_for_username():
+    assert (dn_for_username('kpengboy') ==
+            'uid=kpengboy,ou=People,dc=OCF,dc=Berkeley,dc=EDU')

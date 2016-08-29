@@ -4,6 +4,14 @@ import mock
 import pytest
 
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
+from ocflib.infra.ldap import modify_ldap_entry_with_keytab
+
+
+def encode(attr, value):
+    return '{attr}:: {value}'.format(
+        attr=attr,
+        value=b64encode(value.encode('utf8')).decode('ascii'),
+    )
 
 
 @pytest.yield_fixture
@@ -30,19 +38,13 @@ class TestCreateLdapEntry:
         )
 
         mock_spawn.assert_called_with(
-            'kinit -t /nonexist create/admin ldapadd',
+            'kinit -t /nonexist create/admin ldapmodify',
             timeout=10,
         )
         mock_spawn.return_value.expect.assert_has_calls([
             mock.call('SASL data security layer installed.'),
-            mock.call('adding new entry "uid=ckuehl,ou=People,dc=OCF,dc=Berkeley,dc=EDU"'),
+            mock.call('entry "uid=ckuehl,ou=People,dc=OCF,dc=Berkeley,dc=EDU"'),
         ])
-
-        def encode(attr, value):
-            return '{attr}:: {value}'.format(
-                attr=attr,
-                value=b64encode(value.encode('utf8')).decode('ascii'),
-            )
 
         mock_spawn.return_value.sendline.assert_has_calls([
             mock.call(encode(attr, value))
@@ -52,11 +54,11 @@ class TestCreateLdapEntry:
                 ('a', 'c'),
                 ('d', 'e'),
             ]
-        ], any_order=True)
+        ] + [mock.call('changetype: add')], any_order=True)
         assert mock_spawn.return_value.sendeof.called
         assert not mock_send_problem_report.called
 
-    def test_already_exists(self, mock_spawn, mock_send_problem_report):
+    def test_create_existing(self, mock_spawn, mock_send_problem_report):
         mock_spawn.return_value.before = b'\nAlready exists (68)\n'
         with pytest.raises(ValueError):
             create_ldap_entry_with_keytab(
@@ -77,3 +79,48 @@ class TestCreateLdapEntry:
                 'create/admin',
             )
         assert mock_send_problem_report.called
+
+
+class TestModifyLdapEntry:
+
+    def test_normal_modification(self, mock_spawn, mock_send_problem_report):
+        mock_spawn.return_value.before = b'\n'
+        modify_ldap_entry_with_keytab(
+            'uid=mattmcal,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
+            {'a': ['b', 'c'], 'calnetUid': ['1234']},
+            '/nonexist',
+            'create/admin'
+        )
+
+        mock_spawn.assert_called_with(
+            'kinit -t /nonexist create/admin ldapmodify',
+            timeout=10,
+        )
+        mock_spawn.return_value.expect.assert_has_calls([
+            mock.call('SASL data security layer installed.'),
+            mock.call('entry "uid=mattmcal,ou=People,dc=OCF,dc=Berkeley,dc=EDU"'),
+        ])
+
+        mock_spawn.return_value.sendline.assert_has_calls((
+            mock.call(encode('dn', 'uid=mattmcal,ou=People,dc=OCF,dc=Berkeley,dc=EDU')),
+            mock.call('changetype: modify'),
+            mock.call('replace: a'),
+            mock.call(encode('a', 'b')),
+            mock.call(encode('a', 'c')),
+            mock.call('-'),
+            mock.call('replace: calnetUid'),
+            mock.call(encode('calnetUid', '1234')),
+        ), any_order=True)
+        assert mock_spawn.return_value.sendeof.called
+        assert not mock_send_problem_report.called
+
+    def test_modify_nonexistent(self, mock_spawn, mock_send_problem_report):
+        mock_spawn.return_value.before = b'\nNo such object (32)\n'
+        with pytest.raises(ValueError):
+            modify_ldap_entry_with_keytab(
+                'uid=unknown,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
+                {'a': ['b', 'c'], 'd': ['e']},
+                '/nonexist',
+                'create/admin'
+            )
+        assert not mock_send_problem_report.called

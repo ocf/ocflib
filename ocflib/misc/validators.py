@@ -39,3 +39,27 @@ def valid_email(email):
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             pass
     return False
+
+
+# Pulled from /etc/shells on tsunami
+VALID_LOGIN_SHELLS = frozenset({
+    '/bin/sh',
+    '/bin/dash',
+    '/bin/bash',
+    '/bin/rbash',
+    '/usr/bin/screen',
+    '/usr/bin/tmux',
+    '/bin/zsh',
+    '/bin/tcsh',
+})
+
+# Separate the duplicates so we can list the above to users
+VALID_LOGIN_SHELLS_ALTPATHS = frozenset({
+    '/usr/bin/zsh',
+    '/usr/bin/tcsh',
+})
+
+
+def valid_login_shell(shell):
+    """Test that a file path is an actual valid login shell on tsunami."""
+    return shell in (VALID_LOGIN_SHELLS | VALID_LOGIN_SHELLS_ALTPATHS)

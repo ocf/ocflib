@@ -4,6 +4,7 @@ import pytest
 from ocflib.account.manage import _notify_password_change
 from ocflib.account.manage import change_password_with_keytab
 from ocflib.account.manage import change_password_with_staffer
+from ocflib.account.manage import modify_ldap_attributes
 
 
 @pytest.yield_fixture
@@ -18,6 +19,22 @@ def mock_notify_password_change():
         'ocflib.account.manage._notify_password_change',
     ) as _notify_password_change:
         yield _notify_password_change
+
+
+@pytest.yield_fixture
+def mock_create_ldap_entry_with_keytab():
+    with mock.patch(
+        'ocflib.infra.ldap.create_ldap_entry_with_keytab',
+    ) as create_ldap_entry_with_keytab:
+        yield create_ldap_entry_with_keytab
+
+
+@pytest.yield_fixture
+def mock_modify_ldap_entry_with_keytab():
+    with mock.patch(
+        'ocflib.infra.ldap.modify_ldap_entry_with_keytab',
+    ) as modify_ldap_entry_with_keytab:
+        yield modify_ldap_entry_with_keytab
 
 
 class TestChangePasswordWithStaffer:
@@ -85,6 +102,37 @@ class TestChangePasswordWithKeytab:
         with pytest.raises(ValueError):
             self._chpass(mock_spawn)
         assert not mock_notify_password_change.called
+
+
+class TestModifyLdapAttributes:
+
+    def test_success(self, mock_modify_ldap_entry_with_keytab):
+        modify_ldap_attributes(
+            'ggroup',
+            {'a': ('b', 'c'), 'loginShell': ('/bin/bash',)},
+            '/some/keytab',
+            'create/admin',
+        )
+        mock_modify_ldap_entry_with_keytab.assert_called_once_with(
+            'uid=ggroup,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
+            {'a': ('b', 'c'), 'loginShell': ('/bin/bash',)},
+            '/some/keytab',
+            'create/admin',
+        )
+
+    @pytest.mark.parametrize('attrs', [
+        {'loginShell': ['/bin/bush']},
+        {'loginShell': ['']},
+    ])
+    def test_invalid_attributes(self, attrs, mock_modify_ldap_entry_with_keytab):
+        with pytest.raises(ValueError):
+            modify_ldap_attributes(
+                'ggroup',
+                attrs,
+                '/some/keytab',
+                'create/admin',
+            )
+        assert not mock_modify_ldap_entry_with_keytab.called
 
 
 class TestNotifyPasswordChange:
