@@ -52,43 +52,33 @@ def ldap_ucb():
     return ldap_connection(constants.UCB_LDAP)
 
 
-def create_ldap_entry_with_keytab(
-    dn,
-    attributes,
-    keytab,
-    admin_principal,
-):
-    """Creates an LDAP entry by shelling out to ldapadd.
-
-    :param dn: distinguished name of the new entry
-    :param attributes: dict mapping attribute name to list of values
-    :param keytab: path to the admin keytab
-    :param admin_principal: admin principal to use with the keytab
-    """
+def _format_attr(key, values):
     # LDAP attributes can have multiple values, but commonly we don't consider
     # that. So, let's sanity check the types we've received.
-    for v in attributes.values():
-        assert type(v) in (list, tuple), 'Value must be list or tuple.'
+    assert type(values) in (list, tuple), 'Value must be list or tuple.'
 
-    def format_attr(key, values):
-        # might be possible to have non-ASCII letters in keys, but don't think
-        # it will happen to us. we can fix this if it ever does.
-        assert all(c in string.ascii_letters for c in key), 'key is not ASCII letters'
+    # might be possible to have non-ASCII letters in keys, but don't think
+    # it will happen to us. we can fix this if it ever does.
+    assert all(c in string.ascii_letters for c in key), 'key is not ASCII letters'
 
-        # rather than try to carefully escape values, we just base64 encode
-        return (
-            '{key}:: {value}'.format(
-                key=key,
-                value=b64encode(value.encode('utf8')).decode('ascii'),
-            ) for value in values
-        )
+    lines = [
+        '{key}:: {value}'.format(
+            key=key,
+            value=b64encode(value.encode('utf8')).decode('ascii'),
+        ) for value in values
+    ]
 
-    lines = list(chain(
-        format_attr('dn', [dn]),
-        *(format_attr(key, values) for key, values in attributes.items())
-    ))
+    return lines
 
-    cmd = 'kinit -t {keytab} {principal} ldapadd'.format(
+
+def _write_ldif(lines, dn, keytab, admin_principal):
+    """Issue an update to LDAP via ldapmodify in the form of lines of an LDIF
+    file.
+
+    :param lines: ldif file as a sequence of lines
+    """
+
+    cmd = 'kinit -t {keytab} {principal} ldapmodify'.format(
         keytab=keytab,
         principal=admin_principal,
     )
@@ -100,19 +90,21 @@ def create_ldap_entry_with_keytab(
         child.sendline(line)
 
     child.sendeof()
-    child.expect('adding new entry "{dn}"'.format(dn=dn))
+    child.expect('entry "{}"'.format(dn))
     child.expect(pexpect.EOF)
 
     output_after_adding = child.before.decode('utf8').strip()
 
     if 'Already exists (68)' in output_after_adding:
-        raise ValueError('DN already exists, this is a duplicate.')
+        raise ValueError('Tried to create duplicate entry.')
+    elif 'No such object (32)' in output_after_adding:
+        raise ValueError('Tried to modify nonexistent entry.')
 
     if output_after_adding != '':
         send_problem_report(
             dedent(
                 '''\
-                Unknown problem occured when trying to add LDAP entry; the code
+                Unknown problem occured when trying to write to LDAP; the code
                 should be updated to handle this case.
 
                 dn: {dn}
@@ -134,3 +126,57 @@ def create_ldap_entry_with_keytab(
             )
         )
         raise ValueError('Unknown LDAP failure was encountered.')
+
+
+def create_ldap_entry_with_keytab(
+    dn,
+    attributes,
+    keytab,
+    admin_principal,
+):
+    """Creates an LDAP entry by shelling out to ldapadd.
+
+    :param dn: distinguished name of the new entry
+    :param attributes: dict mapping attribute name to list of values
+    :param keytab: path to the admin keytab
+    :param admin_principal: admin principal to use with the keytab
+    """
+    lines = chain(
+        _format_attr('dn', [dn]),
+        ('changetype: add',),
+        *(_format_attr(key, values) for key, values in attributes.items())
+    )
+
+    _write_ldif(lines, dn, keytab, admin_principal)
+
+
+def modify_ldap_entry_with_keytab(
+    dn,
+    attributes,
+    keytab,
+    admin_principal,
+):
+    """Modifies the attributes of an existing LDAP entry by shelling out to
+    ldapmodify.
+
+    Existing attributes will be overwritten by the new values, and new
+    attributes will be created as needed.
+
+    :param dn: distinguished name of the entry to modify
+    :param attributes: dict mapping attribute name to list of values
+    :param keytab: path to the admin keytab
+    :param admin_principal: admin principal to use with the keytab
+    """
+    lines = chain(
+        _format_attr('dn', [dn]),
+        ('changetype: modify',),
+        *(
+            chain(
+                ('replace: {}'.format(key),),
+                _format_attr(key, values),
+                ('-',),
+            ) for key, values in attributes.items()
+        )
+    )
+
+    _write_ldif(lines, dn, keytab, admin_principal)

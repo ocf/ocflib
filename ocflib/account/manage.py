@@ -3,8 +3,11 @@ not account creation (since it's too large)."""
 import pexpect
 
 import ocflib.account.search as search
+import ocflib.account.utils as utils
 import ocflib.account.validators as validators
 import ocflib.constants as constants
+import ocflib.infra.ldap as ldap_ocf
+import ocflib.misc as misc
 import ocflib.misc.mail as mail
 import ocflib.misc.shell as shell
 
@@ -79,6 +82,26 @@ def change_password_with_keytab(username, password, keytab, principal, comment=N
         raise ValueError('kadmin Error: {}'.format(output))
 
     _notify_password_change(username, comment=comment)
+
+
+def modify_ldap_attributes(username, attributes, keytab, principal):
+    """Adds or modifies arbitrary attributes of a user's LDAP record subject to
+    minor validation beyond the LDAP schema.
+
+    At the moment, the only attribute that benefits from extra validation is
+    the 'loginShell' attribute.
+    """
+
+    for value in attributes.get('loginShell', ()):
+        if not misc.validators.valid_login_shell(value):
+            raise ValueError("Invalid login shell '{}'".format(value))
+
+    ldap_ocf.modify_ldap_entry_with_keytab(
+        utils.dn_for_username(username),
+        attributes,
+        keytab,
+        principal,
+    )
 
 
 def _notify_password_change(username, comment=None):

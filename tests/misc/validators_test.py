@@ -3,6 +3,7 @@ import pytest
 from ocflib.misc.validators import email_host_exists
 from ocflib.misc.validators import host_exists
 from ocflib.misc.validators import valid_email
+from ocflib.misc.validators import valid_login_shell
 
 
 REAL_HOSTS = [
@@ -60,3 +61,19 @@ def test_email_host_exists(email, exists):
 ])
 def test_valid_email(email, valid):
     assert valid_email(email) == valid
+
+
+@pytest.mark.parametrize('shell,valid', [
+    ('/bin/sh', True),
+    ('/bin/bash', True),
+    ('/bin/dash', True),
+    ('/bin/trash', False),
+    ('/bin/rbash', True),
+    ('/bin/tcsh', True),
+    ('/bin/zsh', True),
+    ('/usr/bin/screen', True),
+    ('/usr/bin/tmux', True),
+    ('bash', False),
+])
+def test_valid_login_shell(shell, valid):
+    assert valid_login_shell(shell) == valid

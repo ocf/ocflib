@@ -309,3 +309,14 @@ def test_change_password(tasks, fake_credentials):
             keytab=fake_credentials.kerberos_keytab,
             comment='comment',
         )
+
+
+def test_modify_ldap_attributes(tasks, fake_credentials):
+    with mock.patch('ocflib.account.submission.real_modify_ldap_attributes') as m:
+        tasks.modify_ldap_attributes('ggroup', {'a': ['b', 'c'], 'd': ['e']})
+        m.assert_called_once_with(
+            username='ggroup',
+            attributes={'a': ['b', 'c'], 'd': ['e']},
+            keytab=fake_credentials.kerberos_keytab,
+            principal=fake_credentials.kerberos_principal,
+        )

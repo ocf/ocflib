@@ -146,3 +146,10 @@ def list_staff(group='ocfstaff'):
     :param group: UNIX group to use to determine if someone is a staff member.
     """
     return grp.getgrnam(group).gr_mem
+
+
+def dn_for_username(username):
+    return 'uid={user},{base_people}'.format(
+        user=username,
+        base_people=constants.OCF_LDAP_PEOPLE,
+    )
