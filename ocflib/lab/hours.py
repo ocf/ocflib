@@ -94,6 +94,7 @@ HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
     (date(2016, 5, 14), date(2016, 8, 23), 'Summer Break', []),
     (date(2016, 9, 5), date(2016, 9, 5), 'Labor Day', []),
+    (date(2016, 9, 7), date(2016, 9, 7), 'General Meeting', [Hour(time(9), time(18))]),
     (date(2016, 11, 11), date(2016, 11, 11), 'Veteran\'s Day', []),
     (date(2016, 11, 23), date(2016, 11, 27), 'Thanksgiving Break', []),
     (date(2016, 12, 16), date(2016, 12, 16), 'Last Day of Fall 2016', [Hour(time(9), time(12))]),
