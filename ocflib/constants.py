@@ -265,7 +265,7 @@ RESERVED_USERNAMES = frozenset((
     'yukai',
 ))
 
-CREATE_PUBLIC_KEY = """\
+CREATE_PUBLIC_KEY = '''\
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3xG2dczz2y+qc0AgTZ1L
 Jrun4RbcMf7z7AFqPqIQrtbuJprg6EQPHd2EDjMt9rJm929tTatjLu7TcNisq9lW
@@ -274,4 +274,4 @@ KbvI3DuNLNbS+MxXawudEDVj0xA86Iv8biHqq//xMD+SicOzN4ZrjKarT9MdQYL+
 JDNjiYba1ZiNLiqXeLGS2IVYAd88etX+V5gxAvl0bGHzgeHodutxUf46QCg7cmvm
 5lQsbiYUABiEsE1OejSEfb+7mtuhxu+MeVXCYr341axa0IHorj4qURxKOi/CTn5f
 zwIDAQAB
------END PUBLIC KEY-----%"""
+-----END PUBLIC KEY-----'''
