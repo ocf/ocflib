@@ -3,6 +3,7 @@ from collections import namedtuple
 
 import pymysql
 import requests
+from cached_property import cached_property
 
 
 VHOST_MAIL_DB_PATH = '/home/s/st/staff/vhost/vhost-mail.conf'
@@ -49,12 +50,16 @@ class MailVirtualHost(namedtuple('MailVirtualHost', ('user', 'domain'))):
         )
 
 
-MailForwardingAddress = namedtuple('MailForwardingAddress', (
+class MailForwardingAddress(namedtuple('MailForwardingAddress', (
     'address',
     'crypt_password',
     'forward_to',
     'last_updated',
-))
+))):
+
+    @cached_property
+    def is_wildcard(self):
+        return self.address.startswith('@')
 
 
 def get_mail_vhost_db():

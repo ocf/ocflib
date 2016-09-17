@@ -161,6 +161,11 @@ def test_crypt_password(password):
         assert crypt.crypt(password, crypt_password(not_password)) != crypted
 
 
+def test_mail_forwarding_address_is_wildcard():
+    assert MailForwardingAddress('@vhost.com', None, frozenset(), None).is_wildcard
+    assert not MailForwardingAddress('bob@vhost.com', None, frozenset(), None).is_wildcard
+
+
 @pytest.yield_fixture
 def mysql_connection(mysql_database):
     mysql_database.run_cli_query(
