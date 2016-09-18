@@ -1,6 +1,5 @@
 import mock
 import pytest
-import requests
 import yaml
 from freezegun import freeze_time
 
@@ -130,4 +129,3 @@ def test_gravatars(size):
     url = staffer.gravatar(size)
     assert url.startswith('https://www.gravatar.com/avatar/b4a3363de72988194e4b9c25195c3d07?')
     assert ('s=' + str(size)) in url.split('?')[1].split('&')
-    assert requests.get(url).status_code == 200
