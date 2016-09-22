@@ -104,7 +104,7 @@ class TestDay:
 def test_hours(day):
     hours = REGULAR_HOURS[day]
     assert isinstance(hours, list)
-#   assert len(hours) >= 1
+    assert len(hours) >= 1
 
     for hour in hours:
         assert isinstance(hour.open, time)

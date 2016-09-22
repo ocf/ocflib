@@ -86,9 +86,9 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
 REGULAR_HOURS = defaultdict(lambda: [Hour(time(9), time(20))], {
     Day.MONDAY: [Hour(time(9), time(18))],
     Day.TUESDAY: [Hour(time(9), time(18))],
-    Day.THURSDAY: [Hour(time(9), time(18))],
-    Day.FRIDAY: [Hour(time(10), time(17))],
-    Day.SATURDAY: [],
+    Day.WEDNESDAY: [Hour(time(9), time(19))],
+    Day.FRIDAY: [Hour(time(9), time(18))],
+    Day.SATURDAY: [Hour(time(12), time(17))],
     Day.SUNDAY: [Hour(time(12), time(17))],
 })
 
@@ -97,8 +97,6 @@ HOLIDAYS = [
     (date(2016, 5, 14), date(2016, 8, 23), 'Summer Break', []),
     (date(2016, 9, 5), date(2016, 9, 5), 'Labor Day', []),
     (date(2016, 9, 7), date(2016, 9, 7), 'General Meeting', [Hour(time(9), time(18))]),
-    (date(2016, 9, 22), date(2016, 9, 22), 'Understaffing', [Hour(time(9), time(10)), Hour(time(14), time(18))]),
-    (date(2016, 9, 23), date(2016, 9, 23), 'Understaffing', [Hour(time(13), time(15))]),
     (date(2016, 11, 11), date(2016, 11, 11), 'Veteran\'s Day', []),
     (date(2016, 11, 23), date(2016, 11, 27), 'Thanksgiving Break', []),
     (date(2016, 12, 16), date(2016, 12, 16), 'Last Day of Fall 2016', [Hour(time(9), time(12))]),
