@@ -173,6 +173,7 @@ RESERVED_USERNAMES = frozenset((
     'opencomp',
     'openldap',
     'opersquad',
+    'opstaff',
     'pagefault',
     'paper',
     'papercut',
