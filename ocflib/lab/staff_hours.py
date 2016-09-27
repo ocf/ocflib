@@ -46,7 +46,7 @@ def get_staff_hours():
         if uid in staff_hours['staff-positions']:
             return staff_hours['staff-positions'][uid]
         elif is_staff(uid, group='ocfroot'):
-            return 'Deputy Manager'
+            return 'Technical Manager'
         else:
             return 'Staff Member'
 
