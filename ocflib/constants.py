@@ -126,6 +126,7 @@ RESERVED_USERNAMES = frozenset((
     'hello',
     'help',
     'hiring',
+    'host',
     'hosting',
     'hostmaster',
     'hours',
