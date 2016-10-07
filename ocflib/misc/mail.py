@@ -8,7 +8,6 @@ from email.utils import parseaddr
 from jinja2 import Environment
 from jinja2 import PackageLoader
 
-import ocflib.account.validators
 import ocflib.constants as constants
 import ocflib.misc.validators as validators
 
@@ -23,9 +22,13 @@ def email_for_user(username):
     """Return email for a user.
 
     Currently, just appends @ocf.berkeley.edu, but could eventually do
-    something more complicated."""
+    something more complicated.
+    """
+    from ocflib.account.search import user_exists
 
-    ocflib.account.validators.validate_username(username, check_exists=True)
+    if not user_exists(username):
+        raise ValueError('Account "{}" does not exist.'.format(username))
+
     return '{}@ocf.berkeley.edu'.format(username)
 
 
