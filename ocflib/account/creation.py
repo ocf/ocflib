@@ -462,7 +462,9 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
 
 
 # We use a module-level dict to "cache" across function calls.
-# TODO: This prevents importing this module when LDAP is unavailable.
-# https://github.com/ocf/ocfweb/issues/103
-_cache = {'known_uid': 37500}
-_get_first_available_uid()
+_cache = {'known_uid': 43000}
+try:
+    _get_first_available_uid()
+except Exception:
+    # Don't break import (and ocfweb) if LDAP is down.
+    pass
