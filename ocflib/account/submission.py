@@ -251,7 +251,13 @@ def get_tasks(celery_app, credentials=None):
                 )
 
             # actual account creation
-            real_create_account(request, credentials, report_status)
+            kwargs = {}
+            known_uid = r.get('known_uid')
+            if known_uid:
+                kwargs['known_uid'] = known_uid
+            new_uid = real_create_account(request, credentials, report_status, **kwargs)
+            r.set('known_uid', new_uid)
+
             dispatch_event('ocflib.account_created', request=request.to_dict())
             return NewAccountResponse(
                 status=NewAccountResponse.CREATED,
