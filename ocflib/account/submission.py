@@ -254,7 +254,7 @@ def get_tasks(celery_app, credentials=None):
             kwargs = {}
             known_uid = r.get('known_uid')
             if known_uid:
-                kwargs['known_uid'] = known_uid
+                kwargs['known_uid'] = int(known_uid)
             new_uid = real_create_account(request, credentials, report_status, **kwargs)
             r.set('known_uid', new_uid)
 
