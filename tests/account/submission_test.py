@@ -265,9 +265,7 @@ class TestCreateAccount:
                 fake_new_account_request,
                 fake_credentials,
                 mock.ANY,
-                known_uid=mock.ANY,
             )
-            mock_redis_locking().set.assert_called_once_with('known_uid', mock.ANY)
             assert celery_app._sent_messages == [
                 {'type': 'ocflib.account_created', 'request': fake_new_account_request.to_dict()}
             ]

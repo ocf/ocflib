@@ -9,8 +9,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import ocflib.constants as constants
+from ocflib.account.creation import _cache
 from ocflib.account.creation import _get_first_available_uid
-from ocflib.account.creation import _KNOWN_UID
 from ocflib.account.creation import create_account
 from ocflib.account.creation import create_home_dir
 from ocflib.account.creation import create_web_dir
@@ -100,7 +100,7 @@ class TestFirstAvailableUID:
         assert next_uid == 999201
 
     def test_max_uid_constant_not_too_small(self):
-        """Test that the _KNOWN_UID constant is sufficiently large.
+        """Test that the known_min constant is sufficiently large.
 
         The way we find the next available UID is very slow because there is no
         way to do a query like "find the max UID from all users" in LDAP.
@@ -108,14 +108,14 @@ class TestFirstAvailableUID:
         take ~15 seconds.
 
         By hardcoding a known min, we just select accounts with uid >
-        _KNOWN_UID, which is much faster. This makes finding available UIDs
-        faster the first time a query is made. The result can be cached to make
-        subsequent attempts even faster.
+        known_min, which is much faster. But it means we need to bump the
+        constant occasionally to keep it fast.
         """
+        known_uid = _cache['known_uid']
         with ldap_ocf() as c:
             c.search(
                 constants.OCF_LDAP_PEOPLE,
-                '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=_KNOWN_UID),
+                '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=known_uid),
                 attributes=['uidNumber'],
             )
             num_uids = len(c.response)
@@ -123,7 +123,7 @@ class TestFirstAvailableUID:
         if num_uids > 2500:
             raise AssertionError((
                 'Found {} accounts with UID >= {}, you should bump the constant for speed.'
-            ).format(num_uids, _KNOWN_UID))
+            ).format(num_uids, known_uid))
 
 
 class TestCreateDirectories:
@@ -501,7 +501,7 @@ class TestCreateAccount:
                 mock.patch('ocflib.account.creation.create_home_dir') as home_dir, \
                 mock.patch('ocflib.account.creation.create_web_dir') as web_dir, \
                 mock.patch('ocflib.account.creation.send_created_mail') as send_created_mail, \
-                mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42) as get_uid, \
+                mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42), \
                 mock.patch('ocflib.account.creation.call') as call, \
                 freeze_time('2015-08-22 14:11:44'):
 
@@ -510,14 +510,11 @@ class TestCreateAccount:
                 calnet_uid=calnet_uid,
                 callink_oid=callink_oid,
             )
-            new_uid = create_account(
+            create_account(
                 fake_new_account_request,
                 fake_credentials,
                 report_status,
-                known_uid=1,
             )
-            assert new_uid == 42
-            get_uid.assert_called_once_with(1)
             kerberos.assert_called_once_with(
                 fake_new_account_request.user_name,
                 fake_credentials.kerberos_keytab,
