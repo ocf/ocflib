@@ -13,10 +13,10 @@ from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import _KNOWN_UID
 from ocflib.account.creation import create_account
 from ocflib.account.creation import create_home_dir
-from ocflib.account.creation import create_web_dir
 from ocflib.account.creation import decrypt_password
 from ocflib.account.creation import eligible_for_account
 from ocflib.account.creation import encrypt_password
+from ocflib.account.creation import ensure_web_dir
 from ocflib.account.creation import NewAccountRequest
 from ocflib.account.creation import send_created_mail
 from ocflib.account.creation import send_rejected_mail
@@ -139,9 +139,10 @@ class TestCreateDirectories:
 
         check_call.assert_has_calls(calls)
 
+    @mock.patch('os.path.exists', return_value=False)
     @mock.patch('subprocess.check_call')
-    def test_create_web_dir(self, check_call):
-        create_web_dir('ckuehl')
+    def test_ensure_web_dir(self, check_call, _):
+        ensure_web_dir('ckuehl')
         check_call.assert_has_calls([
             mock.call([
                 'sudo', 'install', '-d', '--mode=0755', '--group=ocf', '--owner=ckuehl',
@@ -152,6 +153,43 @@ class TestCreateDirectories:
                 '/services/http/users/c/ckuehl', '/home/c/ck/ckuehl/public_html',
             ]),
         ])
+
+    def test_ensure_web_dir_existing(self):
+        with mock.patch('os.path.exists', return_value=True), \
+                mock.patch('os.path.realpath', return_value='/services/http/users/c/ckuehl'), \
+                mock.patch('subprocess.check_call') as check_call:
+            ensure_web_dir('ckuehl')
+            check_call.assert_has_calls([
+                mock.call([
+                    'sudo', 'install', '-d', '--mode=0755', '--group=ocf', '--owner=ckuehl',
+                    '--', '/services/http/users/c/ckuehl',
+                ]),
+                mock.call([
+                    'sudo', '-u', 'ckuehl', 'ln', '-fs', '--',
+                    '/services/http/users/c/ckuehl', '/home/c/ck/ckuehl/public_html',
+                ]),
+            ])
+
+    def test_ensure_web_dir_rename(self):
+        with mock.patch('os.path.exists', return_value=True), \
+                mock.patch('os.path.realpath', return_value='/home/c/ck/ckuehl/public_html'), \
+                mock.patch('subprocess.check_call') as check_call, \
+                freeze_time('2015-08-22 14:11:44'):
+            ensure_web_dir('ckuehl')
+            check_call.assert_has_calls([
+                mock.call([
+                    'sudo', 'install', '-d', '--mode=0755', '--group=ocf', '--owner=ckuehl',
+                    '--', '/services/http/users/c/ckuehl',
+                ]),
+                mock.call([
+                    'sudo', 'mv',
+                    '/home/c/ck/ckuehl/public_html', '/home/c/ck/ckuehl/public_html.08222015-141144'
+                ]),
+                mock.call([
+                    'sudo', '-u', 'ckuehl', 'ln', '-fs', '--',
+                    '/services/http/users/c/ckuehl', '/home/c/ck/ckuehl/public_html',
+                ]),
+            ])
 
 
 class TestUsernameBasedOnRealName:
@@ -493,13 +531,12 @@ class TestCreateAccount:
         fake_new_account_request,
         fake_credentials
     ):
-        @contextmanager
-        def report_status(start, end, line):
-            yield
         with mock.patch('ocflib.account.creation.create_kerberos_principal_with_keytab') as kerberos, \
+                mock.patch('ocflib.account.creation.get_kerberos_principal_with_keytab',
+                           return_value=None) as kerberos_get, \
                 mock.patch('ocflib.account.creation.create_ldap_entry_with_keytab') as ldap, \
                 mock.patch('ocflib.account.creation.create_home_dir') as home_dir, \
-                mock.patch('ocflib.account.creation.create_web_dir') as web_dir, \
+                mock.patch('ocflib.account.creation.ensure_web_dir') as web_dir, \
                 mock.patch('ocflib.account.creation.send_created_mail') as send_created_mail, \
                 mock.patch('ocflib.account.creation._get_first_available_uid', return_value=42) as get_uid, \
                 mock.patch('ocflib.account.creation.call') as call, \
@@ -513,11 +550,16 @@ class TestCreateAccount:
             new_uid = create_account(
                 fake_new_account_request,
                 fake_credentials,
-                report_status,
+                mock.MagicMock(),
                 known_uid=1,
             )
             assert new_uid == 42
             get_uid.assert_called_once_with(1)
+            kerberos_get.assert_called_once_with(
+                fake_new_account_request.user_name,
+                fake_credentials.kerberos_keytab,
+                fake_credentials.kerberos_principal,
+            )
             kerberos.assert_called_once_with(
                 fake_new_account_request.user_name,
                 fake_credentials.kerberos_keytab,

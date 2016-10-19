@@ -132,6 +132,11 @@ def web_dir(user):
     return '/' + os.path.join('services', 'http', 'users', user[0], user)
 
 
+def public_html_path(user):
+    """Returns the user's public_html path."""
+    return os.path.join(home_dir(user), 'public_html')
+
+
 def is_staff(user, group='ocfstaff'):
     """Return whether the user is a staff member.
 

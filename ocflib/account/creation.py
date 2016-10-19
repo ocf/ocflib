@@ -1,7 +1,7 @@
 import difflib
 import itertools
 import math
-import os.path
+import os
 import re
 import subprocess
 from collections import namedtuple
@@ -18,6 +18,7 @@ import ocflib.account.utils as utils
 import ocflib.account.validators as validators
 import ocflib.constants as constants
 from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
+from ocflib.infra.kerberos import get_kerberos_principal_with_keytab
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.misc.mail import jinja_mail_env
@@ -63,52 +64,60 @@ def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
     """
     # TODO: better docstring
 
-    # TODO: check if kerberos principal already exists; skip this if so
-    with report_status('Creating', 'Created', 'Kerberos keytab'):
-        create_kerberos_principal_with_keytab(
-            request.user_name,
-            creds.kerberos_keytab,
-            creds.kerberos_principal,
-            password=decrypt_password(
-                request.encrypted_password,
-                RSA.importKey(open(creds.encryption_key).read()),
-            ),
-        )
-
-    # TODO: check if LDAP entry already exists; skip this if so
-    with report_status('Finding', 'Found', 'first available UID'):
-        new_uid = _get_first_available_uid(known_uid)
-
-    dn = utils.dn_for_username(request.user_name)
-    attrs = {
-        'objectClass': ['ocfAccount', 'account', 'posixAccount'],
-        'cn': [request.real_name],
-        'uidNumber': [str(new_uid)],
-        'gidNumber': [str(getgrnam('ocf').gr_gid)],
-        'homeDirectory': [utils.home_dir(request.user_name)],
-        'loginShell': ['/bin/bash'],
-        'mail': [request.email],
-        'userPassword': ['{SASL}' + request.user_name + '@OCF.BERKELEY.EDU'],
-        'creationTime': [datetime.now().strftime('%Y%m%d%H%M%SZ')],
-    }
-    if request.calnet_uid:
-        attrs['calnetUid'] = [str(request.calnet_uid)]
+    if get_kerberos_principal_with_keytab(
+        request.user_name,
+        creds.kerberos_keytab,
+        creds.kerberos_principal,
+    ):
+        report_status('kerberos principal already exists; skipping creation')
     else:
-        attrs['callinkOid'] = [str(request.callink_oid)]
+        with report_status('Creating', 'Created', 'Kerberos keytab'):
+            create_kerberos_principal_with_keytab(
+                request.user_name,
+                creds.kerberos_keytab,
+                creds.kerberos_principal,
+                password=decrypt_password(
+                    request.encrypted_password,
+                    RSA.importKey(open(creds.encryption_key).read()),
+                ),
+            )
 
-    with report_status('Creating', 'Created', 'LDAP entry'):
-        create_ldap_entry_with_keytab(
-            dn, attrs, creds.kerberos_keytab, creds.kerberos_principal,
-        )
+    if search.user_attrs(request.user_name):
+        report_status('LDAP entry already exists; skipping creation')
+    else:
+        with report_status('Finding', 'Found', 'first available UID'):
+            new_uid = _get_first_available_uid(known_uid)
 
-        # invalidate passwd cache so that we can immediately chown files
-        # XXX: sometimes this fails, but that's okay because it means
-        # nscd isn't running anyway
-        call(('sudo', 'nscd', '-i', 'passwd'))
+        dn = utils.dn_for_username(request.user_name)
+        attrs = {
+            'objectClass': ['ocfAccount', 'account', 'posixAccount'],
+            'cn': [request.real_name],
+            'uidNumber': [str(new_uid)],
+            'gidNumber': [str(getgrnam('ocf').gr_gid)],
+            'homeDirectory': [utils.home_dir(request.user_name)],
+            'loginShell': ['/bin/bash'],
+            'mail': [request.email],
+            'userPassword': ['{SASL}' + request.user_name + '@OCF.BERKELEY.EDU'],
+            'creationTime': [datetime.now().strftime('%Y%m%d%H%M%SZ')],
+        }
+        if request.calnet_uid:
+            attrs['calnetUid'] = [str(request.calnet_uid)]
+        else:
+            attrs['callinkOid'] = [str(request.callink_oid)]
+
+        with report_status('Creating', 'Created', 'LDAP entry'):
+            create_ldap_entry_with_keytab(
+                dn, attrs, creds.kerberos_keytab, creds.kerberos_principal,
+            )
+
+            # invalidate passwd cache so that we can immediately chown files
+            # XXX: sometimes this fails, but that's okay because it means
+            # nscd isn't running anyway
+            call(('sudo', 'nscd', '-i', 'passwd'))
 
     with report_status('Creating', 'Created', 'home and web directories'):
         create_home_dir(request.user_name)
-        create_web_dir(request.user_name)
+        ensure_web_dir(request.user_name)
 
     send_created_mail(request)
     # TODO: logging to syslog, files
@@ -117,25 +126,25 @@ def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
 
 
 def create_home_dir(user):
-    """Create home directory for user. Makes a directory with appropriate
-    permissions, then copies in OCF's skeleton dotfiles.
-    """
+    """Create home directory for user with appropriate permissions."""
     home = utils.home_dir(user)
     subprocess.check_call(
         ['sudo', 'install', '-d', '--mode=0700', '--group=ocf',
             '--owner=' + user, home])
 
 
-def create_web_dir(user):
-    """Create web directory for user with appropriate permissions.
+def ensure_web_dir(user):
+    """Ensure user has web directory with appropriate permissions and
+    public_html symlink.
 
     All users are given a working web directory and public_html symlink at
     account creation. They can later use `makehttp` to fix these if they bork
-    the permissions or symlink.
+    the permissions or symlink. If there is already a file in the user's home
+    folder named 'public_html', it will be renamed by appending a timestamp.
     """
     path = utils.web_dir(user)
 
-    # create web directory
+    # ensure web directory exists and has the right permissiosn
     subprocess.check_call([
         'sudo', 'install',
         '-d', '--mode=0755', '--group=ocf', '--owner=' + user,
@@ -143,10 +152,19 @@ def create_web_dir(user):
         path,
     ])
 
-    # symlink it from ~user/public_html
+    public_html_path = utils.public_html_path(user)
+
+    # rename any existing files named ~user/public_html
+    if os.path.exists(public_html_path) and os.path.realpath(public_html_path) != path:
+        timestamp = datetime.now().strftime('%m%d%Y-%H%M%S')
+        subprocess.check_call([
+            'sudo', 'mv', public_html_path, public_html_path + '.' + timestamp,
+        ])
+
+    # symlink web dir from ~user/public_html
     subprocess.check_call([
         'sudo', '-u', user,
-        'ln', '-fs', '--', path, os.path.join(utils.home_dir(user), 'public_html'),
+        'ln', '-fs', '--', path, public_html_path,
     ])
 
 
