@@ -26,8 +26,42 @@ from ocflib.misc.validators import valid_email
 from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 
-def create_account(request, creds, report_status):
-    """Create an account as idempotently as possible."""  # TODO: docstring
+_KNOWN_UID = 43000
+
+
+def _get_first_available_uid(known_uid=_KNOWN_UID):
+    """Return the first available UID number.
+
+    Searches our entire People ou in order to find it. It seems like there
+    should be a better way to do this, but quick searches don't show any.
+
+    We hard-code a value we know has already been reached and only select
+    entries greater than that for performance. This value can then be cached
+    and passed back in to make subsequent calls faster.
+    """
+    with ldap_ocf() as c:
+        c.search(
+            constants.OCF_LDAP_PEOPLE,
+            '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=known_uid),
+            attributes=['uidNumber'],
+        )
+        uids = [int(entry['attributes']['uidNumber'][0]) for entry in c.response]
+    if uids:
+        max_uid = max(uids)
+    else:
+        # If cached UID is later deleted, LDAP response will be empty.
+        max_uid = known_uid
+    return max_uid + 1
+
+
+def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
+    """Create an account as idempotently as possible.
+
+    :param known_uid: where to start searching for unused UIDs (see
+        _get_first_available_uid)
+    :return: the UID of the newly created account
+    """
+    # TODO: better docstring
 
     # TODO: check if kerberos principal already exists; skip this if so
     with report_status('Creating', 'Created', 'Kerberos keytab'):
@@ -43,7 +77,7 @@ def create_account(request, creds, report_status):
 
     # TODO: check if LDAP entry already exists; skip this if so
     with report_status('Finding', 'Found', 'first available UID'):
-        new_uid = _get_first_available_uid()
+        new_uid = _get_first_available_uid(known_uid)
 
     dn = utils.dn_for_username(request.user_name)
     attrs = {
@@ -79,32 +113,7 @@ def create_account(request, creds, report_status):
     send_created_mail(request)
     # TODO: logging to syslog, files
 
-
-def _get_first_available_uid():
-    """Return the first available UID number.
-
-    Searches our entire People ou in order to find it. It seems like there
-    should be a better way to do this, but quick searches don't show any.
-
-    We hard-code a value we know has already been reached and only select
-    entries greater than that for performance. We then use a module-level
-    dict to cache our output for the next function call.
-    """
-    min_uid = _cache['known_uid']
-    with ldap_ocf() as c:
-        c.search(
-            constants.OCF_LDAP_PEOPLE,
-            '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=min_uid),
-            attributes=['uidNumber'],
-        )
-        uids = [int(entry['attributes']['uidNumber'][0]) for entry in c.response]
-    if uids:
-        max_uid = max(uids)
-        _cache['known_uid'] = max_uid
-    else:
-        # If cached UID is later deleted, LDAP response will be empty.
-        max_uid = min_uid
-    return max_uid + 1
+    return new_uid
 
 
 def create_home_dir(user):
@@ -459,10 +468,3 @@ class NewAccountRequest(namedtuple('NewAccountRequest', [
             field: getattr(self, field)
             for field in self._fields if field != 'encrypted_password'
         }
-
-
-# We use a module-level dict to "cache" across function calls.
-# TODO: This prevents importing this module when LDAP is unavailable.
-# https://github.com/ocf/ocfweb/issues/103
-_cache = {'known_uid': 37500}
-_get_first_available_uid()
