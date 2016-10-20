@@ -84,8 +84,11 @@ def top_staff(start, end=date(3000, 1, 1)):
             ORDER BY `seconds` DESC
         '''
         c.execute(query, (start, end, start, end))
-        return [UserTime(user=r['user'], time=timedelta(seconds=int(r['seconds']))) for r in c \
-                    if r['user'] != 'pubstaff']
+        return [
+            UserTime(user=r['user'], time=timedelta(seconds=int(r['seconds'])))
+            for r in c if r['user'] != 'pubstaff'
+        ]
+
 
 def top_staff_alltime():
     """Return a list of top staff users of the lab since records began.
