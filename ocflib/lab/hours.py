@@ -96,6 +96,10 @@ REGULAR_HOURS = defaultdict(lambda: [Hour(time(9), time(20))], {
 
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
+    (date(2016, 10, 19), date(2016, 10, 19), 'Closing earlier today', [Hour(time(9), time(12)),
+                                                                       Hour(time(13), time(14)),
+                                                                       Hour(time(15), time(16)),
+                                                                       Hour(time(18), time(18, 40))]),
     (date(2016, 11, 11), date(2016, 11, 11), 'Veteran\'s Day', []),
     (date(2016, 11, 23), date(2016, 11, 27), 'Thanksgiving Break', []),
     (date(2016, 12, 16), date(2016, 12, 16), 'Last Day of Fall 2016', [Hour(time(9), time(12))]),
