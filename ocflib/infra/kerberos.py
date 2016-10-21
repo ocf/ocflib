@@ -69,12 +69,12 @@ def get_kerberos_principal_with_keytab(principal, keytab, admin_principal):
     :return: True if the principal exists, or
              None if the principal does not exist
     """
-    cmd = ('{kadmin} -K {keytab} -p {admin} get {principal}').format(
-        kadmin=escape_arg(KADMIN_PATH),
-        keytab=escape_arg(keytab),
-        admin=escape_arg(admin_principal),
-        principal=escape_arg(principal),
-    )
+    cmd = [
+        escape_arg(KADMIN_PATH),
+        '-K', escape_arg(keytab),
+        '-p', escape_arg(admin_principal),
+        'get', escape_arg(principal),
+    ]
 
     try:
         subprocess.check_output(cmd, timeout=10)
