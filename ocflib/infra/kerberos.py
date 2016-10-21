@@ -77,7 +77,7 @@ def get_kerberos_principal_with_keytab(principal, keytab, admin_principal):
     ]
 
     try:
-        subprocess.check_output(cmd, timeout=10)
+        subprocess.check_output(cmd, timeout=10, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         output = e.output.decode('utf8')
         if 'Principal does not exist' in output:
