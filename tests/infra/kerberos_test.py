@@ -74,7 +74,7 @@ class TestGetKerberosPrincipal:
         mock_check_output.assert_called_once_with(
             ['/usr/bin/kadmin', '-K', '/some/keytab', '-p', 'create/admin', 'get', 'ggroup'],
             timeout=10,
-            stderr=subprocess.STDOUT
+            stderr=subprocess.STDOUT,
         )
 
     @mock.patch('subprocess.check_output')
