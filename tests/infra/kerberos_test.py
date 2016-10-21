@@ -81,7 +81,7 @@ class TestGetKerberosPrincipal:
         mock_check_output.side_effect = subprocess.CalledProcessError(
             1,
             ['/usr/bin/kadmin', '-K', '/some/keytab', '-p', 'create/admin', 'get', 'ggroup'],
-            'kadmin: get ggroup: Principal does not exist',
+            b'kadmin: get ggroup: Principal does not exist',
         )
 
         assert not get_kerberos_principal_with_keytab(
@@ -95,7 +95,7 @@ class TestGetKerberosPrincipal:
         mock_check_output.side_effect = subprocess.CalledProcessError(
             1,
             ['/usr/bin/kadmin', '-K', '/some/keytab', '-p', 'create/admin', 'get', 'ggroup'],
-            'kadmin: get ggroup: no such file or directory'
+            b'kadmin: get ggroup: no such file or directory'
         )
 
         with pytest.raises(ValueError):
