@@ -228,16 +228,23 @@ def get_tasks(celery_app, credentials=None):
             # status reporting
             status = []
 
-            def _report_status(line):
-                """Update task status by adding the given line."""
-                status.append(line)
-                create_account.update_state(meta={'status': status})
+            class report_status:
 
-            @contextmanager
-            def report_status(start, stop, task):
-                _report_status(start + ' ' + task)
-                yield
-                _report_status(stop + ' ' + task)
+                def __init__(self, *args):
+                    if len(args) == 1:
+                        self(*args)
+                    else:
+                        self.start, self.stop, self.task = args
+
+                def __call__(self, line):
+                    status.append(line)
+                    create_account.update_state(meta={'status': status})
+
+                def __enter__(self, *args):
+                    self(self.start + ' ' + self.task)
+
+                def __exit__(self, *args):
+                    self(self.stop + ' ' + self.task)
 
             with report_status('Validating', 'Validated', 'request'), \
                     get_session() as session:
