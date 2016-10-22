@@ -58,7 +58,7 @@ class TestUserAttrs:
 
 class TestUserAttrsUCB:
 
-    def test_existing_user(self, test_uid=1034192):
+    def test_existing_user(self, test_uid=1101587):
         """These are a little flaky because alumni eventually get kicked out of
         the university's "People" OU. So you'll need to update these every few
         years."""

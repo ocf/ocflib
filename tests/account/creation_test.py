@@ -264,7 +264,7 @@ class TestUsernameBasedOnRealName:
 class TestAccountEligibility:
 
     @pytest.mark.parametrize('bad_uid', [
-        1034192,     # good uid, but already has account
+        1101587,     # good uid, but already has account
         9999999999,  # fake uid, not in university ldap
     ])
     def test_validate_calnet_uid_error(self, bad_uid):
