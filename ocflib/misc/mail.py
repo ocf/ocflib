@@ -18,16 +18,16 @@ jinja_mail_env.globals = {
 }
 
 
-def email_for_user(username):
+def email_for_user(username, check_exists=True):
     """Return email for a user.
 
     Currently, just appends @ocf.berkeley.edu, but could eventually do
     something more complicated.
     """
-    from ocflib.account.search import user_exists
-
-    if not user_exists(username):
-        raise ValueError('Account "{}" does not exist.'.format(username))
+    if check_exists:
+        from ocflib.account.search import user_exists
+        if not user_exists(username):
+            raise ValueError('Account "{}" does not exist.'.format(username))
 
     return '{}@ocf.berkeley.edu'.format(username)
 
