@@ -120,7 +120,7 @@ def _notify_password_change(username, comment=None):
 Just a quick heads up that your Open Computing Facility account password was
 just reset, hopefully by you.
 {comment_line}
-As a a reminder, your OCF username is: {username}
+As a reminder, your OCF username is: {username}
 
 If you're not sure why this happened, please reply to this email ASAP.
 
