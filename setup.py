@@ -25,7 +25,7 @@ setup(
         'cracklib',
         'dnspython3',
         'jinja2',
-        'ldap3==1.4.0',
+        'ldap3<=1.999',
         'paramiko',
         'pexpect',
         'pycrypto',
