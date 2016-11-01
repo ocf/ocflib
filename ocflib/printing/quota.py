@@ -5,6 +5,7 @@ import pymysql
 
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
+from ocflib.account.utils import is_staff
 
 
 WEEKDAY_QUOTA = 8
@@ -53,8 +54,8 @@ def daily_quota(day=None):
 
 def get_quota(c, user):
     """Return a UserQuota representing the user's quota."""
-    if user == 'pubstaff':
-        return UserQuota('pubstaff', 500, 500)
+    if user == 'pubstaff' or is_staff(user, 'opstaff'):
+        return UserQuota(user, 500, 500)
 
     if not user_exists(user) or user_is_group(user):
         return UserQuota(user, 0, 0)
