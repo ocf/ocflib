@@ -1,4 +1,5 @@
 import pytest
+from ldap3.core.exceptions import LDAPAttributeError
 
 from ocflib.account.search import user_attrs
 from ocflib.account.search import user_attrs_ucb
@@ -17,7 +18,6 @@ class TestUsersByFilter:
         ('(uidNumber=28460)', {'ckuehl'}),
         ('(|(uidNumber=28460)(uid=daradib))', {'ckuehl', 'daradib'}),
         ('(uid=doesnotexist)', set()),
-        ('(herp=derp)', set()),
         ('(!(uid=*))', set()),
     ])
     def test_users_by_filter(self, filter_str, results):
@@ -26,6 +26,10 @@ class TestUsersByFilter:
     @pytest.mark.parametrize('filter_str', ['', 'uid=ckuehl', '42', 'asdf'])
     def test_invalid_filters(self, filter_str):
         with pytest.raises(Exception):
+            users_by_filter(filter_str)
+
+    def test_invalid_ldap_attr(self, filter_str='(herp=derp)'):
+        with pytest.raises(LDAPAttributeError):
             users_by_filter(filter_str)
 
 
@@ -50,7 +54,7 @@ class TestUserAttrs:
     def test_existing_user(self):
         user = user_attrs('ckuehl')
         assert user['uid'] == ['ckuehl']
-        assert user['uidNumber'] == ['28460']
+        assert user['uidNumber'] == 28460
 
     def test_nonexistent_user(self):
         assert user_attrs('doesnotexist') is None

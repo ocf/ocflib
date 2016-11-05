@@ -59,7 +59,7 @@ def user_exists(account):
 
 
 def user_is_sorried(account):
-    shell, = user_attrs(account)['loginShell']
+    shell = user_attrs(account)['loginShell']
     return shell == constants.SORRIED_SHELL
 
 

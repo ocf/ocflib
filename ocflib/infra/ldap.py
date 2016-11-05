@@ -1,6 +1,7 @@
 import string
 from base64 import b64encode
 from contextlib import contextmanager
+from datetime import datetime
 from itertools import chain
 from textwrap import dedent
 
@@ -53,9 +54,15 @@ def ldap_ucb():
 
 
 def _format_attr(key, values):
-    # LDAP attributes can have multiple values, but commonly we don't consider
-    # that. So, let's sanity check the types we've received.
-    assert type(values) in (list, tuple), 'Value must be list or tuple.'
+    # Unfortunately, LDIF is a string format while we deal in python types, so
+    # everything must be converted at some point.
+    def format_value(value):
+        return format_timestamp(value) if isinstance(value, datetime) else str(value)
+
+    # Some LDAP attributes can have multiple values while most are single-
+    # valued, so we handle both cases.
+    if not type(values) in (list, tuple):
+        values = (values,)
 
     # might be possible to have non-ASCII letters in keys, but don't think
     # it will happen to us. we can fix this if it ever does.
@@ -64,7 +71,7 @@ def _format_attr(key, values):
     lines = [
         '{key}:: {value}'.format(
             key=key,
-            value=b64encode(value.encode('utf8')).decode('ascii'),
+            value=b64encode(format_value(value).encode('utf8')).decode('ascii'),
         ) for value in values
     ]
 
@@ -180,3 +187,13 @@ def modify_ldap_entry_with_keytab(
     )
 
     _write_ldif(lines, dn, keytab, admin_principal)
+
+
+def format_timestamp(timestamp):
+    """Returns a string representing a python datetime in LDAP timestamp
+    format.
+
+    :param timestamp: A datetime object
+    :return: A timestamp in the format YYYYMMDDhhmmssZ (the Z is a literal Z)
+    """
+    return timestamp.strftime('%Y%m%d%H%M%SZ')

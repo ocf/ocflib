@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from datetime import datetime
 from textwrap import dedent
 
 import mock
@@ -85,9 +86,9 @@ class TestFirstAvailableUID:
 
     def test_first_uid(self):
         connection = mock.Mock(response=[
-            {'attributes': {'uidNumber': [999000]}},
-            {'attributes': {'uidNumber': [999200]}},
-            {'attributes': {'uidNumber': [999100]}},
+            {'attributes': {'uidNumber': 999000}},
+            {'attributes': {'uidNumber': 999200}},
+            {'attributes': {'uidNumber': 999100}},
         ])
 
         @contextmanager
@@ -519,8 +520,8 @@ class TestValidateRequest:
 class TestCreateAccount:
 
     @pytest.mark.parametrize('is_group,calnet_uid,callink_oid,expected', [
-        (False, 123456, None, {'calnetUid': ['123456']}),
-        (True, None, 123456, {'callinkOid': ['123456']}),
+        (False, 123456, None, {'calnetUid': 123456}),
+        (True, None, 123456, {'callinkOid': 123456}),
     ])
     def test_create(
         self,
@@ -570,14 +571,14 @@ class TestCreateAccount:
                 'uid=someuser,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
                 dict({
                     'cn': ['Some User'],
-                    'gidNumber': ['1000'],
+                    'gidNumber': 1000,
                     'objectClass': ['ocfAccount', 'account', 'posixAccount'],
-                    'uidNumber': ['42'],
-                    'homeDirectory': ['/home/s/so/someuser'],
-                    'loginShell': ['/bin/bash'],
+                    'uidNumber': 42,
+                    'homeDirectory': '/home/s/so/someuser',
+                    'loginShell': '/bin/bash',
                     'mail': ['some.user@ocf.berkeley.edu'],
-                    'userPassword': ['{SASL}someuser@OCF.BERKELEY.EDU'],
-                    'creationTime': ['20150822141144Z'],
+                    'userPassword': '{SASL}someuser@OCF.BERKELEY.EDU',
+                    'creationTime': datetime.now(),
                 }, **expected),
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,

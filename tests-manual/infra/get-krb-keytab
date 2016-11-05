@@ -3,7 +3,7 @@ from ocflib.infra.kerberos import get_kerberos_principal_with_keytab
 
 
 # Run with:
-#   sudo -u create /path/to/ocflib/venv/bin/python3 get-krb-keytab.py
+#   sudo -u create /path/to/ocflib/venv/bin/python3 get-krb-keytab
 if __name__ == '__main__':
     assert get_kerberos_principal_with_keytab(
         'mattmcal',
