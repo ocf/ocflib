@@ -1,9 +1,9 @@
 import mock
 import pytest
 
-from ocflib.account.utils import get_vhost_db
-from ocflib.account.utils import get_vhosts
-from ocflib.account.utils import has_vhost
+from ocflib.vhost.web import get_vhost_db
+from ocflib.vhost.web import get_vhosts
+from ocflib.vhost.web import has_vhost
 
 
 VHOSTS_EXAMPLE = """
