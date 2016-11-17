@@ -1,4 +1,5 @@
 import pytest
+from ldap3.core.exceptions import LDAPAttributeError
 
 from ocflib.infra.hosts import hostname_from_domain
 from ocflib.infra.hosts import hosts_by_filter
@@ -13,7 +14,6 @@ class TestHostsByFilter:
     @pytest.mark.parametrize('filter_str,expected', [
         ('(cn=death)', ['death']),
         ('(cn=doesnotexist)', []),
-        ('(herp=derp)', []),
     ])
     def test_hosts_by_filter(self, filter_str, expected):
         results = self._hostnames(hosts_by_filter(filter_str))
@@ -22,6 +22,10 @@ class TestHostsByFilter:
     @pytest.mark.parametrize('filter_str', ['', 'cn=death', '42', 'asdf'])
     def test_invalid_filters(self, filter_str):
         with pytest.raises(Exception):
+            hosts_by_filter(filter_str)
+
+    def test_invalid_ldap_attr(self, filter_str='(herp=derp)'):
+        with pytest.raises(LDAPAttributeError):
             hosts_by_filter(filter_str)
 
     def test_puppet_class(self):

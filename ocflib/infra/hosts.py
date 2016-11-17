@@ -42,4 +42,4 @@ def type_of_host(hostname):
     'server'
     """
     hosts = hosts_by_filter('(cn={})'.format(hostname))
-    return hosts[0]['type'][0] if hosts else None
+    return hosts[0]['type'] if hosts else None

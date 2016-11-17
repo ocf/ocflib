@@ -46,7 +46,7 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
             '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=known_uid),
             attributes=['uidNumber'],
         )
-        uids = [int(entry['attributes']['uidNumber'][0]) for entry in c.response]
+        uids = [int(entry['attributes']['uidNumber']) for entry in c.response]
     if uids:
         max_uid = max(uids)
     else:
@@ -92,18 +92,18 @@ def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
         attrs = {
             'objectClass': ['ocfAccount', 'account', 'posixAccount'],
             'cn': [request.real_name],
-            'uidNumber': [str(new_uid)],
-            'gidNumber': [str(getgrnam('ocf').gr_gid)],
-            'homeDirectory': [utils.home_dir(request.user_name)],
-            'loginShell': ['/bin/bash'],
+            'uidNumber': new_uid,
+            'gidNumber': getgrnam('ocf').gr_gid,
+            'homeDirectory': utils.home_dir(request.user_name),
+            'loginShell': '/bin/bash',
             'mail': [request.email],
-            'userPassword': ['{SASL}' + request.user_name + '@OCF.BERKELEY.EDU'],
-            'creationTime': [datetime.now().strftime('%Y%m%d%H%M%SZ')],
+            'userPassword': '{SASL}' + request.user_name + '@OCF.BERKELEY.EDU',
+            'creationTime': datetime.now(),
         }
         if request.calnet_uid:
-            attrs['calnetUid'] = [str(request.calnet_uid)]
+            attrs['calnetUid'] = request.calnet_uid
         else:
-            attrs['callinkOid'] = [str(request.callink_oid)]
+            attrs['callinkOid'] = request.callink_oid
 
         with report_status('Creating', 'Created', 'LDAP entry'):
             create_ldap_entry_with_keytab(
