@@ -85,9 +85,3 @@ def dn_for_username(username):
         user=username,
         base_people=constants.OCF_LDAP_PEOPLE,
     )
-
-
-# TODO: remove these once all consumers are fixed
-from ocflib.vhost.web import get_vhost_db  # noqa
-from ocflib.vhost.web import get_vhosts  # noqa
-from ocflib.vhost.web import has_vhost  # noqa
