@@ -34,7 +34,7 @@ def name_by_calnet_uid(uid):
         if given_name and sn:
             return '{} {}'.format(given_name, sn)
     else:
-        return names.get('displayName', None)
+        return names.get('displayName')
 
 
 def calnet_uids_by_name(name):
