@@ -10,6 +10,15 @@ import pymysql
 import pytest
 
 
+# To test functions that query UCB LDAP for people, we simply pick
+# someone who has a few years before graduating and use their name and
+# CalNet UID. Alumni eventually get kicked out of the university's
+# "People" OU, so these constants have to be updated every few years
+# after the aforementioned party has graduated.
+TEST_PERSON_CALNET_UID = 1101587
+TEST_PERSON_NAME = 'Jason Perrin'
+
+
 MYSQL_TIMEOUT = 10
 
 

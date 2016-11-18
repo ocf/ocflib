@@ -33,11 +33,8 @@ def name_by_calnet_uid(uid):
 
         if given_name and sn:
             return '{} {}'.format(given_name, sn)
-    elif 'displayName' in names:
-        display_name = get_longest_string(names['displayName'])
-
-        if display_name:
-            return display_name
+    else:
+        return names.get('displayName')
 
 
 def calnet_uids_by_name(name):

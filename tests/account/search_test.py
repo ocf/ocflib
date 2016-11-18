@@ -9,6 +9,7 @@ from ocflib.account.search import user_is_sorried
 from ocflib.account.search import users_by_callink_oid
 from ocflib.account.search import users_by_calnet_uid
 from ocflib.account.search import users_by_filter
+from tests.conftest import TEST_PERSON_CALNET_UID
 
 
 class TestUsersByFilter:
@@ -62,10 +63,7 @@ class TestUserAttrs:
 
 class TestUserAttrsUCB:
 
-    def test_existing_user(self, test_uid=1101587):
-        """These are a little flaky because alumni eventually get kicked out of
-        the university's "People" OU. So you'll need to update these every few
-        years."""
+    def test_existing_user(self, test_uid=TEST_PERSON_CALNET_UID):
         user = user_attrs_ucb(test_uid)
         assert user['uid'] == [str(test_uid)]
         assert 'person' in user['objectClass']
