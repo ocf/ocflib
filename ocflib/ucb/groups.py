@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 import requests
 
 import ocflib.account.search as search
+from ocflib.ucb.directory import name_by_calnet_uid
 
 
 _API = {
@@ -103,13 +104,7 @@ def signatories_for_group(oid):
     def parser(root):
         def parse(student):
             uid = int(student.findtext('Username'))
-
-            attrs = search.user_attrs_ucb(uid)
-            name = None
-
-            if attrs:
-                name = attrs.get('displayName', [None])[0]
-
+            name = name_by_calnet_uid(uid)
             users = search.users_by_calnet_uid(uid)
             return uid, {'name': name, 'accounts': users}
 
