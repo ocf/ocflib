@@ -4,7 +4,7 @@ import datetime
 CURRENT_SEMESTER_START = datetime.date(2016, 8, 1)
 
 # ocf ldap
-OCF_LDAP = '169.229.226.20'
+OCF_LDAP = 'ldap.ocf.berkeley.edu'
 OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
 OCF_LDAP_PEOPLE = 'ou=People,dc=OCF,dc=Berkeley,dc=EDU'
 OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
