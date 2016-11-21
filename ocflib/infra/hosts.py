@@ -5,7 +5,14 @@ import ocflib.constants as constants
 import ocflib.infra.ldap as ldap
 
 
-HOST_TYPES_WITH_IPV6 = frozenset({'server', 'desktop', 'dhcp', 'switch', 'wifi'})
+HOST_TYPES_WITH_IPV6 = frozenset({
+    'desktop',
+    'dhcp',
+    'server',
+    'staffvm',
+    'switch',
+    'wifi',
+})
 
 
 def hosts_by_filter(ldap_filter):
