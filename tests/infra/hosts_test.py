@@ -28,14 +28,13 @@ class TestHostsByFilter:
         with pytest.raises(LDAPAttributeError):
             hosts_by_filter(filter_str)
 
-    def test_puppet_class(self):
+    def test_type_server(self):
         # This will break if death is ever renamed, but it's a useful test.
         #
         # We choose to test death because it is in lots of university DNS
         # records, so it is probably one of the more unlikely hosts to be
         # renamed.
-        assert ('death' in
-                self._hostnames(hosts_by_filter('(puppetClass=ocf_www)')))
+        assert 'death' in self._hostnames(hosts_by_filter('(type=server)'))
 
 
 @pytest.mark.parametrize('fqdn,expected', [
