@@ -99,5 +99,6 @@ HOLIDAYS = [
     (date(2016, 11, 11), date(2016, 11, 11), 'Veteran\'s Day', []),
     (date(2016, 11, 23), date(2016, 11, 27), 'Thanksgiving Break', []),
     (date(2016, 12, 16), date(2016, 12, 16), 'Last Day of Fall 2016', [Hour(time(9), time(12))]),
+    (date(2016, 12, 1), date(2016, 12, 1), 'Closing earlier today', [Hour(time(9), time(17))]),
     (date(2016, 12, 17), date(2017, 1, 16), 'Winter Break', []),
 ]
