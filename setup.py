@@ -14,7 +14,7 @@ setup(
     author_email='help@ocf.berkeley.edu',
     description='libraries for account and server management',
     url='https://www.ocf.berkeley.edu',
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests*',)),
     package_data={
         'ocflib.account': ['mail_templates/*'],
         'ocflib.printing': ['ocfprinting.schema'],
