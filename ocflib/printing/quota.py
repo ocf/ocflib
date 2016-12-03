@@ -12,6 +12,10 @@ WEEKDAY_QUOTA = 8
 WEEKEND_QUOTA = 16
 SEMESTERLY_QUOTA = 100
 
+HAPPY_HOUR_QUOTA = 20
+HAPPY_HOUR_START = datetime(2016, 12, 5)
+HAPPY_HOUR_END = datetime(2016, 12, 17)
+
 UserQuota = namedtuple('UserQuota', (
     'user',
     'daily',
@@ -46,7 +50,9 @@ def daily_quota(day=None):
     if day is None:
         day = datetime.today()
 
-    if day.weekday() in {5, 6}:
+    if HAPPY_HOUR_START <= day and day < HAPPY_HOUR_END:
+        return HAPPY_HOUR_QUOTA
+    elif day.weekday() in {5, 6}:
         return WEEKEND_QUOTA
     else:
         return WEEKDAY_QUOTA
