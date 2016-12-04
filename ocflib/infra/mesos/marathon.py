@@ -10,6 +10,10 @@ class DeploymentException(Exception):
     pass
 
 
+def _noop(*args, **kwargs):
+    pass
+
+
 class MarathonClient:
 
     def __init__(self, user, password, url=MARATHON_URL):
@@ -40,14 +44,13 @@ class MarathonClient:
     def deploy_app(
             self,
             app,
-            version,
-            report=lambda *args, **kwargs: None,
+            new_config,
+            report=_noop,
             force=False,
             timeout=180,
     ):
+        # TODO: support adding entirely new apps
         status = self.app_status(app)
-        image, tag = status['app']['container']['docker']['image'].split(':')
-
         deployments = status['app']['deployments']
         if deployments:
             report('A deployment is already in progress:')
@@ -60,11 +63,9 @@ class MarathonClient:
             else:
                 report('You specified force, so going ahead anyway.')
 
-        report('Updating from current tag "{}" to "{}"'.format(tag, version))
-        status['app']['container']['docker']['image'] = '{}:{}'.format(image, version)
         self.put(
             '/v2/apps/' + app + ('?force=true' if force else ''),
-            json={'container': status['app']['container']},
+            json=new_config,
         )
 
         # wait for deployment to finish, report status
@@ -80,7 +81,6 @@ class MarathonClient:
         else:
             bad_deployment, = status['app']['deployments']
             self.delete('/v2/deployments/' + bad_deployment['id'])
-
             raise DeploymentException(
                 'Gave up waiting for deployment {} after {} seconds.\n'
                 'Automatically rolling back.'.format(
@@ -88,3 +88,23 @@ class MarathonClient:
                     timeout,
                 ),
             )
+
+    def deploy_new_version(
+            self,
+            app,
+            version,
+            report=_noop,
+            **kwargs
+    ):
+        """Deploy a new version of an app.
+
+        This method only allows updating the version tag. See `deploy_app` to
+        deploy an entirely new app config.
+        """
+        status = self.app_status(app)
+        image, tag = status['app']['container']['docker']['image'].split(':')
+
+        report('Updating from current tag "{}" to "{}"'.format(tag, version))
+        status['app']['container']['docker']['image'] = '{}:{}'.format(image, version)
+
+        self.deploy_app(app, {'container': status['app']['container']}, report=report, **kwargs)
