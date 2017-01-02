@@ -82,14 +82,14 @@ DROP VIEW IF EXISTS jobs_semester;
 CREATE VIEW jobs_semester AS
     SELECT user, SUM(pages) AS pages
     FROM jobs
-    WHERE DATE(jobs.time) > semester_start(CURDATE())
+    WHERE DATE(jobs.time) >= semester_start(CURDATE())
     GROUP BY user;
 
 DROP VIEW IF EXISTS refunds_semester;
 CREATE VIEW refunds_semester AS
     SELECT user, SUM(pages) AS pages
     FROM refunds
-    WHERE DATE(refunds.time) > semester_start(CURDATE())
+    WHERE DATE(refunds.time) >= semester_start(CURDATE())
     GROUP BY user;
 
 DROP VIEW IF EXISTS printed_semester;
