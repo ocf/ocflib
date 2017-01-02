@@ -7,7 +7,6 @@ from datetime import timedelta
 import pymysql
 from cached_property import cached_property
 
-from ocflib.constants import CURRENT_SEMESTER_START
 from ocflib.constants import OCF_LDAP_HOSTS
 from ocflib.infra.ldap import ldap_ocf
 
@@ -67,6 +66,14 @@ def staff_in_lab():
         return [Session.from_row(r) for r in c]
 
 
+def current_semester_start():
+    today = date.today()
+    if today.month >= 8:
+        return today.replace(month=8, day=1)
+    else:
+        return today.replace(month=1, day=1)
+
+
 def top_staff(start, end=date(3000, 1, 1)):
     """Return a list of top staff users of the lab.
 
@@ -103,7 +110,7 @@ def top_staff_semester():
 
     :return: list of UserTime objects.
     """
-    return top_staff(CURRENT_SEMESTER_START)
+    return top_staff(current_semester_start())
 
 
 def list_desktops(public_only=False):

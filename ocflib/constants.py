@@ -1,8 +1,3 @@
-import datetime
-
-# update once a semester
-CURRENT_SEMESTER_START = datetime.date(2016, 8, 1)
-
 # ocf ldap
 OCF_LDAP = 'ldap.ocf.berkeley.edu'
 OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
