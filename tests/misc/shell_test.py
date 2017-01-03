@@ -7,10 +7,6 @@ from ocflib.misc.shell import FG_CODES
 from ocflib.misc.shell import get_editor
 
 
-def test_shell_quote():
-    assert ocflib.misc.shell.escape_arg
-
-
 @pytest.mark.parametrize('color', ocflib.misc.shell.COLORS)
 def test_color_wrappers_with_tty(color):
     with mock.patch('sys.stdout.isatty', return_value=True):

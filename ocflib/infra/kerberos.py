@@ -1,11 +1,11 @@
 import os
+import shlex
 import string
 import subprocess
 
 import pexpect
 
 from ocflib.constants import KADMIN_PATH
-from ocflib.misc.shell import escape_arg
 
 
 def create_kerberos_principal_with_keytab(
@@ -26,10 +26,10 @@ def create_kerberos_principal_with_keytab(
     # try changing using kadmin pexpect
     cmd = ('{kadmin} -K {keytab} -p {admin} add --use-defaults ' +
            '{principal}').format(
-        kadmin=escape_arg(KADMIN_PATH),
-        keytab=escape_arg(keytab),
-        admin=escape_arg(admin_principal),
-        principal=escape_arg(principal),
+        kadmin=shlex.quote(KADMIN_PATH),
+        keytab=shlex.quote(keytab),
+        admin=shlex.quote(admin_principal),
+        principal=shlex.quote(principal),
     )
 
     if not password:
@@ -70,10 +70,10 @@ def get_kerberos_principal_with_keytab(principal, keytab, admin_principal):
              None if the principal does not exist
     """
     cmd = [
-        escape_arg(KADMIN_PATH),
-        '-K', escape_arg(keytab),
-        '-p', escape_arg(admin_principal),
-        'get', escape_arg(principal),
+        shlex.quote(KADMIN_PATH),
+        '-K', shlex.quote(keytab),
+        '-p', shlex.quote(admin_principal),
+        'get', shlex.quote(principal),
     ]
 
     try:

@@ -4,7 +4,6 @@ import os
 import subprocess
 import sys
 import tempfile
-from shlex import quote as escape_arg  # noqa
 
 
 def get_editor():

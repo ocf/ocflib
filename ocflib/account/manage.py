@@ -1,5 +1,7 @@
 """Module containing account management methods, such as password changing, but
 not account creation (since it's too large)."""
+import shlex
+
 import pexpect
 
 import ocflib.account.search as search
@@ -9,7 +11,6 @@ import ocflib.constants as constants
 import ocflib.infra.ldap as ldap_ocf
 import ocflib.misc as misc
 import ocflib.misc.mail as mail
-import ocflib.misc.shell as shell
 
 
 def change_password_with_staffer(username, password, principal,
@@ -24,9 +25,9 @@ def change_password_with_staffer(username, password, principal,
 
     # try changing using kadmin pexpect
     cmd = '{kadmin_path} -p {principal} cpw {username}'.format(
-        kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
-        principal=shell.escape_arg(principal),
-        username=shell.escape_arg(username))
+        kadmin_path=shlex.quote(constants.KADMIN_PATH),
+        principal=shlex.quote(principal),
+        username=shlex.quote(username))
 
     child = pexpect.spawn(cmd, timeout=10)
 
@@ -62,10 +63,10 @@ def change_password_with_keytab(username, password, keytab, principal, comment=N
 
     # try changing using kadmin pexpect
     cmd = '{kadmin_path} -K {keytab} -p {principal} cpw {username}'.format(
-        kadmin_path=shell.escape_arg(constants.KADMIN_PATH),
-        keytab=shell.escape_arg(keytab),
-        principal=shell.escape_arg(principal),
-        username=shell.escape_arg(username))
+        kadmin_path=shlex.quote(constants.KADMIN_PATH),
+        keytab=shlex.quote(keytab),
+        principal=shlex.quote(principal),
+        username=shlex.quote(username))
 
     child = pexpect.spawn(cmd, timeout=10)
 
