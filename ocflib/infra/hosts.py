@@ -11,6 +11,7 @@ HOST_TYPES_WITH_IPV6 = frozenset({
     'server',
     'staffvm',
     'switch',
+    'vip',
     'wifi',
 })
 
