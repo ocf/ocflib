@@ -24,7 +24,7 @@ def edit_file(template):
             f.write(template)
 
         # We need to close the file and reopen it later in case the editor
-        # overwrites the old file with a new file descriptor.
+        # replaces the old file inode with a new file inode.
         subprocess.check_call([get_editor(), tmp.name])
         with open(tmp.name) as f:
             return f.read()
@@ -47,8 +47,8 @@ def prompt_for_new_password(
         # TODO: echo asterisks as the user types to avoid confusion
         return getpass.getpass(prompt)
 
-    while True:  # ask until verified password
-        while True:  # ask until password verified
+    while True:  # ask until password typed, validated, and confirmed
+        while True:  # ask until password validates
             new_password = get_pass(prompt)
 
             try:
