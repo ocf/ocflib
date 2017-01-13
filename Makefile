@@ -19,6 +19,16 @@ release-pypi: clean autoversion
 builddeb: autoversion
 	dpkg-buildpackage -us -uc
 
+.PHONY: package
+package: package_jessie package_stretch
+
+.PHONY: package_%
+package_%: dist
+	docker run -e "DIST_UID=$(shell id -u)" -e "DIST_GID=$(shell id -g)" -v $(CURDIR):/mnt:rw "docker.ocf.berkeley.edu/theocf/debian:$*" /mnt/build-in-docker "$*"
+
+dist:
+	mkdir -p "$@"
+
 .PHONY: clean
 clean: autoversion
 	python3 setup.py clean
