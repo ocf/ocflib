@@ -8,8 +8,8 @@ from ocflib.account.search import user_is_group
 from ocflib.account.utils import is_staff
 
 
-WEEKDAY_QUOTA = 8
-WEEKEND_QUOTA = 16
+WEEKDAY_QUOTA = 10
+WEEKEND_QUOTA = 20
 SEMESTERLY_QUOTA = 100
 
 HAPPY_HOUR_QUOTA = 20
