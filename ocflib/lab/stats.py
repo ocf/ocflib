@@ -64,15 +64,15 @@ def staff_in_lab():
     with get_connection() as c:
         c.execute('SELECT * FROM `staff_in_lab_public`')
         return [Session.from_row(r) for r in c]
-    
-    
+
+
 def staff_in_lab_count():
     """Return number of users in the lab, including staff and pubstaff."""
     with get_connection() as c:
         c.execute('SELECT * FROM `staff_in_lab_count_public`')
         return int(c.fetchone()['count'])
 
-    
+
 def current_semester_start():
     today = date.today()
     if today.month >= 8:
