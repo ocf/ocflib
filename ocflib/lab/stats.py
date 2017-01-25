@@ -67,10 +67,10 @@ def staff_in_lab():
 
 
 def staff_in_lab_count():
-    """Return number of users in the lab, including staff and pubstaff."""
-    with get_connection() as c:
-        c.execute('SELECT * FROM `staff_in_lab_count_public`')
-        return int(c.fetchone()['count'])
+    """Return the count of unique staff in the lab"""
+    # thank SO: http://stackoverflow.com/questions/10024646/how-to-get-unique-list-using-a-key-word-python
+    seen = set()
+    return len([seen.add(staff.user) or staff for staff in staff_in_lab() if staff.user not in seen])
 
 
 def current_semester_start():
