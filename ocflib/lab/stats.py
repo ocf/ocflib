@@ -68,9 +68,8 @@ def staff_in_lab():
 
 def staff_in_lab_count():
     """Return the count of unique staff in the lab"""
-    # thank SO: http://stackoverflow.com/questions/10024646/how-to-get-unique-list-using-a-key-word-python
-    seen = set()
-    return len([seen.add(staff.user) or staff for staff in staff_in_lab() if staff.user not in seen])
+    # thank based ckuehl https://github.com/ocf/ocflib/pull/47#discussion_r97914296
+    return len({session.user for session in staff_in_lab()})
 
 
 def current_semester_start():
