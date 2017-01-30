@@ -282,6 +282,7 @@ RESERVED_USERNAMES = frozenset((
     'wordpress',
     'www',
     'www-data',
+    'xkcd',
     'yacy',
     'zabbix',
     'zandronum',
