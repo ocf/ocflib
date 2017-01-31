@@ -66,6 +66,12 @@ def staff_in_lab():
         return [Session.from_row(r) for r in c]
 
 
+def staff_in_lab_count():
+    """Return the count of unique staff in the lab"""
+    # thank based ckuehl https://github.com/ocf/ocflib/pull/47#discussion_r97914296
+    return len({session.user for session in staff_in_lab()})
+
+
 def current_semester_start():
     today = date.today()
     if today.month >= 8:
