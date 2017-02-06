@@ -92,6 +92,7 @@ def _wrap_colors(color, reset):
         )
     return wrapper
 
+
 COLORS = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white']
 
 # Define ANSI color codes
@@ -113,6 +114,7 @@ BG_COLORS = {k: v + 10 for k, v in FG_COLORS.items()}
 def code_to_chars(code):
     """Convert each numeric code to its corresponding characters"""
     return '\033[' + str(code) + 'm'
+
 
 FG_CODES = {k: code_to_chars(v) for k, v in FG_COLORS.items()}
 BG_CODES = {k: code_to_chars(v) for k, v in BG_COLORS.items()}

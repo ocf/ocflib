@@ -349,6 +349,7 @@ def get_tasks(celery_app, credentials=None):
         modify_ldap_attributes=modify_ldap_attributes,
     )
 
+
 _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'validate_then_create_account',
     'create_account',
