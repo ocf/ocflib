@@ -22,6 +22,8 @@ appropriate broker and backend URL (probably Redis).
     # You can immediately resolve it with result.wait(timeout=5), or grab
     # result.id and fetch it later.
 """
+import datetime
+import socket
 from collections import namedtuple
 from contextlib import contextmanager
 
@@ -339,6 +341,14 @@ def get_tasks(celery_app, credentials=None):
             principal=credentials.kerberos_principal,
         )
 
+    @celery_app.task
+    def status():
+        """A testing route."""
+        return {
+            'now': datetime.datetime.now().isoformat(),
+            'host': socket.getfqdn(),
+        }
+
     return _AccountSubmissionTasks(
         validate_then_create_account=validate_then_create_account,
         create_account=create_account,
@@ -347,6 +357,7 @@ def get_tasks(celery_app, credentials=None):
         reject_request=reject_request,
         change_password=change_password,
         modify_ldap_attributes=modify_ldap_attributes,
+        status=status,
     )
 
 
@@ -358,6 +369,7 @@ _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'reject_request',
     'change_password',
     'modify_ldap_attributes',
+    'status',
 ])
 
 AccountCreationCredentials = namedtuple('AccountCreationCredentials', [
