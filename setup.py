@@ -30,7 +30,8 @@ setup(
         'pexpect',
         'pycrypto',
         'pymysql',
-        'pysnmp',
+        # 4.3.3 adds a dependency on "pycryptodome" which conflicts with pycrypto
+        'pysnmp<=4.3.2',
         'pyyaml',
         'redis',
         'requests',
