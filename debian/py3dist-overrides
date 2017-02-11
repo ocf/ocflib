@@ -2,3 +2,4 @@ cached_property python3-cached-property
 ldap3 python3-ldap3
 pymysql python3-pymysql
 sqlalchemy python3-sqlalchemy
+dnspython python3-dnspython

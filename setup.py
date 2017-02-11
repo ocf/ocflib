@@ -23,7 +23,7 @@ setup(
     install_requires=(
         'cached_property',
         'cracklib',
-        'dnspython3',
+        'dnspython',
         'jinja2',
         'ldap3',
         'paramiko',
