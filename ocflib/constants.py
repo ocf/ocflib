@@ -1,3 +1,13 @@
+"""Constants.
+
+PLEASE DO NOT ADD NEW CONSTANTS TO THIS MODULE.
+THIS MODULE WAS A BAD IDEA AND I AM SORRY.
+
+Instead, constants should live in a specific module related to their purpose.
+For example, LDAP-related constants should be in `ocflib.infra.ldap`.
+
+Ideally we should one day move everything out of this module.
+"""
 # ocf ldap
 OCF_LDAP = 'ldap.ocf.berkeley.edu'
 OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
