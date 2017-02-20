@@ -1,3 +1,4 @@
+import os.path
 import random
 import string
 import time
@@ -22,22 +23,8 @@ TEST_PERSON_NAME = 'Jason Perrin'
 MYSQL_TIMEOUT = 10
 
 
-@pytest.fixture(scope='session')
-def mysqld_path(tmpdir_factory):
-    """Download and extract a local copy of mysqld."""
-    # TODO: let's just install mysql everywhere, lol
-    tmpdir = tmpdir_factory.mktemp('mysql')
-    with tmpdir.as_cwd():
-        check_call(('apt-get', 'download', 'mariadb-server-10.0'))
-        check_call(('apt-get', 'download', 'mariadb-server-core-10.0'))
-        check_call(('apt-get', 'download', 'mariadb-client-core-10.0'))
-        for deb in tmpdir.listdir(lambda f: f.fnmatch('*.deb')):
-            check_call(('dpkg', '-x', deb.strpath, '.'))
-    return tmpdir
-
-
 @pytest.yield_fixture(scope='session')
-def mysqld_socket(mysqld_path, tmpdir_factory):
+def mysqld_socket(tmpdir_factory):
     """Yield a socket to a running MySQL instance."""
     tmpdir = tmpdir_factory.mktemp('var')
     socket = tmpdir.join('socket')
@@ -45,16 +32,16 @@ def mysqld_socket(mysqld_path, tmpdir_factory):
     data_dir.ensure_dir()
 
     check_call((
-        mysqld_path.join('usr', 'bin', 'mysql_install_db').strpath,
+        os.path.join('/usr', 'bin', 'mysql_install_db'),
         '--no-defaults',
-        '--basedir=' + mysqld_path.join('usr').strpath,
+        '--basedir=/usr',
         '--datadir=' + data_dir.strpath,
     ))
     proc = Popen((
-        mysqld_path.join('usr', 'sbin', 'mysqld').strpath,
+        os.path.join('/usr', 'sbin', 'mysqld'),
         '--no-defaults',
         '--skip-networking',
-        '--lc-messages-dir', mysqld_path.join('usr', 'share', 'mysql').strpath,
+        '--lc-messages-dir', os.path.join('/usr', 'share', 'mysql'),
         '--datadir', data_dir.strpath,
         '--socket', socket.strpath,
     ))
@@ -83,7 +70,6 @@ def _mysql_ready(socket):
 
 class TemporaryMySQLDatabase(namedtuple('TemporaryMySQLDatabase', (
     'db_name',
-    'mysqld_path',
     'mysqld_socket',
 ))):
 
@@ -111,7 +97,7 @@ class TemporaryMySQLDatabase(namedtuple('TemporaryMySQLDatabase', (
         """
         mysql = Popen(
             (
-                self.mysqld_path.join('usr', 'bin', 'mysql').strpath,
+                os.path.join('/usr', 'bin', 'mysql'),
                 '-h', 'localhost',
                 '-u', 'root',
                 '--password=',
@@ -125,10 +111,9 @@ class TemporaryMySQLDatabase(namedtuple('TemporaryMySQLDatabase', (
 
 
 @pytest.yield_fixture
-def mysql_database(mysqld_path, mysqld_socket):
+def mysql_database(mysqld_socket):
     with TemporaryMySQLDatabase(
             db_name='test_' + ''.join(random.choice(string.ascii_lowercase) for _ in range(20)),
-            mysqld_path=mysqld_path,
             mysqld_socket=mysqld_socket
     ) as d:
         yield d
