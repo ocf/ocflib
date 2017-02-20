@@ -8,9 +8,10 @@ from textwrap import dedent
 import ldap3
 import pexpect
 
-import ocflib.constants as constants
 from ocflib.misc.mail import send_problem_report
 
+OCF_LDAP = 'ldap.ocf.berkeley.edu'
+UCB_LDAP = 'ldap.berkeley.edu'
 
 @contextmanager
 def ldap_connection(host):
@@ -39,7 +40,7 @@ def ldap_ocf():
        with ldap_ocf() as c:
             c.search(OCF_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    return ldap_connection(constants.OCF_LDAP)
+    return ldap_connection(OCF_LDAP)
 
 
 def ldap_ucb():
@@ -50,7 +51,7 @@ def ldap_ucb():
        with ldap_ucb() as c:
             c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    return ldap_connection(constants.UCB_LDAP)
+    return ldap_connection(UCB_LDAP)
 
 
 def _format_attr(key, values):
