@@ -7,6 +7,7 @@ import pexpect
 
 KADMIN_PATH = '/usr/bin/kadmin'
 
+
 def create_kerberos_principal_with_keytab(
     principal,
     keytab,

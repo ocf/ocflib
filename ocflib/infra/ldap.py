@@ -13,6 +13,7 @@ from ocflib.misc.mail import send_problem_report
 OCF_LDAP = 'ldap.ocf.berkeley.edu'
 UCB_LDAP = 'ldap.berkeley.edu'
 
+
 @contextmanager
 def ldap_connection(host):
     """Context manager that provides an ldap3 Connection.
