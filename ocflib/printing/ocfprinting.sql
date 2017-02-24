@@ -125,4 +125,14 @@ CREATE VIEW `printed` AS
     ON printed_today.user = printed_semester.user
     ORDER BY user;
 
+DROP VIEW IF EXISTS public_jobs;
+CREATE VIEW `public_jobs` AS
+    SELECT
+        DATE_FORMAT(`time`, '%Y-%m') AS `day`, `pages`, COUNT(`pages`) AS `count`
+    FROM `jobs`
+    WHERE `pages` <= 20 AND `pages` > 0
+    GROUP BY `day`, `pages`
+    ORDER BY `day` DESC
+
 GRANT SELECT ON `ocfprinting`.`printed` TO 'anonymous'@'%';
+GRANT SELECT on `ocfprinting`.`public_jobs` TO 'anonymous'@'%';
