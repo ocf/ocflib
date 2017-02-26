@@ -2,7 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 try:
-    with open('.version_pypi') as f:
+    with open('.version') as f:
         VERSION = f.readline().strip()
 except IOError:
     VERSION = 'unknown'

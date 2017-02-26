@@ -36,24 +36,15 @@ clean: autoversion
 	python3 setup.py clean
 	rm -rf dist deb_dist
 
-.PHONY: autoversion
-autoversion: autoversion_pypi autoversion_deb
-
 # PEP440 sets terrible restrictions on public version schemes which prohibit:
 #   - appending a SHA
 #   - leading zeros before version components (e.g. "09" for September becomes "9")
 # Unfortunately, PyPI enforces these restrictions.
-.PHONY: autoversion_pypi
-autoversion_pypi:
-	date +%Y.%-m.%-d.%-H.%-M > .version_pypi
-
-# Make a different version for the Debian package that includes the release
-# codename, since otherwise two packages will conflict in name when uploaded.
-.PHONY: autoversion_deb
-autoversion_deb:
-	date +%Y.%-m.%-d.%-H.%-M | xargs echo -n > .version_deb
-	echo ~`lsb_release -cs` >> .version_deb
+.PHONY: autoversion
+autoversion:
+	date +%Y.%-m.%-d.%-H.%-M > .version
 	rm -f debian/changelog
 	DEBFULLNAME="Open Computing Facility" DEBEMAIL="help@ocf.berkeley.edu" VISUAL=true \
-		dch -v `cat .version_deb` -D stable --no-force-save-on-release \
+		dch -v `cat .version` -D stable --no-force-save-on-release \
 		--create --force-distribution --package "python-ocflib" "Package for Debian."
+	VISUAL=touch dch --local "~deb$(DIST_VERSION)u"

@@ -52,8 +52,6 @@ docs/_build/
 
 .pyenv
 .version
-.version_deb
-.version_pypi
 .python-version
 debian/changelog
 .pybuild

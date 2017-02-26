@@ -9,7 +9,7 @@ apt-get update
 apt-get -y install --no-install-recommends build-essential devscripts equivs lsb-release
 mk-build-deps -i --tool 'apt-get --no-install-recommends -y'
 
-make builddeb
+DIST_VERSION=$(lsb_release -rs | cut -d . -f 1) make builddeb
 
 shopt -s nullglob
 install -o "$DIST_UID" -g "$DIST_GID" -m 644 ../{*.changes,*.deb,*.dsc,*.tar.*,*.buildinfo} /mnt/dist/
