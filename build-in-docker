@@ -6,7 +6,7 @@ cd /work
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get -y install --no-install-recommends build-essential devscripts equivs
+apt-get -y install --no-install-recommends build-essential devscripts equivs lsb-release
 mk-build-deps -i --tool 'apt-get --no-install-recommends -y'
 
 make builddeb
