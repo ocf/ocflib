@@ -43,27 +43,31 @@ def branches = [:]
 for (def i = 0; i < dists.size(); i++) {
     def dist = dists[i]
     branches["build-and-deploy-${dist}"] = {
-        node('slave') {
-            step([$class: 'WsCleanup'])
-            unstash 'src'
+        stage("build-${dist}") {
+            node('slave') {
+                step([$class: 'WsCleanup'])
+                unstash 'src'
 
-            dir('src') {
-                sh 'make clean'
-                sh "make package_${dist}"
-                sh "mv dist dist_${dist}"
-                archiveArtifacts artifacts: "dist_${dist}/*"
+                dir('src') {
+                    sh 'make clean'
+                    sh "make package_${dist}"
+                    sh "mv dist dist_${dist}"
+                    archiveArtifacts artifacts: "dist_${dist}/*"
+                }
+
+                stash 'src'
             }
-
-            stash 'src'
         }
 
         if (env.BRANCH_NAME == 'master') {
-            build job: 'upload-changes', parameters: [
-                [$class: 'StringParameterValue', name: 'path_to_changes', value: "dist_${dist}/*.changes"],
-                [$class: 'StringParameterValue', name: 'dist', value: dist],
-                [$class: 'StringParameterValue', name: 'job', value: env.JOB_NAME.replace('/', '/job/')],
-                [$class: 'StringParameterValue', name: 'job_build_number', value: env.BUILD_NUMBER],
-            ]
+            stage("upload-${dist}") {
+                build job: 'upload-changes', parameters: [
+                    [$class: 'StringParameterValue', name: 'path_to_changes', value: "dist_${dist}/*.changes"],
+                    [$class: 'StringParameterValue', name: 'dist', value: dist],
+                    [$class: 'StringParameterValue', name: 'job', value: env.JOB_NAME.replace('/', '/job/')],
+                    [$class: 'StringParameterValue', name: 'job_build_number', value: env.BUILD_NUMBER],
+                ]
+            }
         }
     }
 }
