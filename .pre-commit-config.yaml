@@ -1,5 +1,5 @@
 -   repo: https://github.com/pre-commit/pre-commit-hooks.git
-    sha: 003e43251aea1da33f2072f2365ec8b9ceaae070
+    sha: a11d9314b22d8f8c7556443875b731ef05965464
     hooks:
     -   id: autopep8-wrapper
         language_version: python3
@@ -24,12 +24,12 @@
     -   id: requirements-txt-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/asottile/reorder_python_imports.git
-    sha: 3d86483455ab5bd06cc1069fdd5ac57be5463f10
+    sha: v0.3.2
     hooks:
     -   id: reorder-python-imports
         language_version: python3
 -   repo: https://github.com/Lucas-C/pre-commit-hooks.git
-    sha: 2f63005157f76e34303fc891ec9e9bc97d267d4a
+    sha: v1.0.1
     hooks:
     -   id: remove-tabs
         exclude: ^(Makefile|debian/rules|\.activate\.sh)$
