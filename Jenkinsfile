@@ -43,8 +43,6 @@ def branches = [:]
 for (def i = 0; i < dists.size(); i++) {
     def dist = dists[i]
     branches["build-and-deploy-${dist}"] = {
-        stage name: "build-${dist}"
-
         node('slave') {
             step([$class: 'WsCleanup'])
             unstash 'src'
@@ -60,8 +58,6 @@ for (def i = 0; i < dists.size(); i++) {
         }
 
         if (env.BRANCH_NAME == 'master') {
-            stage name: "upload-${dist}"
-
             build job: 'upload-changes', parameters: [
                 [$class: 'StringParameterValue', name: 'path_to_changes', value: "dist_${dist}/*.changes"],
                 [$class: 'StringParameterValue', name: 'dist', value: dist],
