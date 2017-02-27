@@ -18,6 +18,7 @@ release-pypi: clean autoversion
 	twine upload dist/*
 
 .PHONY: builddeb
+
 builddeb: autoversion
 	dpkg-buildpackage -us -uc
 
@@ -47,4 +48,4 @@ autoversion:
 	DEBFULLNAME="Open Computing Facility" DEBEMAIL="help@ocf.berkeley.edu" VISUAL=true \
 		dch -v `cat .version` -D stable --no-force-save-on-release \
 		--create --force-distribution --package "python-ocflib" "Package for Debian."
-	VISUAL=touch dch --local "~deb$(DIST_VERSION)u"
+	VISUAL=touch dch --local "~deb$(shell lsb_release -rs | cut -d . -f 1)u"
