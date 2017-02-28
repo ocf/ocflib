@@ -1,9 +1,9 @@
 """Methods for working with OCF hosts."""
 import ldap3
 
-import ocflib.constants as constants
 import ocflib.infra.ldap as ldap
 
+OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
 
 HOST_TYPES_WITH_IPV6 = frozenset({
     'desktop',
@@ -24,7 +24,7 @@ def hosts_by_filter(ldap_filter):
 
     with ldap.ldap_ocf() as c:
         c.search(
-            constants.OCF_LDAP_HOSTS,
+            OCF_LDAP_HOSTS,
             ldap_filter,
             attributes=ldap3.ALL_ATTRIBUTES,
         )

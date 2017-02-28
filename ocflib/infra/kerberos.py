@@ -5,7 +5,7 @@ import subprocess
 
 import pexpect
 
-from ocflib.constants import KADMIN_PATH
+KADMIN_PATH = '/usr/bin/kadmin'
 
 
 def create_kerberos_principal_with_keytab(

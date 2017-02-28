@@ -8,13 +8,36 @@ from email.utils import parseaddr
 from jinja2 import Environment
 from jinja2 import PackageLoader
 
-import ocflib.constants as constants
 import ocflib.misc.validators as validators
 
+SENDMAIL_PATH = '/usr/sbin/sendmail'
+MAIL_ROOT = 'root@ocf.berkeley.edu'
+
+MAIL_ROOT = 'root@ocf.berkeley.edu'
+MAIL_FROM = 'Open Computing Facility <help@ocf.berkeley.edu>'
+MAIL_SIGNATURE = """Thanks for flying OCF,
+The friendly staff of 171 MLK Student Union
+
+=========
+The Open Computing Facility is an all-volunteer, student-run service
+group providing free printing, web hosting, disk space, and Unix shell
+accounts.
+
+We love free & open-source software. Sound like you? Get involved!
+https://ocf.io/staff
+
+OCF volunteers hold weekly staff hours to provide support:
+    https://ocf.io/staff-hours
+
+    Need help connecting to the OCF?
+    https://ocf.io/ssh
+
+    Need to reset your account password?
+    https://ocf.io/password"""
 
 jinja_mail_env = Environment(loader=PackageLoader('ocflib', ''))
 jinja_mail_env.globals = {
-    'mail_signature': constants.MAIL_SIGNATURE,
+    'mail_signature': MAIL_SIGNATURE,
 }
 
 
@@ -32,12 +55,12 @@ def email_for_user(username, check_exists=True):
     return '{}@ocf.berkeley.edu'.format(username)
 
 
-def send_mail_user(user, subject, body, sender=constants.MAIL_FROM):
+def send_mail_user(user, subject, body, sender=MAIL_FROM):
     """Send a plan-text mail message to a user."""
     send_mail(email_for_user(user), subject, body, sender=sender)
 
 
-def send_mail(to, subject, body, sender=constants.MAIL_FROM):
+def send_mail(to, subject, body, sender=MAIL_FROM):
     """Send a plain-text mail message.
 
     `body` should be a string with newlines, wrapped at about 80 characters."""
@@ -56,7 +79,7 @@ def send_mail(to, subject, body, sender=constants.MAIL_FROM):
 
     # we send the message via sendmail, since we may one day prohibit traffic
     # to port 25 that doesn't go via the system mailserver
-    p = subprocess.Popen((constants.SENDMAIL_PATH, '-t', '-oi'),
+    p = subprocess.Popen((SENDMAIL_PATH, '-t', '-oi'),
                          stdin=subprocess.PIPE)
     p.communicate(msg.as_string().encode('utf8'))
 
@@ -81,7 +104,7 @@ Callstack:
 """.format(problem=problem, hostname=socket.getfqdn(), callstack=callstack)
 
     send_mail(
-        constants.MAIL_ROOT,
+        MAIL_ROOT,
         '[ocflib] Problem report from ' + socket.getfqdn(),
         body,
         sender='ocflib <root@ocf.berkeley.edu>',
