@@ -2,8 +2,7 @@
 import ldap3
 
 import ocflib.infra.ldap as ldap
-
-OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
+from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
 HOST_TYPES_WITH_IPV6 = frozenset({
     'desktop',

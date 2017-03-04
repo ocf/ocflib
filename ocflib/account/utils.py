@@ -6,7 +6,7 @@ import re
 import pexpect
 
 import ocflib.account.validators as validators
-import ocflib.constants as constants
+from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 
 
 def password_matches(username, password):
@@ -83,5 +83,5 @@ def list_staff(group='ocfstaff'):
 def dn_for_username(username):
     return 'uid={user},{base_people}'.format(
         user=username,
-        base_people=constants.OCF_LDAP_PEOPLE,
+        base_people=OCF_LDAP_PEOPLE,
     )

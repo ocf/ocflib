@@ -16,11 +16,11 @@ from Crypto.PublicKey import RSA
 import ocflib.account.search as search
 import ocflib.account.utils as utils
 import ocflib.account.validators as validators
-import ocflib.constants as constants
 from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
 from ocflib.infra.kerberos import get_kerberos_principal_with_keytab
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
 from ocflib.infra.ldap import ldap_ocf
+from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 from ocflib.misc.mail import jinja_mail_env
 from ocflib.misc.mail import send_mail
 from ocflib.misc.validators import valid_email
@@ -28,6 +28,8 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 
 _KNOWN_UID = 43000
+BAD_WORDS = frozenset(('fuck', 'shit', 'cunt', 'bitch', 'dick'))
+RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal', 'berkeley', 'university'))
 
 
 def _get_first_available_uid(known_uid=_KNOWN_UID):
@@ -42,7 +44,7 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
     """
     with ldap_ocf() as c:
         c.search(
-            constants.OCF_LDAP_PEOPLE,
+            OCF_LDAP_PEOPLE,
             '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=known_uid),
             attributes=['uidNumber'],
         )
@@ -315,10 +317,10 @@ def validate_username(username, realname):
         raise ValidationWarning(
             'Username {} not based on real name {}'.format(username, realname))
 
-    if any(word in username for word in constants.BAD_WORDS):
+    if any(word in username for word in BAD_WORDS):
         raise ValidationWarning('Username {} contains bad words'.format(username))
 
-    if any(word in username for word in constants.RESTRICTED_WORDS):
+    if any(word in username for word in RESTRICTED_WORDS):
         raise ValidationWarning('Username {} contains restricted words'.format(username))
 
 

@@ -1,6 +1,6 @@
 import ocflib.account.search as search
-import ocflib.constants as constants
 import ocflib.infra.ldap as ldap
+from ocflib.infra.ldap import UCB_LDAP_PEOPLE
 
 
 def get_calnet_names(uid):
@@ -47,5 +47,5 @@ def calnet_uids_by_name(name):
     ldap_filter = '(&{})'.format(conds)
 
     with ldap.ldap_ucb() as c:
-        c.search(constants.UCB_LDAP_PEOPLE, ldap_filter, attributes=('uid',))
+        c.search(UCB_LDAP_PEOPLE, ldap_filter, attributes=('uid',))
         return [int(entry['attributes']['uid'][0]) for entry in c.response]

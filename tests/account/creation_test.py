@@ -9,7 +9,6 @@ from freezegun import freeze_time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import ocflib.constants as constants
 from ocflib.account.creation import _get_first_available_uid
 from ocflib.account.creation import _KNOWN_UID
 from ocflib.account.creation import create_account
@@ -32,6 +31,7 @@ from ocflib.account.creation import ValidationWarning
 from ocflib.account.submission import AccountCreationCredentials
 from ocflib.account.submission import Base
 from ocflib.infra.ldap import ldap_ocf
+from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 
 WEAK_KEY = dedent(
     """\
@@ -115,7 +115,7 @@ class TestFirstAvailableUID:
         """
         with ldap_ocf() as c:
             c.search(
-                constants.OCF_LDAP_PEOPLE,
+                OCF_LDAP_PEOPLE,
                 '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=_KNOWN_UID),
                 attributes=['uidNumber'],
             )
