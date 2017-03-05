@@ -1,15 +1,18 @@
 """Methods for searching and selecting users."""
 import ldap3
 
-import ocflib.constants as constants
 import ocflib.infra.ldap as ldap
+from ocflib.infra.ldap import OCF_LDAP_PEOPLE
+from ocflib.infra.ldap import UCB_LDAP_PEOPLE
+
+SORRIED_SHELL = '/opt/share/utils/bin/sorried'
 
 
 def users_by_filter(ldap_filter):
     """Returns a list of users matching an LDAP filter"""
     with ldap.ldap_ocf() as c:
         c.search(
-            constants.OCF_LDAP_PEOPLE,
+            OCF_LDAP_PEOPLE,
             ldap_filter,
             attributes=('uid',),
             search_scope=ldap3.LEVEL,
@@ -29,7 +32,7 @@ def users_by_callink_oid(callink_oid):
     return users_by_filter('(callinkOid={})'.format(callink_oid))
 
 
-def user_attrs(uid, connection=ldap.ldap_ocf, base=constants.OCF_LDAP_PEOPLE):
+def user_attrs(uid, connection=ldap.ldap_ocf, base=OCF_LDAP_PEOPLE):
     """Returns a dictionary of LDAP attributes for a given LDAP UID.
 
     The returned dictionary looks like:
@@ -50,7 +53,7 @@ def user_attrs(uid, connection=ldap.ldap_ocf, base=constants.OCF_LDAP_PEOPLE):
 
 def user_attrs_ucb(uid):
     return user_attrs(uid, connection=ldap.ldap_ucb,
-                      base=constants.UCB_LDAP_PEOPLE)
+                      base=UCB_LDAP_PEOPLE)
 
 
 def user_exists(account):
@@ -60,7 +63,7 @@ def user_exists(account):
 
 def user_is_sorried(account):
     shell = user_attrs(account)['loginShell']
-    return shell == constants.SORRIED_SHELL
+    return shell == SORRIED_SHELL
 
 
 def user_is_group(username):

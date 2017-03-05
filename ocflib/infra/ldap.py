@@ -10,8 +10,17 @@ import pexpect
 
 from ocflib.misc.mail import send_problem_report
 
+# ocf ldap
 OCF_LDAP = 'ldap.ocf.berkeley.edu'
+OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
+OCF_LDAP_PEOPLE = 'ou=People,dc=OCF,dc=Berkeley,dc=EDU'
+OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
+
+
+# university ldap
 UCB_LDAP = 'ldap.berkeley.edu'
+UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
+UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
 
 
 @contextmanager

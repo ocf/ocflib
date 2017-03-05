@@ -7,9 +7,8 @@ from datetime import timedelta
 import pymysql
 from cached_property import cached_property
 
-from ocflib.constants import OCF_LDAP_HOSTS
 from ocflib.infra.ldap import ldap_ocf
-
+from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
 # when we started keeping stats
 STATS_EPOCH = date(2014, 2, 15)

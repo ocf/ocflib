@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 
 import requests
 
-import ocflib.constants as constants
+CAS_URL = 'https://auth.berkeley.edu/cas/'
 
 
 def verify_ticket(ticket, service):
@@ -13,7 +13,7 @@ def verify_ticket(ticket, service):
     Returns CalNet UID on success and None on failure.
     """
     params = {'ticket': ticket, 'service': service}
-    url = (urljoin(constants.CAS_URL, 'serviceValidate') + '?' +
+    url = (urljoin(CAS_URL, 'serviceValidate') + '?' +
            urlencode(params))
     try:
         req = requests.get(url)

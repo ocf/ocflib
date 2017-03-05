@@ -4,12 +4,13 @@ from email.parser import Parser
 import mock
 import pytest
 
-from ocflib.constants import MAIL_ROOT
-from ocflib.constants import SENDMAIL_PATH
 from ocflib.misc.mail import email_for_user
 from ocflib.misc.mail import send_mail
 from ocflib.misc.mail import send_mail_user
 from ocflib.misc.mail import send_problem_report
+
+MAIL_ROOT = 'root@ocf.berkeley.edu'
+SENDMAIL_PATH = '/usr/sbin/sendmail'
 
 
 class TestEmailForUser:

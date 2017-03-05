@@ -12,6 +12,8 @@ import ocflib.infra.ldap as ldap_ocf
 import ocflib.misc as misc
 import ocflib.misc.mail as mail
 
+KADMIN_PATH = '/usr/bin/kadmin'
+
 
 def change_password_with_staffer(username, password, principal,
                                  admin_password, comment=None):
@@ -25,7 +27,7 @@ def change_password_with_staffer(username, password, principal,
 
     # try changing using kadmin pexpect
     cmd = '{kadmin_path} -p {principal} cpw {username}'.format(
-        kadmin_path=shlex.quote(constants.KADMIN_PATH),
+        kadmin_path=shlex.quote(KADMIN_PATH),
         principal=shlex.quote(principal),
         username=shlex.quote(username))
 
@@ -63,7 +65,7 @@ def change_password_with_keytab(username, password, keytab, principal, comment=N
 
     # try changing using kadmin pexpect
     cmd = '{kadmin_path} -K {keytab} -p {principal} cpw {username}'.format(
-        kadmin_path=shlex.quote(constants.KADMIN_PATH),
+        kadmin_path=shlex.quote(KADMIN_PATH),
         keytab=shlex.quote(keytab),
         principal=shlex.quote(principal),
         username=shlex.quote(username))
