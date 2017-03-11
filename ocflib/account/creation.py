@@ -27,7 +27,7 @@ from ocflib.misc.validators import valid_email
 from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 
-_KNOWN_UID = 43000
+_KNOWN_UID = 45500
 BAD_WORDS = frozenset(('fuck', 'shit', 'cunt', 'bitch', 'dick'))
 RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal', 'berkeley', 'university'))
 

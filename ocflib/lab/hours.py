@@ -18,6 +18,7 @@ from collections import namedtuple
 from datetime import date
 from datetime import datetime
 from datetime import time
+from datetime import timedelta
 
 
 class Hour(namedtuple('Hours', ['open', 'close'])):
@@ -76,7 +77,57 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
         if not isinstance(when, datetime):
             raise ValueError('{} must be a datetime instance'.format(when))
 
+        if self.date != when.date():
+            raise ValueError('{} is on a different day than {}'.format(when, self))
+
         return any(when in hour for hour in self.hours)
+
+    def time_to_open(self, when=None):
+        """Return timedelta object representing time until the lab is open from the given time.
+
+        If not provided, defaults to now"""
+        if not when:
+            when = datetime.now()
+
+        if not isinstance(when, datetime):
+            raise ValueError('{} must be a datetime instance'.format(when))
+
+        if self.date != when.date():
+            raise ValueError('{} is on a different day than {}'.format(when, self))
+
+        if self.is_open(when=when):
+            return timedelta()
+
+        def date_opens(date):
+            return [datetime.combine(date, h.open) for h in Day.from_date(date).hours]
+        opens = date_opens(self.date)
+        # because we assume when is in the current day, any hours in future dates don't need to be filtered
+        opens = [o for o in opens if o > when]
+        date = self.date
+        while not opens:
+            date += timedelta(days=1)
+            opens = date_opens(date)
+
+        return opens[0] - when
+
+    def time_to_close(self, when=None):
+        """Return timedelta object representing time until the lab is closed from the given time.
+
+        If not provided, defaults to now"""
+        if not when:
+            when = datetime.now()
+
+        if not isinstance(when, datetime):
+            raise ValueError('{} must be a datetime instance'.format(when))
+
+        if self.date != when.date():
+            raise ValueError('{} is on a different day than {}'.format(when, self))
+
+        # because hour intervals should not overlap this should be length 0 or 1
+        hours = [hour for hour in self.hours if when in hour]
+        if not hours:
+            return timedelta()
+        return datetime.combine(self.date, hours[0].close) - when
 
     @property
     def closed_all_day(self):
