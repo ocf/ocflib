@@ -234,6 +234,7 @@ RESERVED_USERNAMES = frozenset((
     'www-data',
     'xkcd',
     'yacy',
+    'youtube',
     'zabbix',
     'zandronum',
     'znc',
