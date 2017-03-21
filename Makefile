@@ -8,6 +8,10 @@ venv: setup.py requirements-dev.txt
 		venv= $@ -ppython3 \
 		install= -r requirements-dev.txt -e .
 
+.PHONY: install-hooks
+install-hooks: venv
+	venv/bin/pre-commit install
+
 .PHONY: test
 test:
 	tox

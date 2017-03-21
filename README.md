@@ -41,10 +41,8 @@ installation into virtualenvs.
 The easiest way to test changes to ocflib is to create a virtualenv and install
 ocflib in development mode:
 
-    virtualenv -p $(which python3) ~/venv/ocflib
-    . ~/venv/ocflib/bin/activate
-    pip install -r requirements-dev.txt
-    pip install -e .
+    make venv
+    . venv/bin/activate
 
 Now, if you import something from ocflib, you'll be using the version from your
 working copy.
@@ -66,7 +64,7 @@ We use [pre-commit][pre-commit] to lint our code before commiting. While some
 of the rules might seem a little arbitrary, it helps keep the style consistent,
 and ensure annoying things like trailing whitespace don't creep in.
 
-You can simply run `pre-commit install` to install the necessary git hooks;
+You can simply run `make install-hooks` to install the necessary git hooks;
 once installed, pre-commit will run every time you commit.
 
 Alternatively, if you'd rather not install any hooks, you can simply use `make
