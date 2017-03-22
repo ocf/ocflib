@@ -11,7 +11,7 @@ def get_vhost_db():
     available), or from the web if not."""
     try:
         with open(VHOST_DB_PATH) as f:
-            return list(map(str.strip, f))
+            return f.read().splitlines()
     except IOError:
         # fallback to database loaded from web
         return requests.get(VHOST_DB_URL).text.split('\n')

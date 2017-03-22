@@ -57,9 +57,9 @@ class TestVirtualHosts:
 
     def test_reads_file_if_exists(self):
         with mock.patch('builtins.open', mock.mock_open()) as mock_open:
-            lines = ['hello', 'world']
-            mock_open.return_value.__iter__.return_value = lines
-            assert get_vhost_db() == lines
+            text = 'hello\nworld\n'
+            mock_open.return_value.read.return_value = text
+            assert get_vhost_db() == text.splitlines()
 
     @mock.patch('builtins.open')
     @mock.patch('requests.get')
