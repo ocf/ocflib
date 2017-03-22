@@ -151,7 +151,7 @@ HOLIDAYS = [
     (date(2017, 2, 1), date(2017, 2, 1), 'Maintenance', [Hour(time(9), time(16))]),
     (date(2017, 2, 18), date(2017, 2, 20), 'President\'s Day Weekend', []),
     (date(2017, 3, 24), date(2017, 3, 24), 'Friday before Spring Break', [Hour(time(9), time(12))]),
-    (date(2016, 3, 25), date(2016, 4, 2), 'Spring Break', []),
+    (date(2017, 3, 25), date(2017, 4, 2), 'Spring Break', []),
     (date(2016, 5, 12), date(2016, 5, 12), 'Last Day Spring 2016', [Hour(time(9), time(12))]),
     (date(2016, 5, 13), date(2016, 8, 21), 'Summer Break', []),
 ]
