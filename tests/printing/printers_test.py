@@ -23,10 +23,10 @@ class TestSNMP:
             [[OID_TONER_CUR, 500]],
         )
 
-        assert _snmp('logjam', OID_TONER_CUR) == 500
+        assert _snmp('pagefault', OID_TONER_CUR) == 500
         cmdgen.CommandGenerator.return_value.getCmd.assert_called_with(
             cmdgen.CommunityData('my-agent', 'public', 0),
-            cmdgen.UdpTransportTarget(('logjam', 161)),
+            cmdgen.UdpTransportTarget(('pagefault', 161)),
             OID_TONER_CUR,
         )
 
@@ -43,7 +43,7 @@ class TestSNMP:
             [[OID_TONER_CUR, 500]],
         )
         with pytest.raises(IOError):
-            _snmp('logjam', OID_TONER_CUR)
+            _snmp('pagefault', OID_TONER_CUR)
 
 
 @pytest.yield_fixture
@@ -63,12 +63,12 @@ def mock_snmp():
 
 
 def test_get_toner(mock_snmp):
-    assert get_toner('logjam') == (500, 24000)
+    assert get_toner('pagefault') == (500, 24000)
 
 
 def test_get_maintkit(mock_snmp):
-    assert get_maintkit('logjam') == (2000, 100000)
+    assert get_maintkit('pagefault') == (2000, 100000)
 
 
 def test_get_lifetime_pages(mock_snmp):
-    assert get_lifetime_pages('logjam') == 500000
+    assert get_lifetime_pages('pagefault') == 500000
