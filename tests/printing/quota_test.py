@@ -30,7 +30,7 @@ TEST_JOB = Job(
     time=datetime.now(),
     pages=3,
     queue='double',
-    printer='logjam',
+    printer='pagefault',
     doc_name='asdf',
     filesize=12,
 )
