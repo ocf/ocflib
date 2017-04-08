@@ -7,6 +7,7 @@ import subprocess
 from collections import namedtuple
 from contextlib import contextmanager
 from datetime import datetime
+from datetime import timezone
 from grp import getgrnam
 from subprocess import call
 
@@ -100,7 +101,7 @@ def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
             'loginShell': '/bin/bash',
             'mail': [request.email],
             'userPassword': '{SASL}' + request.user_name + '@OCF.BERKELEY.EDU',
-            'creationTime': datetime.now(),
+            'creationTime': datetime.now(timezone.utc).astimezone(),
         }
         if request.calnet_uid:
             attrs['calnetUid'] = request.calnet_uid

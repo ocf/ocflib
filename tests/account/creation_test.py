@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from datetime import datetime
+from datetime import timezone
 from textwrap import dedent
 
 import mock
@@ -578,7 +579,7 @@ class TestCreateAccount:
                     'loginShell': '/bin/bash',
                     'mail': ['some.user@ocf.berkeley.edu'],
                     'userPassword': '{SASL}someuser@OCF.BERKELEY.EDU',
-                    'creationTime': datetime.now(),
+                    'creationTime': datetime.now(timezone.utc).astimezone(),
                 }, **expected),
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,

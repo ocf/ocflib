@@ -204,7 +204,9 @@ def format_timestamp(timestamp):
     """Returns a string representing a python datetime in LDAP timestamp
     format.
 
-    :param timestamp: A datetime object
-    :return: A timestamp in the format YYYYMMDDhhmmssZ (the Z is a literal Z)
+    :param timestamp: An "aware" datetime object
+    :return: A timestamp in the format YYYYMMDDhhmmss-0700 (or -0800 in the winter)
     """
-    return timestamp.strftime('%Y%m%d%H%M%SZ')
+    if timestamp.tzinfo is None or timestamp.tzinfo.utcoffset(timestamp) is None:
+        raise ValueError('Timestamp has no timezone info')
+    return timestamp.strftime('%Y%m%d%H%M%S%z')
