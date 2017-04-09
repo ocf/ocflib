@@ -1,5 +1,7 @@
 from base64 import b64encode
 from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 
 import mock
 import pytest
@@ -33,7 +35,7 @@ class TestCreateLdapEntry:
         mock_spawn.return_value.before = b'\n'
         create_ldap_entry_with_keytab(
             'uid=ckuehl,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
-            {'a': ['b', 'c'], 'd': 12, 'e': datetime(2016, 11, 5, 12, 0, 0)},
+            {'a': ['b', 'c'], 'd': 12, 'e': datetime(2016, 11, 5, 12, 0, 0, tzinfo=timezone(timedelta(hours=-7)))},
             '/nonexist',
             'create/admin',
         )
@@ -54,7 +56,7 @@ class TestCreateLdapEntry:
                 ('a', 'b'),
                 ('a', 'c'),
                 ('d', '12'),
-                ('e', '20161105120000Z'),
+                ('e', '20161105120000-0700'),
             ]
         ] + [mock.call('changetype: add')], any_order=True)
         assert mock_spawn.return_value.sendeof.called
