@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from datetime import datetime
+from datetime import timezone
 
 from ocflib.infra.ldap import create_ldap_entry_with_keytab
 
 
 # Run with:
-#   sudo -u create /path/to/ocflib/venv/bin/python3 create-ldap-keytab
+#   sudo /path/to/ocflib/venv/bin/python3 create-ldap-keytab
 if __name__ == '__main__':
     create_ldap_entry_with_keytab(
         'uid=ggroup2,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
@@ -17,7 +18,7 @@ if __name__ == '__main__':
             'cn': ['Some Test Account That Should Be Deleted'],
             'calnetUid': 1034192,
             'gidNumber': 1000,
-            'creationTime': datetime.now(),
+            'creationTime': datetime.now(timezone.utc).astimezone(),
         },
         '/etc/ocf-create/create.keytab',
         'create/admin',
