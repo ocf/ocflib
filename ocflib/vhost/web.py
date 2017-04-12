@@ -2,6 +2,9 @@ import re
 
 import requests
 
+from ocflib.account.search import user_attrs
+from ocflib.account.search import user_attrs_ucb
+
 VHOST_DB_PATH = '/home/s/st/staff/vhost/vhost.conf'
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
 
@@ -76,3 +79,20 @@ def has_vhost(user):
     """Returns whether or not a virtual host is already configured for
     the given user."""
     return any(vhost['username'] == user for vhost in get_vhosts().values())
+
+
+def eligible_for_vhost(user):
+    """Returns whether a user account is eligible for virtual hosting.
+
+    Currently, group accounts, faculty, and staff are eligible for virtual
+    hosting.
+    """
+    attrs = user_attrs(user)
+    if 'callinkOid' in attrs:
+        return True
+    elif 'calnetUid' in attrs:
+        attrs_ucb = user_attrs_ucb(attrs['calnetUid'])
+        if 'EMPLOYEE-TYPE-ACADEMIC' in attrs_ucb['berkeleyEduAffiliations']:
+            return True
+
+    return False

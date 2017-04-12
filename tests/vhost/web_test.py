@@ -1,6 +1,7 @@
 import mock
 import pytest
 
+from ocflib.vhost.web import eligible_for_vhost
 from ocflib.vhost.web import get_vhost_db
 from ocflib.vhost.web import get_vhosts
 from ocflib.vhost.web import has_vhost
@@ -83,3 +84,11 @@ class TestVirtualHosts:
     ])
     def test_has_vhost(self, user, should_have_vhost, mock_get_vhosts_db):
         assert has_vhost(user) == should_have_vhost
+
+    @pytest.mark.parametrize('user,should_be_eligible', [
+        ('mattmcal', False),
+        ('ggroup', True),
+        ('bh', True),
+    ])
+    def test_eligible_for_vhost(self, user, should_be_eligible):
+        assert eligible_for_vhost(user) == should_be_eligible
