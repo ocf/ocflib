@@ -7,7 +7,6 @@ import pexpect
 import ocflib.account.search as search
 import ocflib.account.utils as utils
 import ocflib.account.validators as validators
-import ocflib.constants as constants
 import ocflib.infra.ldap as ldap_ocf
 import ocflib.misc as misc
 import ocflib.misc.mail as mail
@@ -130,7 +129,7 @@ If you're not sure why this happened, please reply to this email ASAP.
 {signature}""".format(
         name=name,
         username=username,
-        signature=constants.MAIL_SIGNATURE,
+        signature=mail.MAIL_SIGNATURE,
         comment_line=('\n' + comment + '\n') if comment else '',
     )
 
