@@ -85,6 +85,7 @@ RESERVED_USERNAMES = frozenset((
     'hosting',
     'hostmaster',
     'hours',
+    'hpc',
     'hplip',
     'https',
     'info',
