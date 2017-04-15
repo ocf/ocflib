@@ -18,7 +18,8 @@ def get_app_vhost_db():
 def get_app_vhosts():
     """Returns a list of application virtual hosts in convenient format.
 
-    >>> parse_vhosts()
+    >>> get_app_vhosts()
+    ...
     {
         'ml.berkeley.edu': {
             'username': 'mlab',
@@ -26,6 +27,7 @@ def get_app_vhosts():
             'ssl_cert': 'ml.berkeley.edu',
         }
     }
+    ...
     """
     def fully_qualify(host):
         """Fully qualifies a hostname (by appending .berkeley.edu) if it's not

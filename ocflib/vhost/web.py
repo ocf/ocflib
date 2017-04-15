@@ -23,7 +23,8 @@ def get_vhost_db():
 def get_vhosts():
     """Returns a list of virtual hosts in convenient format.
 
-    >>> parse_vhosts()
+    >>> get_vhosts()
+    ...
     {
         'bpreview.berkeley.edu': {
             'username': 'bpr',
@@ -32,6 +33,7 @@ def get_vhosts():
             'redirect': None  # format is '/ https://some.other.site/'
         }
     }
+    ...
     """
     def fully_qualify(host):
         """Fully qualifies a hostname (by appending .berkeley.edu) if it's not
