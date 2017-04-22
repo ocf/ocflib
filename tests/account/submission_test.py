@@ -142,7 +142,7 @@ def test_reject_request(send_rejected_mail, celery_app, fake_new_account_request
 def test_get_pending_requests(session_with_requests, tasks, fake_new_account_request):
     request = fake_new_account_request
     pending_requests = tasks.get_pending_requests()
-    assert set(request.to_request() for request in pending_requests) == {
+    assert {request.to_request() for request in pending_requests} == {
         StoredNewAccountRequest.from_request(request, 'reason').to_request(),
         StoredNewAccountRequest.from_request(
             request._replace(user_name='other'),
