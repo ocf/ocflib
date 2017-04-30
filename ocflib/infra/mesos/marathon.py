@@ -47,7 +47,7 @@ class MarathonClient:
             new_config,
             report=_noop,
             force=False,
-            timeout=180,
+            timeout=600,
     ):
         # TODO: support adding entirely new apps
         status = self.app_status(app)
