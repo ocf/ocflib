@@ -151,6 +151,7 @@ HOLIDAYS = [
     (date(2017, 4, 27), date(2017, 4, 27), 'MLK is closed', []),
     (date(2017, 4, 28), date(2017, 4, 28), 'Early Closing',
      [Hour(time(9, 10), time(11)), Hour(time(14, 10), time(16))]),
+    (date(2017, 4, 30), date(2017, 4, 30), 'Early Closing', []),
     (date(2017, 5, 12), date(2017, 5, 12), 'Last Day Spring 2017', [Hour(time(9), time(12))]),
     (date(2017, 5, 13), date(2017, 8, 23), 'Summer Break', []),
     (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
