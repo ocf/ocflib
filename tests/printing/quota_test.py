@@ -10,6 +10,7 @@ from ocflib.printing.quota import add_job
 from ocflib.printing.quota import add_refund
 from ocflib.printing.quota import daily_quota
 from ocflib.printing.quota import get_quota
+from ocflib.printing.quota import HAPPY_HOUR_QUOTA
 from ocflib.printing.quota import Job
 from ocflib.printing.quota import Refund
 from ocflib.printing.quota import SEMESTERLY_QUOTA
@@ -49,6 +50,11 @@ TEST_REFUND = Refund(
     ('2015-08-24', WEEKDAY_QUOTA),  # Monday
     ('2015-08-25', WEEKDAY_QUOTA),  # Tuesday
     ('2015-08-26', WEEKDAY_QUOTA),  # Wednesday
+    # Test "happy hour" quotas
+    ('2017-04-28', WEEKDAY_QUOTA),
+    ('2017-05-07', HAPPY_HOUR_QUOTA),
+    ('2017-05-08', HAPPY_HOUR_QUOTA),
+    ('2017-05-14', WEEKEND_QUOTA),
 ])
 @pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_daily_quota(time, expected):
