@@ -12,7 +12,7 @@ VHOSTS_EXAMPLE = """
 asucarch archive.asuc.org www.archive.asuc.org,modern.asuc.org,www.modern.asuc.org -
 
 # [added 2015.04.16 ckuehl]
-staff! contrib - /contrib [nossl]
+staff contrib - /contrib [nossl]
 ocfwiki docs.ocf.berkeley.edu - - [hsts]
 """  # noqa
 
@@ -32,7 +32,7 @@ VHOSTS_EXAMPLE_PARSED = {
         'aliases': [],
         'docroot': '/contrib',
         'flags': ['nossl'],
-        'redirect': '/ https://www.ocf.berkeley.edu/~staff/',
+        'redirect': None,
         'username': 'staff',
     },
     'docs.ocf.berkeley.edu': {
