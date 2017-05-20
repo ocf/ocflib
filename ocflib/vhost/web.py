@@ -30,7 +30,7 @@ def get_vhosts():
             'username': 'bpr',
             'aliases': ['bpr.berkeley.edu'],
             'docroot': '/',
-            'redirect': None  # format is '/ https://some.other.site/'
+            'flags': [],
         }
     }
     ...
@@ -51,15 +51,9 @@ def get_vhosts():
         if len(fields) < 5:
             flags = []
         else:
-            flags = re.search('^\[(.*)\]$', fields[4]).group(1).split(',')
+            flags = re.match('\[(.*)\]$', fields[4]).group(1).split(',')
 
         username, host, aliases, docroot = fields[:4]
-
-        redirect = None
-
-        if username.endswith('!'):
-            username = username[:-1]
-            redirect = '/ https://www.ocf.berkeley.edu/~{}/'.format(username)
 
         if aliases != '-':
             aliases = list(map(fully_qualify, aliases.split(',')))
@@ -70,8 +64,7 @@ def get_vhosts():
             'username': username,
             'aliases': aliases,
             'docroot': '/' if docroot == '-' else docroot,
-            'redirect': redirect,
-            'flags': flags
+            'flags': flags,
         }
 
     return vhosts
