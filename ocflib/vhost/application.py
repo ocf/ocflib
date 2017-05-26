@@ -1,3 +1,5 @@
+import re
+
 import requests
 
 VHOST_DB_PATH = '/home/s/st/staff/vhost/vhost-app.conf'
@@ -19,15 +21,16 @@ def get_app_vhosts():
     """Returns a list of application virtual hosts in convenient format.
 
     >>> get_app_vhosts()
-    ...
     {
+    ...
         'ml.berkeley.edu': {
             'username': 'mlab',
-            'socket_name': 'mlab'
-            'ssl_cert': 'ml.berkeley.edu',
+            'socket': 'mlab'
+            'aliases': [],
+            'flags': []
         }
-    }
     ...
+    }
     """
     def fully_qualify(host):
         """Fully qualifies a hostname (by appending .berkeley.edu) if it's not
@@ -42,12 +45,18 @@ def get_app_vhosts():
 
         fields = line.split(' ')
 
-        username, host, socket, ssl_cert = fields
+        if len(fields) < 5:
+            flags = []
+        else:
+            flags = re.search('^\[(.*)\]$', fields[4]).group(1).split(',')
+
+        username, host, socket, aliases = fields[:4]
 
         vhosts[fully_qualify(username if host == '-' else host)] = {
             'username': username,
             'socket': socket if socket != '-' else username,
-            'ssl_cert': ssl_cert if ssl_cert != '-' else None,
+            'aliases': aliases.split(',') if aliases != '-' else [],
+            'flags': flags,
         }
 
     return vhosts
