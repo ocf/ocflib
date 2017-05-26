@@ -1,3 +1,4 @@
+import functools
 from collections import defaultdict
 from collections import namedtuple
 from datetime import date
@@ -72,11 +73,30 @@ def staff_in_lab_count():
 
 
 def current_semester_start():
-    today = date.today()
-    if today.month >= 8:
-        return today.replace(month=8, day=1)
+    return semester_dates()[0]
+
+
+# function partial constants for semesters dates
+_get_spring_start = functools.partial(date, month=1, day=1)
+_get_spring_end = functools.partial(date, month=7, day=31)
+_get_fall_start = functools.partial(date, month=8, day=1)
+_get_fall_end = functools.partial(date, month=12, day=31)
+
+
+def semester_dates(day=None):
+    """Return a tuple (start day, end day) for the current semester.
+
+    Defaults to today if none is provided.
+    """
+    if day is None:
+        day = date.today()
+    fall_start = _get_fall_start(year=day.year)
+    if (day.month, day.day) < (fall_start.month, fall_start.day):
+        return (_get_spring_start(year=day.year),
+                _get_spring_end(year=day.year))
     else:
-        return today.replace(month=1, day=1)
+        return (_get_fall_start(year=day.year),
+                _get_fall_end(year=day.year))
 
 
 def top_staff(start, end=date(3000, 1, 1)):
