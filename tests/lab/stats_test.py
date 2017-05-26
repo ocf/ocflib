@@ -1,9 +1,11 @@
+from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
 import pytest
 
 from ocflib.lab.stats import list_desktops
+from ocflib.lab.stats import semester_dates
 from ocflib.lab.stats import UtilizationProfile
 
 
@@ -48,3 +50,9 @@ def test_fast_slow_profiles_same():
         assert slow.start == fast.start
         assert slow.end == fast.end
         assert slow.sessions == fast.sessions
+
+
+def test_semester_dates():
+    assert semester_dates() is not None
+    assert semester_dates(date(2016, 1, 1)) == (date(2016, 1, 1), date(2016, 7, 31))
+    assert semester_dates(date(2017, 12, 30)) == (date(2017, 8, 1), date(2017, 12, 31))
