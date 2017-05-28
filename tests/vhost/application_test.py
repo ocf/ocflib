@@ -4,7 +4,7 @@ from ocflib.vhost.application import get_app_vhosts
 
 
 VHOSTS_EXAMPLE = """
-asucapp api.asuc.ocf.berkeley.edu prod api.asuc.ocf.berkeley.edu
+asucapp api.asuc.ocf.berkeley.edu prod api.asuc.org
 ggroup dev-app.ocf.berkeley.edu - -
 upe - - -
 """
@@ -12,18 +12,21 @@ upe - - -
 VHOSTS_EXAMPLE_PARSED = {
     'api.asuc.ocf.berkeley.edu': {
         'socket': 'prod',
-        'ssl_cert': 'api.asuc.ocf.berkeley.edu',
+        'aliases': ['api.asuc.org'],
         'username': 'asucapp',
+        'flags': [],
     },
     'dev-app.ocf.berkeley.edu': {
         'socket': 'ggroup',
-        'ssl_cert': None,
+        'aliases': [],
         'username': 'ggroup',
+        'flags': [],
     },
     'upe.berkeley.edu': {
         'socket': 'upe',
-        'ssl_cert': None,
+        'aliases': [],
         'username': 'upe',
+        'flags': [],
     },
 }
 
@@ -31,7 +34,7 @@ VHOSTS_EXAMPLE_PARSED = {
 class TestVirtualHosts:
 
     # The database-reading function is identical to that in vhost.web, so
-    # there's not much meaning in making tests slower by testing them.
+    # there's not much meaning in making tests slower by testing it.
 
     @mock.patch(
         'ocflib.vhost.application.get_app_vhost_db',
