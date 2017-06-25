@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from datetime import timedelta
 
@@ -56,7 +57,6 @@ TEST_REFUND = Refund(
     ('2017-05-08', HAPPY_HOUR_QUOTA),
     ('2017-05-14', WEEKEND_QUOTA),
 ])
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_daily_quota(time, expected):
     """Test that the daily quota returns reasonable things."""
     time = datetime.strptime(time, '%Y-%m-%d')
@@ -65,7 +65,6 @@ def test_daily_quota(time, expected):
     assert daily_quota(time) == expected
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_quotas_are_sane():
     assert SEMESTERLY_QUOTA > 0
     assert WEEKDAY_QUOTA > 0
@@ -90,12 +89,10 @@ def assert_quota(c, user, diff_daily, diff_semesterly):
 
 
 @pytest.mark.parametrize('user', ('mattmcal', 'ckuehl'))
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_quota_user_not_in_db(user, mysql_connection):
     assert_quota(mysql_connection, user, 0, 0)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_desk_staff_have_infinite_quota(mysql_connection):
     assert (
         get_quota(mysql_connection, 'pubstaff') ==
@@ -107,7 +104,6 @@ def test_desk_staff_have_infinite_quota(mysql_connection):
     )
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_groups_have_zero_quota(mysql_connection):
     assert (
         get_quota(mysql_connection, 'ggroup') ==
@@ -115,7 +111,6 @@ def test_groups_have_zero_quota(mysql_connection):
     )
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_non_existent_users_have_zero_quota(mysql_connection):
     assert (
         get_quota(mysql_connection, 'nonexist') ==
@@ -130,7 +125,6 @@ def test_non_existent_users_have_zero_quota(mysql_connection):
     'éóñå',
     '😺 😸 😻 😽 😼 🙀 😿 😹 😾',
 ])
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_job_with_weird_chars_works(doc_name, mysql_connection):
     """Jobs with non-ASCII characters should still be added."""
     assert_quota(mysql_connection, 'mattmcal', 0, 0)
@@ -139,7 +133,6 @@ def test_job_with_weird_chars_works(doc_name, mysql_connection):
     assert_quota(mysql_connection, 'mattmcal', -5, -5)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_semesterly_quota_limits_daily_quota(mysql_connection):
     """The daily quota should be limited by the semesterly quota."""
     assert_quota(mysql_connection, 'mattmcal', 0, 0)
@@ -155,7 +148,6 @@ def test_semesterly_quota_limits_daily_quota(mysql_connection):
     assert_quota(mysql_connection, 'mattmcal', -FAKE_DAILY_QUOTA, -FAKE_SEMESTERLY_QUOTA)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_several_jobs_today(mysql_connection):
     """Multiple jobs should decrease quota correctly."""
     assert_quota(mysql_connection, 'mattmcal', 0, 0)
@@ -174,7 +166,6 @@ def test_several_jobs_today(mysql_connection):
     assert_quota(mysql_connection, 'mattmcal', -11, -11)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_several_jobs_previous_days_and_semesters(mysql_connection):
     """Multiple jobs should decrease quota correctly over different days,
     semesters, and users."""
@@ -203,7 +194,6 @@ def test_several_jobs_previous_days_and_semesters(mysql_connection):
         assert_quota(mysql_connection, user, -3, -11)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_get_quota_user_not_printed_today(mysql_connection):
     """If a user hasn't printed today, we should still be able to get their
     quota."""
@@ -216,7 +206,6 @@ def test_get_quota_user_not_printed_today(mysql_connection):
     assert_quota(mysql_connection, 'ckuehl', 0, 0)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_refunds_without_jobs(mysql_connection):
     """We should be able to calculate quotas correctly for a user with a refund
     but no jobs."""
@@ -248,7 +237,6 @@ def test_refunds_without_jobs(mysql_connection):
     assert_quota(mysql_connection, 'kpengboy', -5, 5)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_jobs_and_refunds_today(mysql_connection):
     """Refunds should add back pages correctly."""
     assert_quota(mysql_connection, 'mattmcal', 0, 0)
@@ -282,7 +270,6 @@ def test_jobs_and_refunds_today(mysql_connection):
     assert_quota(mysql_connection, 'mattmcal', -4, -4)
 
 
-@pytest.mark.skip(reason='mysql tests are failing after stretch upgrade')
 def test_several_jobs_refunds_previous_days_and_semesters(mysql_connection):
     """Multiple jobs and refunds should change the quota correctly over
     different days, semesters, and users."""
@@ -321,10 +308,7 @@ def test_several_jobs_refunds_previous_days_and_semesters(mysql_connection):
 @pytest.yield_fixture
 def mysql_connection(mysql_database):
     schema = pkg_resources.resource_string('ocflib.printing', 'ocfprinting.sql')
-    schema = schema.replace(  # pretty hacky...
-        b'GRANT SELECT ON `ocfprinting`.',
-        b'GRANT SELECT ON `' + mysql_database.db_name.encode('ascii') + b'`.',
-    )
+    schema = re.sub(b'GRANT SELECT .*;', b'', schema)  # pretty hacky...
     mysql_database.run_cli_query(schema)
 
     with mysql_database.connection() as c:
