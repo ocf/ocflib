@@ -28,7 +28,7 @@ belong here.
 ## Using on OCF
 
 ocflib is installed by [Puppet][puppet] on the OCF, so you can simply do things
-like `import ocflib.constants` from the system python3 installation. We *don't*
+like `import ocflib.lab.stats` from the system python3 installation. We *don't*
 install it to python2 site-packages.
 
 We build [a Debian package][debian-pkg] which is installed by Puppet. We also
