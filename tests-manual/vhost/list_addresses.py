@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import getpass
+import sys
 
 from ocflib.vhost.mail import get_connection
 from ocflib.vhost.mail import get_mail_vhosts
@@ -21,4 +22,4 @@ def main():
 
 
 if __name__ == '__main__':
-    exit(main())
+    sys.exit(main())
