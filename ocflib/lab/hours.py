@@ -20,10 +20,18 @@ from datetime import datetime
 from datetime import time
 from datetime import timedelta
 
+import requests
+
+SHIFT_LENGTH = timedelta(hours=1)
+SHIFTS_URL = 'https://docs.google.com/spreadsheet/ccc?key=1WgczUrxqey63fmPRmdkCDMCbsfaTyCJrixiCeJj35UI&output=csv'
+DAY_OFFSET = 1
+
 
 class Hour(namedtuple('Hours', ['open', 'close'])):
 
     def __contains__(self, when):
+        if isinstance(when, time):
+            return self.open <= when < self.close
         return self.open <= when.time() < self.close
 
 
@@ -132,6 +140,88 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
     @property
     def closed_all_day(self):
         return not self.hours
+
+
+def _shift_from_start(start):
+    """Returns an Hour object from the start time"""
+    end = (datetime.combine(date.today(), start) + SHIFT_LENGTH).time()
+    return Hour(start, end)
+
+
+def _string_to_time(when):
+    return datetime.strptime(when, '%I:%M %p').time()
+
+
+def _shift_matrix():
+    """Returns the OCF staff shifts from google spreadsheet
+    as a 2-D matrix"""
+    response = requests.get(SHIFTS_URL)
+    content = response.content.decode('utf-8').splitlines()
+    return [row.split(',') for row in content]
+
+
+def get_shifts(when=None):
+    """Fetches lab shifts for given datetime instance or weekday int."""
+    if when is None:
+        when = datetime.now()
+
+    shifts = _shift_matrix()[1:]
+    try:
+        return [_shift_from_start(_string_to_time(hour[0]))
+                for hour in shifts if hour[when.weekday() + DAY_OFFSET]]
+    except AttributeError:
+        return [_shift_from_start(_string_to_time(hour[0]))
+                for hour in shifts if hour[when + DAY_OFFSET]]
+
+
+def union(shift1, shift2):
+    """
+    Returns the combined Hour if there is an overlap,
+    otherwise, return None
+    """
+    if shift1.close in shift2 or shift2.close in shift1:
+        return Hour(min(shift1.open, shift1.open),
+                    max(shift1.close, shift2.close))
+    else:
+        return None
+
+
+def get_hours(when=None):
+    """Combines lab shifts as much as possible and returns the final list of Hours for
+    'day'.  'day' is an int [0,6] or datetime object"""
+    if when is None:
+        when = datetime.now()
+
+    shifts = get_shifts(when)
+    i = 0
+    while i < len(shifts):
+        j = i + 1
+        while j < len(shifts):
+            hour = union(shifts[i], shifts[j])
+            if hour is not None:
+                shifts.pop(j)
+                shifts[i] = hour
+            else:
+                j += 1
+        i += 1
+    return shifts
+
+
+def staff_on_shift(when=None):
+    """Finds the staffer on shift during 'when' according to
+    google spreadsheet.  Returns None if no staffer found.
+    'when' is a datetime object.
+
+    Does not support holiday hours/shifts.
+    """
+    if when is None:
+        when = datetime.now()
+
+    shifts = _shift_matrix()[1:]
+    for hour in shifts:
+        if when in _shift_from_start(
+                _string_to_time(hour[0])):
+            return hour[when.weekday() + DAY_OFFSET]
 
 
 REGULAR_HOURS = defaultdict(lambda: [Hour(time(9), time(19))], {
