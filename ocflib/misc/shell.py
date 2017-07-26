@@ -144,4 +144,4 @@ bg_cyan = _wrap_colors(BG_CODES['cyan'], BG_CODES['reset'])
 white = _wrap_colors(FG_CODES['white'], FG_CODES['reset'])
 bg_white = _wrap_colors(BG_CODES['white'], BG_CODES['reset'])
 
-bold = _wrap_colors('\033[1m', '\033[0m')
+bold = _wrap_colors('\033[1m', '\033[22m')
