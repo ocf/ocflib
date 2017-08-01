@@ -88,6 +88,7 @@ RESERVED_USERNAMES = frozenset((
     'hpc',
     'hplip',
     'https',
+    'icinga',
     'info',
     'iodine',
     'irc',
