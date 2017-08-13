@@ -65,14 +65,14 @@ def _load_hours():
 
 def _combine_shifts(shifts):
     """combine a days worth of shifts into a list of Hour() objects
-       shifts = {'9:00AM-9:30AM': 'name1', '10:00AM-10:30AM': 'name2', ...}
+       shifts = {'09:00AM': 'name1', '18:00PM': 'name2', ...}
     """
     raw_shifts = []
     for shift, staffer in shifts.items():
         if not staffer:
             continue
 
-        open = datetime.strptime(shift, '%H:%M%p')  # 16:00PM
+        open = datetime.strptime(shift, '%H:%M%p')  # 16:00PM, 24 hour time makes it cleaner
         close = open + SHIFT_LENGTH
         raw_shifts.append(Hour(open=open.time(), close=close.time(), staffer=staffer))
 
@@ -90,21 +90,22 @@ def _combine_shifts(shifts):
             combined_shifts.append(initial)
             initial = next_shift
 
-    combined_shifts.append(initial)  # capture tail ends where the last condition doesn't trip
+    # capture the end case at the end of the list
+    combined_shifts.append(initial)
+
     return combined_shifts
 
 
 def _generate_regular_hours(force_refresh=False):
+    """produce hours in the manner previously exposed by the hardcoded REGULAR_HOURS variable"""
+
     if force_refresh:
         _pull_hours()
 
-    raw_hours = _load_hours()
+    # load hours and then combine the shifts from each day as much as possible
+    combined_hours = {day: _combine_shifts(shifts) for day, shifts in _load_hours().items()}
 
-    combined_hours = {}
-
-    for day in raw_hours:
-        combined_hours[day] = _combine_shifts(raw_hours[day])
-
+    # yaml file has day names, convert to indices which is what REGULAR_HOURS expects
     return {i: combined_hours[day] for i, day in enumerate(
         ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])}
 
