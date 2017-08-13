@@ -13,7 +13,6 @@ Usage:
         hours=[Hour(open=9, close=21)],
     )
 """
-from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from datetime import datetime
@@ -21,13 +20,96 @@ from datetime import time
 from datetime import timedelta
 
 import requests
+import yaml
 
-SHIFT_LENGTH = timedelta(hours=1)
-SHIFTS_URL = 'https://docs.google.com/spreadsheet/ccc?key=1WgczUrxqey63fmPRmdkCDMCbsfaTyCJrixiCeJj35UI&output=csv'
-DAY_OFFSET = 1
+HOURS_SPREADSHEET = 'https://docs.google.com/spreadsheet/ccc?key=1WgczUrxqey63fmPRmdkCDMCbsfaTyCJrixiCeJj35UI&output=csv'  # noqa: E501
+HOURS_FILE = '/home/s/st/staff/lab_hours.yaml'
+HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/lab_hours.yaml'
+SHIFT_LENGTH = timedelta(hours=0.5)
 
 
-class Hour(namedtuple('Hours', ['open', 'close'])):
+def _pull_hours():
+    """download staff hours and save them to disk as YAML"""
+    response = requests.get(HOURS_SPREADSHEET)
+    response.raise_for_status()
+    matrix = response.content.decode('utf-8').splitlines()
+    matrix = [row.split(',') for row in matrix]
+
+    # [1:] because the first box in the matrix is empty
+    # matrix[0] = ['', 'Monday', 'Tuesday', ...]
+    # row[0] = ['1:30PM-2:00PM', 'name1', 'name2', ...]
+    shifts = [row[0] for row in matrix][1:]
+
+    hours = {}
+
+    for i, day in enumerate(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']):
+        hours[day] = {}
+        for j, shift in enumerate(shifts):
+            hours[day][shift] = matrix[j + 1][i + 1]  # person on shift
+
+    # if this fails this should raise IOError anyways
+    with open(HOURS_FILE, 'w') as hours_file:
+        # pre-py3.6 dicts are unordered and this comes out ugly and confusing :(
+        yaml.dump(hours, hours_file, default_flow_style=False)
+
+
+def _load_hours():
+    """load hours, from disk if available or web"""
+    try:
+        with open(HOURS_FILE, 'r') as hours_file:
+            return yaml.safe_load(hours_file)
+    except IOError:
+        # fallback
+        return yaml.safe_load(requests.get(HOURS_URL).text)
+
+
+def _combine_shifts(shifts):
+    """combine a days worth of shifts into a list of Hour() objects
+       shifts = {'9:00AM-9:30AM': 'name1', '10:00AM-10:30AM': 'name2', ...}
+    """
+    raw_shifts = []
+    for shift, staffer in shifts.items():
+        if not staffer:
+            continue
+
+        open = datetime.strptime(shift, '%H:%M%p')  # 16:00PM
+        close = open + SHIFT_LENGTH
+        raw_shifts.append(Hour(open=open.time(), close=close.time(), staffer=staffer))
+
+    raw_shifts.sort(key=lambda h: h.open)
+
+    combined_shifts = []
+
+    initial = raw_shifts[0]
+    for next_shift in raw_shifts[1:]:
+        if (initial.close in next_shift or next_shift.close in initial) and initial.staffer == next_shift.staffer:
+            initial = Hour(open=min(initial.open, next_shift.open),
+                           close=max(initial.close, next_shift.close),
+                           staffer=initial.staffer)
+        else:
+            combined_shifts.append(initial)
+            initial = next_shift
+
+    combined_shifts.append(initial)  # capture tail ends where the last condition doesn't trip
+    return combined_shifts
+
+
+def _generate_regular_hours(force_refresh=False):
+    if force_refresh:
+        _pull_hours()
+
+    raw_hours = _load_hours()
+
+    combined_hours = {}
+
+    for day in raw_hours:
+        combined_hours[day] = _combine_shifts(raw_hours[day])
+
+    return {i: combined_hours[day] for i, day in enumerate(
+        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])}
+
+
+class Hour(namedtuple('Hours', ['open', 'close', 'staffer'])):
 
     def __contains__(self, when):
         if isinstance(when, time):
@@ -142,106 +224,19 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
         return not self.hours
 
 
-def _shift_from_start(start):
-    """Returns an Hour object from the start time"""
-    end = (datetime.combine(date.today(), start) + SHIFT_LENGTH).time()
-    return Hour(start, end)
+REGULAR_HOURS = _generate_regular_hours()
 
-
-def _string_to_time(when):
-    return datetime.strptime(when, '%I:%M %p').time()
-
-
-def _shift_matrix():
-    """Returns the OCF staff shifts from google spreadsheet
-    as a 2-D matrix"""
-    response = requests.get(SHIFTS_URL)
-    content = response.content.decode('utf-8').splitlines()
-    return [row.split(',') for row in content]
-
-
-def get_shifts(when=None):
-    """Fetches lab shifts for given datetime instance or weekday int."""
-    if when is None:
-        when = datetime.now()
-
-    shifts = _shift_matrix()[1:]
-    try:
-        return [_shift_from_start(_string_to_time(hour[0]))
-                for hour in shifts if hour[when.weekday() + DAY_OFFSET]]
-    except AttributeError:
-        return [_shift_from_start(_string_to_time(hour[0]))
-                for hour in shifts if hour[when + DAY_OFFSET]]
-
-
-def union(shift1, shift2):
-    """
-    Returns the combined Hour if there is an overlap,
-    otherwise, return None
-    """
-    if shift1.close in shift2 or shift2.close in shift1:
-        return Hour(min(shift1.open, shift1.open),
-                    max(shift1.close, shift2.close))
-    else:
-        return None
-
-
-def get_hours(when=None):
-    """Combines lab shifts as much as possible and returns the final list of Hours for
-    'day'.  'day' is an int [0,6] or datetime object"""
-    if when is None:
-        when = datetime.now()
-
-    shifts = get_shifts(when)
-    i = 0
-    while i < len(shifts):
-        j = i + 1
-        while j < len(shifts):
-            hour = union(shifts[i], shifts[j])
-            if hour is not None:
-                shifts.pop(j)
-                shifts[i] = hour
-            else:
-                j += 1
-        i += 1
-    return shifts
-
-
-def staff_on_shift(when=None):
-    """Finds the staffer on shift during 'when' according to
-    google spreadsheet.  Returns None if no staffer found.
-    'when' is a datetime object.
-
-    Does not support holiday hours/shifts.
-    """
-    if when is None:
-        when = datetime.now()
-
-    shifts = _shift_matrix()[1:]
-    for hour in shifts:
-        if when in _shift_from_start(
-                _string_to_time(hour[0])):
-            return hour[when.weekday() + DAY_OFFSET]
-
-
-REGULAR_HOURS = defaultdict(lambda: [Hour(time(9), time(19))], {
-    Day.MONDAY: [Hour(time(9, 10), time(18))],
-    Day.TUESDAY: [Hour(time(9, 10), time(20))],
-    Day.WEDNESDAY: [Hour(time(9, 10), time(22))],
-    Day.THURSDAY: [Hour(time(9, 10), time(20))],
-    Day.FRIDAY: [Hour(time(9, 10), time(18))],
-    Day.SATURDAY: [Hour(time(11, 10), time(19))],
-    Day.SUNDAY: [Hour(time(11, 10), time(19))],
-})
 
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
-    (date(2017, 5, 13), date(2017, 8, 22), 'Summer Break', []),
+    (date(2017, 5, 13), date(2017, 8, 23), 'Summer Break', []),
     (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
     (date(2017, 11, 10), date(2017, 11, 10), 'Veterans Day', []),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
-    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12))]),
+    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12), 'test')]),
     (date(2017, 12, 16), date(2018, 1, 15), 'Winter Break', []),
     (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
     (date(2018, 3, 24), date(2018, 4, 1), 'Spring Break', []),
+    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12), 'test')]),
+    (date(2017, 12, 16), date(2017, 1, 16), 'Winter Break', []),
 ]
