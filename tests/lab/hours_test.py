@@ -30,19 +30,20 @@ FAKE_WEB_HOURS = json.loads('{"0": [["09:30:00", "14:00:00", "test1"], ["15:00:0
 
 
 @pytest.fixture
-def mock_web_hours():
-    with mock.patch('ocflib.lab.hours._pull_hours', return_value=FAKE_WEB_HOURS) as web_hours:
-        yield web_hours
+def mock_hours_response():
+    with mock.patch('ocflib.lab.hours.requests.get') as m:
+        m.return_value.json.return_value = FAKE_WEB_HOURS
+        yield
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def mock_hours():
     with mock.patch('ocflib.lab.hours.HOLIDAYS', FAKE_HOLIDAYS), \
             mock.patch('ocflib.lab.hours.REGULAR_HOURS', FAKE_REGULAR_HOURS):
         yield FAKE_HOLIDAYS, FAKE_REGULAR_HOURS
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def mock_today():
     with freeze_time('2015-08-22 14:11:00'):
         yield
@@ -75,7 +76,7 @@ def test_is_open_fails_with_just_date():
         Day.from_date().is_open(date(2015, 3, 14))
 
 
-def test_generate_regular_hours(mock_web_hours):
+def test_generate_regular_hours(mock_hours_response):
     hours = _generate_regular_hours()
 
     # hours[0] because FAKE_WEB_HOURS mocks Monday at index 0

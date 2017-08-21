@@ -21,24 +21,38 @@ from datetime import timedelta
 
 import requests
 
-HOURS_URL = 'https://ocf.berkeley.edu/api/hours'
-
-
-def _pull_hours():
-    """small helper to make testing easier"""
-    return requests.get(HOURS_URL).json()
+HOURS_URL = 'https://www.ocf.berkeley.edu/api/hours'
 
 
 def _generate_regular_hours():
-    """produce hours in the manner previously exposed by the hardcoded REGULAR_HOURS variable,
-       but pull the data from ocfweb instead, where the hours come from a Google Spreadsheet."""
+    """pull hours from ocfweb and return them in the manner expected by Day().
+
+    The canonical source of OCF lab hours is a Google Spreadsheet. Parsing
+    that sheet is handled by the ocfweb API. This function is a shim for code
+    that expects hours to come from ocflib, where they were originally
+    hardcoded.
+
+    >>> _generate_regular_hours()
+    {
+        Day.MONDAY: [Hour(time(11, 10), time(13), 'staff1'),
+                     Hour(time(14, 10), time(18), 'staff2'),
+                     ...],
+        Day.TUESDAY: ...
+        ...
+    }
+    """
 
     regular_hours = {}
 
-    for day, hours in _pull_hours().items():
-        regular_hours[int(day)] = [Hour(open=_parsetime(hour[0]),
-                                        close=_parsetime(hour[1]),
-                                        staffer=hour[2]) for hour in hours]
+    for day, hours in requests.get(HOURS_URL).json().items():
+        regular_hours[int(day)] = [
+            Hour(
+                open=_parsetime(hour[0]),
+                close=_parsetime(hour[1]),
+                staffer=hour[2],
+            )
+            for hour in hours
+        ]
 
     return regular_hours
 
@@ -47,13 +61,22 @@ def _parsetime(t):
     return datetime.strptime(t, '%H:%M:%S').time()
 
 
-class Hour(namedtuple('Hours', ['open', 'close', 'staffer'])):
-    """duplicating class to ocfweb until this can be refactored"""
+class Hour:
+
+    def __init__(self, open, close, staffer=None):
+        self.open = open
+        self.close = close
+        self.staffer = staffer
 
     def __contains__(self, when):
-        if isinstance(when, time):
-            return self.open <= when < self.close
-        return self.open <= when.time() < self.close
+        if isinstance(when, datetime):
+            when = when.time()
+        return self.open <= when < self.close
+
+    def __eq__(self, other):
+        return self.open == other.open and \
+            self.close == other.close and \
+            self.staffer == other.staffer
 
 
 class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
@@ -165,17 +188,14 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
 
 REGULAR_HOURS = _generate_regular_hours()
 
-
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
     (date(2017, 5, 13), date(2017, 8, 23), 'Summer Break', []),
     (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
     (date(2017, 11, 10), date(2017, 11, 10), 'Veterans Day', []),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
-    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12), 'staff')]),
+    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12))]),
     (date(2017, 12, 16), date(2018, 1, 15), 'Winter Break', []),
     (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
     (date(2018, 3, 24), date(2018, 4, 1), 'Spring Break', []),
-    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12), 'staff')]),
-    (date(2017, 12, 16), date(2017, 1, 16), 'Winter Break', []),
 ]
