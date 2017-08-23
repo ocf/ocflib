@@ -28,10 +28,9 @@ setup(
         'ldap3',
         'paramiko',
         'pexpect',
-        'pycrypto',
+        'pycryptodome',
         'pymysql',
-        # 4.3.3 adds a dependency on "pycryptodome" which conflicts with pycrypto
-        'pysnmp<=4.3.2',
+        'pysnmp',
         'pyyaml',
         'redis',
         'requests',
