@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -6,34 +7,43 @@ import mock
 import pytest
 from freezegun import freeze_time
 
+from ocflib.lab.hours import _generate_regular_hours
 from ocflib.lab.hours import Day
 from ocflib.lab.hours import Hour
 from ocflib.lab.hours import REGULAR_HOURS
 
-
 FAKE_HOLIDAYS = [
     (date(2015, 3, 14), date(2015, 3, 14), 'Pi Day', []),
-    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(time(1), time(2))]),
+    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(time(1), time(2), 'test')]),
 ]
 FAKE_REGULAR_HOURS = {
-    Day.MONDAY: [Hour(time(9), time(18))],
-    Day.TUESDAY: [Hour(time(9), time(18))],
-    Day.WEDNESDAY: [Hour(time(9, 10), time(18))],
-    Day.THURSDAY: [Hour(time(9), time(18))],
-    Day.FRIDAY: [Hour(time(9), time(18))],
-    Day.SATURDAY: [Hour(time(11), time(18))],
-    Day.SUNDAY: [Hour(time(12), time(17))],
+    Day.MONDAY: [Hour(time(9), time(18), 'test')],
+    Day.TUESDAY: [Hour(time(9), time(18), 'test')],
+    Day.WEDNESDAY: [Hour(time(9, 10), time(18), 'test')],
+    Day.THURSDAY: [Hour(time(9), time(18), 'test')],
+    Day.FRIDAY: [Hour(time(9), time(18), 'test')],
+    Day.SATURDAY: [Hour(time(11), time(18), 'test')],
+    Day.SUNDAY: [Hour(time(12), time(17), 'test')],
 }
 
+FAKE_WEB_HOURS = json.loads('{"0": [["09:30:00", "14:00:00", "test1"], ["15:00:00", "15:30:00", "test2"]]}')
 
-@pytest.yield_fixture
+
+@pytest.fixture
+def mock_hours_response():
+    with mock.patch('ocflib.lab.hours.requests.get') as m:
+        m.return_value.json.return_value = FAKE_WEB_HOURS
+        yield
+
+
+@pytest.fixture
 def mock_hours():
     with mock.patch('ocflib.lab.hours.HOLIDAYS', FAKE_HOLIDAYS), \
             mock.patch('ocflib.lab.hours.REGULAR_HOURS', FAKE_REGULAR_HOURS):
         yield FAKE_HOLIDAYS, FAKE_REGULAR_HOURS
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def mock_today():
     with freeze_time('2015-08-22 14:11:00'):
         yield
@@ -66,15 +76,23 @@ def test_is_open_fails_with_just_date():
         Day.from_date().is_open(date(2015, 3, 14))
 
 
+def test_generate_regular_hours(mock_hours_response):
+    hours = _generate_regular_hours()
+
+    # hours[0] because FAKE_WEB_HOURS mocks Monday at index 0
+    assert hours[0][0] == Hour(open=time(9, 30), close=time(14, 00), staffer='test1')
+    assert hours[0][1] == Hour(open=time(15, 00), close=time(15, 30), staffer='test2')
+
+
 class TestDay:
 
     @pytest.mark.parametrize('when,weekday,holiday,hours', [
-        (date(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17))]),
-        (datetime(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17))]),
-        (datetime(2015, 3, 18), 'Wednesday', None, [Hour(time(9, 10), time(18))]),
+        (date(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17), 'test')]),
+        (datetime(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17), 'test')]),
+        (datetime(2015, 3, 18), 'Wednesday', None, [Hour(time(9, 10), time(18), 'test')]),
         (datetime(2015, 3, 14), 'Saturday', 'Pi Day', []),
-        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', [Hour(time(1), time(2))]),
-        (None, 'Saturday', None, [Hour(time(11), time(18))]),
+        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', [Hour(time(1), time(2), 'test')]),
+        (None, 'Saturday', None, [Hour(time(11), time(18), 'test')]),
     ])
     def test_creation(self, mock_hours, mock_today, when, weekday, holiday, hours):
         day_hours = Day.from_date(when)

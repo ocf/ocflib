@@ -13,18 +13,70 @@ Usage:
         hours=[Hour(open=9, close=21)],
     )
 """
-from collections import defaultdict
 from collections import namedtuple
 from datetime import date
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
 
+import requests
 
-class Hour(namedtuple('Hours', ['open', 'close'])):
+HOURS_URL = 'https://www.ocf.berkeley.edu/api/hours'
+
+
+def _generate_regular_hours():
+    """pull hours from ocfweb and return them in the manner expected by Day().
+
+    The canonical source of OCF lab hours is a Google Spreadsheet. Parsing
+    that sheet is handled by the ocfweb API. This function is a shim for code
+    that expects hours to come from ocflib, where they were originally
+    hardcoded.
+
+    >>> _generate_regular_hours()
+    {
+        Day.MONDAY: [Hour(time(11, 10), time(13), 'staff1'),
+                     Hour(time(14, 10), time(18), 'staff2'),
+                     ...],
+        Day.TUESDAY: ...
+        ...
+    }
+    """
+
+    regular_hours = {}
+
+    for day, hours in requests.get(HOURS_URL).json().items():
+        regular_hours[int(day)] = [
+            Hour(
+                open=_parsetime(hour[0]),
+                close=_parsetime(hour[1]),
+                staffer=hour[2],
+            )
+            for hour in hours
+        ]
+
+    return regular_hours
+
+
+def _parsetime(t):
+    return datetime.strptime(t, '%H:%M:%S').time()
+
+
+class Hour:
+
+    def __init__(self, open, close, staffer=None):
+        self.open = open
+        self.close = close
+        self.staffer = staffer
 
     def __contains__(self, when):
-        return self.open <= when.time() < self.close
+        if isinstance(when, datetime):
+            when = when.time()
+        return self.open <= when < self.close
+
+    def __eq__(self, other):
+        return self.open == other.open and \
+            self.close == other.close and \
+            self.staffer == other.staffer
 
 
 class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
@@ -134,19 +186,11 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
         return not self.hours
 
 
-REGULAR_HOURS = defaultdict(lambda: [Hour(time(9), time(19))], {
-    Day.MONDAY: [Hour(time(9, 10), time(18))],
-    Day.TUESDAY: [Hour(time(9, 10), time(20))],
-    Day.WEDNESDAY: [Hour(time(9, 10), time(22))],
-    Day.THURSDAY: [Hour(time(9, 10), time(20))],
-    Day.FRIDAY: [Hour(time(9, 10), time(18))],
-    Day.SATURDAY: [Hour(time(11, 10), time(19))],
-    Day.SUNDAY: [Hour(time(11, 10), time(19))],
-})
+REGULAR_HOURS = _generate_regular_hours()
 
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
-    (date(2017, 5, 13), date(2017, 8, 22), 'Summer Break', []),
+    (date(2017, 5, 13), date(2017, 8, 23), 'Summer Break', []),
     (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
     (date(2017, 11, 10), date(2017, 11, 10), 'Veterans Day', []),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
