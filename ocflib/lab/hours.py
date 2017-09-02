@@ -79,6 +79,28 @@ class Hour:
             self.staffer == other.staffer
 
 
+def merge_display(shifts):
+    """Merges hours ignoring if the same person
+    is staffing"""
+
+    combined_shifts = []
+    try:
+        initial = shifts[0]
+    except:
+        return combined_shifts
+    for next_shift in shifts:
+        if initial.close in next_shift or next_shift.close in initial:
+            initial = Hour(
+                open=min(initial.open, next_shift.open),
+                close=max(initial.close, next_shift.close),
+                staffer=initial.staffer,
+            )
+        else:
+            combined_shifts.append(initial)
+            initial = next_shift
+    return combined_shifts
+
+
 class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
 
     MONDAY = 0
@@ -115,7 +137,7 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
             date=when,
             weekday=when.strftime('%A'),
             holiday=my_holiday,
-            hours=my_hours,
+            hours=merge_display(my_hours),
         )
 
     def is_open(self, when=None):
