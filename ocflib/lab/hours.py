@@ -191,6 +191,7 @@ REGULAR_HOURS = _generate_regular_hours()
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
     (date(2017, 5, 13), date(2017, 8, 23), 'Summer Break', []),
+    (date(2017, 9, 3), date(2017, 9, 3), 'Early Lab Closure', [Hour(time(11), time(18))]),
     (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
     (date(2017, 11, 10), date(2017, 11, 10), 'Veterans Day', []),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
