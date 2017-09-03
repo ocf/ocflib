@@ -78,6 +78,7 @@ RESERVED_USERNAMES = frozenset((
     'gm',
     'gnats',
     'groups',
+    'guest',
     'hello',
     'help',
     'hiring',
