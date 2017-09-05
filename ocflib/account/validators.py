@@ -99,6 +99,7 @@ RESERVED_USERNAMES = frozenset((
     'jenkins-slave',
     'job',
     'join',
+    'joinfamily',
     'knhosss',
     'lab',
     'lets-encrypt',
