@@ -95,10 +95,6 @@ def test_quota_user_not_in_db(user, mysql_connection):
 
 def test_desk_staff_have_infinite_quota(mysql_connection):
     assert (
-        get_quota(mysql_connection, 'pubstaff') ==
-        UserQuota('pubstaff', 500, 500)
-    )
-    assert (
         get_quota(mysql_connection, 'testopstaff') ==
         UserQuota('testopstaff', 500, 500)
     )

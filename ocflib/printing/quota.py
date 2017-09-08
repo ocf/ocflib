@@ -60,7 +60,7 @@ def daily_quota(day=None):
 
 def get_quota(c, user):
     """Return a UserQuota representing the user's quota."""
-    if user == 'pubstaff' or is_staff(user, 'opstaff'):
+    if is_staff(user, 'opstaff'):
         return UserQuota(user, 500, 500)
 
     if not user_exists(user) or user_is_group(user):
