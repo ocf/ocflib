@@ -229,7 +229,6 @@ RESERVED_USERNAMES = frozenset((
     'vde2-net',
     'vhost',
     'vnc',
-    'waf',
     'web',
     'webmaster',
     'wheel',
