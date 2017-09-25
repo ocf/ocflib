@@ -31,7 +31,7 @@ def edit_file(template):
 
 
 def prompt_for_new_password(
-    prompt='Enter password: ',
+    prompt='Enter new password: ',
     prompt_confirm='Confirm password: ',
     validator=bool,
 ):
