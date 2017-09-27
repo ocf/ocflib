@@ -119,6 +119,7 @@ RESERVED_USERNAMES = frozenset((
     'mesos',
     'messagebus',
     'minecraft',
+    'minutes',
     'mirrors',
     'mis',
     'mlk',
