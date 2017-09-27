@@ -151,7 +151,7 @@ def test_list_staff():
     staff = list_staff()
     assert 'ckuehl' in staff
     assert 'bpreview' not in staff
-    assert 5 <= len(staff) <= 75
+    assert 5 <= len(staff) <= 125
 
 
 def test_dn_for_username():
