@@ -195,7 +195,7 @@ HOLIDAYS = [
     (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
     (date(2017, 9, 5), date(2017, 9, 5), 'Early Lab Closure', [Hour(time(9), time(19))]),
     (date(2017, 9, 14), date(2017, 9, 14), 'MLK Closed', [Hour(time(9), time(15))]),
-    (date(2017, 9, 27), date(2017, 9, 27), 'Closed due to protests, bomb threat', []),
+    (date(2017, 9, 27), date(2017, 9, 27), 'Closed due to MLK evacuation', []),
     (date(2017, 11, 10), date(2017, 11, 10), 'Veterans Day', []),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
     (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12))]),
