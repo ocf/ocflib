@@ -103,7 +103,7 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
 
         # check if it's a holiday
         my_holiday = None
-        my_hours = REGULAR_HOURS[when.weekday()]
+        my_hours = _generate_regular_hours()[when.weekday()]
 
         for start, end, name, hours in HOLIDAYS:
             if start <= when <= end:
@@ -185,8 +185,6 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
     def closed_all_day(self):
         return not self.hours
 
-
-REGULAR_HOURS = _generate_regular_hours()
 
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
