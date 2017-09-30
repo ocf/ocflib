@@ -10,12 +10,12 @@ from freezegun import freeze_time
 from ocflib.lab.hours import _generate_regular_hours
 from ocflib.lab.hours import Day
 from ocflib.lab.hours import Hour
-from ocflib.lab.hours import REGULAR_HOURS
 
 FAKE_HOLIDAYS = [
     (date(2015, 3, 14), date(2015, 3, 14), 'Pi Day', []),
     (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(time(1), time(2), 'test')]),
 ]
+
 FAKE_REGULAR_HOURS = {
     Day.MONDAY: [Hour(time(9), time(18), 'test')],
     Day.TUESDAY: [Hour(time(9), time(18), 'test')],
@@ -39,8 +39,9 @@ def mock_hours_response():
 @pytest.fixture
 def mock_hours():
     with mock.patch('ocflib.lab.hours.HOLIDAYS', FAKE_HOLIDAYS), \
-            mock.patch('ocflib.lab.hours.REGULAR_HOURS', FAKE_REGULAR_HOURS):
-        yield FAKE_HOLIDAYS, FAKE_REGULAR_HOURS
+            mock.patch('ocflib.lab.hours._generate_regular_hours') as m:
+        m.return_value = FAKE_REGULAR_HOURS
+        yield FAKE_HOLIDAYS, m
 
 
 @pytest.fixture
@@ -120,7 +121,7 @@ class TestDay:
     Day.SATURDAY,
 ])
 def test_hours(day):
-    hours = REGULAR_HOURS[day]
+    hours = _generate_regular_hours()[day]
     assert isinstance(hours, list)
     assert len(hours) >= 1
 
