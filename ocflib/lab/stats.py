@@ -142,7 +142,7 @@ def list_desktops(public_only=False):
     if not public_only:
         filter = '(type=desktop)'
     else:
-        filter = '(&(type=desktop)(!(|(dnsCname=frontdesk)(dnsCname=staffdesk))))'
+        filter = '(&(type=desktop)(!(|(dnsCname=frontdesk)(dnsA=staffdesk))))'
 
     with ldap_ocf() as c:
         c.search(OCF_LDAP_HOSTS, filter, attributes=['cn'])
