@@ -2,8 +2,6 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-import pytest
-
 from ocflib.lab.stats import list_desktops
 from ocflib.lab.stats import semester_dates
 from ocflib.lab.stats import UtilizationProfile
@@ -19,7 +17,6 @@ def test_list_desktops():
     assert 'death' not in desktops
 
 
-@pytest.mark.xfail(reason='staff_only moved to hiera broke test')
 def test_list_desktops_staff_only():
     desktops = list_desktops(public_only=True)
     assert 10 < len(desktops) < 50
