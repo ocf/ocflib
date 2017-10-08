@@ -2,5 +2,5 @@
 import ocflib.misc.validators as validators
 
 if __name__ == '__main__':
-    host = input("Host: ")
-    print("Exists: {}".format(validators.host_exists(host)))
+    host = input('Host: ')
+    print('Exists: {}'.format(validators.host_exists(host)))

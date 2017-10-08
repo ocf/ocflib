@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 from urllib.parse import urlencode
+
 import ocflib.ucb.cas as cas
 import ocflib.ucb.directory as directory
 
 if __name__ == '__main__':
-    service = "https://accounts.ocf.berkeley.edu/stophere"
+    service = 'https://accounts.ocf.berkeley.edu/stophere'
 
-    print("Go here and log in:")
-    print("https://auth.berkeley.edu/cas/login?" +
-            urlencode({'service': service}))
+    print('Go here and log in:')
+    print('https://auth.berkeley.edu/cas/login?' +
+          urlencode({'service': service}))
 
-    ticket = input("Enter your ticket: ")
+    ticket = input('Enter your ticket: ')
     uid = cas.verify_ticket(ticket, service)
 
     if uid:
-        print("Validated successfully, you are {} ({})".format(
+        print('Validated successfully, you are {} ({})'.format(
             uid, directory.name_by_calnet_uid(uid)))
     else:
-        print("Ticket validation failed")
+        print('Ticket validation failed')
