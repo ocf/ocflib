@@ -2,9 +2,9 @@
 import ocflib.infra.hosts as hosts
 
 if __name__ == '__main__':
-    print("List of all web servers:")
+    print('List of all web servers:')
     for host in hosts.hosts_by_filter('(puppetClass=ocf_www)'):
-        print("\t- {hostname} ({ip})".format(
+        print('\t- {hostname} ({ip})'.format(
             hostname=host['cn'][0],
             ip=host['ipHostNumber'][0],
         ))

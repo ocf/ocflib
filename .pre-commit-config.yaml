@@ -1,41 +1,38 @@
+exclude: ^vendor/
+repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks.git
-    sha: a11d9314b22d8f8c7556443875b731ef05965464
+    sha: v0.9.5
     hooks:
     -   id: autopep8-wrapper
-        language_version: python3
     -   id: check-added-large-files
     -   id: check-docstring-first
-        language_version: python3
+    -   id: check-executables-have-shebangs
     -   id: check-json
     -   id: check-merge-conflict
     -   id: check-xml
     -   id: check-yaml
     -   id: debug-statements
-        language_version: python3
     -   id: detect-private-key
-        exclude: ^(tests/account/creation_test.py|\.activate\.sh)$
+        exclude: ^(tests/account/creation_test.py)$
     -   id: double-quote-string-fixer
-        language_version: python3
     -   id: end-of-file-fixer
-        exclude: ^\.activate\.sh$
+    -   id: file-contents-sorter
     -   id: flake8
-        language_version: python3
+    -   id: mixed-line-ending
     -   id: name-tests-test
     -   id: requirements-txt-fixer
+    -   id: sort-simple-yaml
     -   id: trailing-whitespace
 -   repo: https://github.com/asottile/reorder_python_imports.git
-    sha: v0.3.2
+    sha: v0.3.5
     hooks:
     -   id: reorder-python-imports
-        language_version: python3
 -   repo: https://github.com/asottile/pyupgrade.git
-    sha: v1.0.6
+    sha: v1.2.0
     hooks:
     -   id: pyupgrade
-        language_version: python3
         args: ['--py3-plus']
 -   repo: https://github.com/Lucas-C/pre-commit-hooks.git
-    sha: v1.0.1
+    sha: v1.1.1
     hooks:
     -   id: remove-tabs
-        exclude: ^(Makefile|debian/rules|\.activate\.sh)$
