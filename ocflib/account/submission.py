@@ -28,6 +28,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 
 import redis
+import sqlalchemy.exc
 from redis.exceptions import LockError
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -197,14 +198,21 @@ def get_tasks(celery_app, credentials=None):
             if request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
                 stored_request = StoredNewAccountRequest.from_request(request, str(warnings))
 
-                with get_session() as session:
-                    session.add(stored_request)  # TODO: error handling
-                    session.commit()
+                try:
+                    with get_session() as session:
+                        session.add(stored_request)  # TODO: error handling
+                        session.commit()
+                except sqlalchemy.exc.IntegrityError:
+                    # If there's an integrity constraint, it's okay -- the
+                    # account was already submitted, so we can still return a
+                    # "pending" response.
+                    pass
+                else:
+                    dispatch_event(
+                        'ocflib.account_submitted',
+                        request=dict(request.to_dict(), reasons=warnings),
+                    )
 
-                dispatch_event(
-                    'ocflib.account_submitted',
-                    request=dict(request.to_dict(), reasons=warnings),
-                )
                 return NewAccountResponse(
                     status=NewAccountResponse.PENDING,
                     errors=warnings,
