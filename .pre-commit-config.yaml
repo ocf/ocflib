@@ -1,4 +1,4 @@
-exclude: (^vendor/|^\.activate\.sh$)
+exclude: ^vendor/
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks.git
     sha: v0.9.5
@@ -36,4 +36,3 @@ repos:
     sha: v1.1.1
     hooks:
     -   id: remove-tabs
-        exclude: ^(Makefile|debian/rules)$
