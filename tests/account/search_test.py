@@ -83,7 +83,7 @@ def test_user_exists(user, exists):
 
 @pytest.mark.parametrize('user,sorried', [
     ('ckuehl', False),
-    ('sanjay', True),
+    ('ofc', True),
 ])
 def test_user_is_sorried(user, sorried):
     assert user_is_sorried(user) == sorried
