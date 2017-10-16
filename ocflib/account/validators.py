@@ -61,6 +61,7 @@ RESERVED_USERNAMES = frozenset((
     'debmirror',
     'deforestation',
     'devnull',
+    'dns',
     'dnsmasq',
     'docs',
     'donations',
