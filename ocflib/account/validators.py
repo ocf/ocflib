@@ -40,6 +40,8 @@ RESERVED_USERNAMES = frozenset((
     'bureacrucy',
     'bureaucracy',
     'buster',
+    'buy',
+    'buysheet',
     'cabinet',
     'callinkapi',
     'chronos',
