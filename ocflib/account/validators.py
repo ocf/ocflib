@@ -250,6 +250,7 @@ RESERVED_USERNAMES = frozenset((
     'root',
     'rt',
     'sm',
+    'staff',
     'wheel',
 
     # Usernames of some former staffers whose accounts were later lost
