@@ -163,6 +163,7 @@ RESERVED_USERNAMES = frozenset((
     'servers',
     'sexy',
     'shellinabox',
+    'shirts',
     'shorturl',
     'snmp',
     'spamass-milter',
