@@ -182,6 +182,7 @@ RESERVED_USERNAMES = frozenset((
     'stf-cost-breakdown',
     'stretch',
     'support',
+    'survey',
     'sync',
     'sys',
     'sysadmin',
