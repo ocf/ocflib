@@ -64,6 +64,7 @@ RESERVED_USERNAMES = frozenset((
     'email',
     'epidemic',
     'faq',
+    'facebook',
     'ftp',
     'games',
     'geoclue',
