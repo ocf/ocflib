@@ -128,7 +128,7 @@ CREATE VIEW `printed` AS
 DROP VIEW IF EXISTS public_jobs;
 CREATE VIEW `public_jobs` AS
     SELECT
-        DATE_FORMAT(`time`, '%Y-%m-%d') AS `day`, `pages`, COUNT(`pages`) AS `count`
+        DATE(`time`) AS `day`, `pages`, COUNT(`pages`) AS `count`
     FROM `jobs`
     WHERE `pages` > 0
     GROUP BY `day`, `pages`
