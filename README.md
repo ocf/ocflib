@@ -91,5 +91,5 @@ monitor the progress of your deploy [here][jenkins].
 [pypi]: https://pypi.python.org/pypi/ocflib
 [apt]: http://apt.ocf.berkeley.edu/
 [jenkins]: https://jenkins.ocf.berkeley.edu/view/ocflib-deploy/
-[debian-pkg]: http://apt.ocf.berkeley.edu/pool/main/o/ocflib/
+[debian-pkg]: http://apt.ocf.berkeley.edu/pool/main/p/python-ocflib/
 [pre-commit]: http://pre-commit.com/
