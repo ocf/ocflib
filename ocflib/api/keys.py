@@ -27,21 +27,39 @@ def add_key(cursor, user):
     Returns:
         None
     """
-    return
+    key = _generate_key()
+    cursor.execute(
+        'INSERT INTO `keys`'
+        '(`key`, `user`)'
+        'VALUES (%s, %s, %s)',
+        (key, user)
+    )
 
 
 def get_key(cursor, user):
-        """Get the key corresponding to the user in the db
+    """Get the key corresponding to the user in the db
 
-        Args:
-            cursor (pymysql.cursors.Cursor): database cursor
-            user (str): user to get the key for
+    Args:
+        cursor (pymysql.cursors.Cursor): database cursor
+        user (str): user to get the key for
 
-        Returns:
-            (str) the user's key
-        """
-        return
-
+    Returns:
+        (str) the user's key
+    """
+    cursor.execute(
+        'SELECT `key`'
+        'FROM `keys`'
+        'WHERE `user` LIKE %s',
+        (user,),
+    )
+    query_result = cursor.fetchone()
+    try:
+        return query_result['key']
+    except (KeyError, TypeError):
+        # query_result is None or doesn't have a key
+        return ""
+        
+    return cursor.fetchone()['key']
 
 def get_connection(user, password, db='keys', **kwargs):
     """Return a connection to MySQL."""
