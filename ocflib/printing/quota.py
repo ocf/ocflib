@@ -1,12 +1,11 @@
+import functools
 from collections import namedtuple
 from datetime import datetime
-
-import pymysql
 
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
 from ocflib.account.utils import is_staff
-
+from ocflib.misc import db
 
 WEEKDAY_QUOTA = 10
 WEEKEND_QUOTA = 20
@@ -15,6 +14,12 @@ SEMESTERLY_QUOTA = 100
 HAPPY_HOUR_QUOTA = 20
 HAPPY_HOUR_START = datetime(2017, 4, 30)
 HAPPY_HOUR_END = datetime(2017, 5, 13)
+
+
+get_connection = functools.partial(db.get_connection,
+                                   user='anonymous',
+                                   password=None,
+                                   db='ocfprinting')
 
 UserQuota = namedtuple('UserQuota', (
     'user',
@@ -108,22 +113,3 @@ def add_job(c, job):
 def add_refund(c, refund):
     """Add a new refund to the database."""
     c.execute(*_namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
-
-
-def get_connection(user='anonymous', password=None, db='ocfprinting', **kwargs):
-    """Return a connection to MySQL.
-
-    By default, returns an unprivileged connection which can be used for
-    querying most data.
-
-    If you need rw access, pass a user and password argument.
-    """
-    return pymysql.connect(
-        user=user,
-        password=password,
-        db=db,
-        host='mysql.ocf.berkeley.edu',
-        cursorclass=pymysql.cursors.DictCursor,
-        charset='utf8mb4',
-        **dict({'autocommit': True}, **kwargs)
-    )
