@@ -21,5 +21,6 @@ def get_connection(user,
         host=host,
         cursorclass=cursorclass,
         charset=charset,
-        autocommit=autocommit
+        autocommit=autocommit,
+        **kwargs,
     )

@@ -5,7 +5,7 @@ from datetime import datetime
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
 from ocflib.account.utils import is_staff
-from ocflib.misc import db
+from ocflib.infra import db
 
 WEEKDAY_QUOTA = 10
 WEEKEND_QUOTA = 20
