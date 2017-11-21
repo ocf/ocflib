@@ -9,7 +9,7 @@ def get_connection(user,
                    charset='utf8mb4',
                    autocommit=True,
                    **kwargs):
-    """Returns a context-manager aware connection to MySQL, with sensible defaults.
+    """Returns a context-manager aware connection to MariaDB, with sensible defaults.
 
     While this function can be called directly, there are partial function
     in some ocflib modules that may be better suited for particular tasks."""
