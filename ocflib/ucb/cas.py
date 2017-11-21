@@ -22,5 +22,5 @@ def verify_ticket(ticket, service):
             return tree[0][0].text
         else:
             return None
-    except:
+    except Exception:
         return None
