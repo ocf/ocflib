@@ -17,6 +17,11 @@ CREATE TABLE `staff` (
     PRIMARY KEY (`user`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE `opstaff` (
+    `user` varchar(16) NOT NULL,
+    PRIMARY KEY (`user`)
+) ENGINE=InnoDB;
+
 CREATE TABLE `printer_pages` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `date` datetime NOT NULL,
@@ -58,8 +63,13 @@ CREATE VIEW `users_in_lab` AS
 CREATE VIEW `users_in_lab_count_public` AS
     SELECT COUNT(DISTINCT `user`) AS `count` FROM `users_in_lab`;
 
+--- This relies on the semester_start function, which is defined in ocfprinting.sql
+CREATE VIEW `unique_users_in_lab_count_public` AS
+    SELECT COUNT(DISTINCT `user`) AS `users` FROM `session`
+        WHERE `start` >= `semester_start`(CURDATE());
+
 CREATE VIEW `staff_in_lab_public` AS
-    SELECT `user`, `host`, `start` FROM `users_in_lab` WHERE `user` IN (
+    SELECT * FROM `users_in_lab` WHERE `user` IN (
         SELECT `user` FROM `staff`
     );
 
@@ -84,6 +94,7 @@ CREATE VIEW `mirrors_public` AS
 
 GRANT SELECT ON `ocfstats`.`session_duration_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`users_in_lab_count_public` TO 'anonymous'@'%';
+GRANT SELECT ON `ocfstats`.`unique_users_in_lab_count_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`staff_in_lab_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`staff_session_duration_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`printer_pages_public` TO 'anonymous'@'%';
