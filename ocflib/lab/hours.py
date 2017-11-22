@@ -200,7 +200,7 @@ HOLIDAYS = [
     (date(2017, 11, 11), date(2017, 11, 11), 'Veterans Day', []),
     (date(2017, 11, 14), date(2017, 11, 14), 'Early Lab Closure for FAFSA Workshop', [Hour(time(9), time(18))]),
     (date(2017, 11, 16), date(2017, 11, 16), 'Job Search Workshop', [Hour(time(9), time(18))]),
-    (date(2017, 11, 16), date(2017, 11, 16), 'Thanksgiving Break', [Hour(time(9), time(17))]),
+    (date(2017, 11, 21), date(2017, 11, 21), 'Thanksgiving Break', [Hour(time(9), time(17))]),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
     (date(2017, 11, 30), date(2017, 11, 30), 'Interview Workshop', [Hour(time(9), time(18))]),
     (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12))]),
