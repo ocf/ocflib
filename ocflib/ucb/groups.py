@@ -154,10 +154,7 @@ def _get_osl(query, service, parser):
 def _parse_osl(root, parser):
     """Assemble Python dictionaries of groups from XML document"""
     if root.findtext('Succeeded') == 'false':
-        try:
-            error_reason = root.findtext('Reason')
-        except:
-            error_reason = 'unknown reason'
+        error_reason = root.findtext('Reason') or 'unknown_reason'
         raise Exception('Lookup failed: ' + error_reason)
 
     return parser(root)
