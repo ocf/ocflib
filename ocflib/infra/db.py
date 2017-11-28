@@ -22,5 +22,5 @@ def get_connection(user,
         cursorclass=cursorclass,
         charset=charset,
         autocommit=autocommit,
-        **kwargs,
+        **kwargs
     )
