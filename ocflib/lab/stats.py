@@ -5,14 +5,19 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-import pymysql
 from cached_property import cached_property
 
+from ocflib.infra import db
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
 # when we started keeping stats
 STATS_EPOCH = date(2014, 2, 15)
+
+get_connection = functools.partial(db.get_connection,
+                                   user='anonymous',
+                                   password=None,
+                                   db='ocfstats')
 
 
 class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
@@ -32,24 +37,6 @@ class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
 
 
 UserTime = namedtuple('UserTime', ['user', 'time'])
-
-
-def get_connection(user='anonymous', password=None, **kwargs):
-    """Return a connection to MySQL.
-
-    By default, returns an unprivileged connection which can be used for
-    querying most data.
-
-    If you need rw access, pass a user and password argument.
-    """
-    return pymysql.connect(
-        host='mysql.ocf.berkeley.edu',
-        user=user,
-        password=password,
-        db='ocfstats',
-        cursorclass=pymysql.cursors.DictCursor,
-        **dict({'autocommit': True}, **kwargs)
-    )
 
 
 def users_in_lab_count():

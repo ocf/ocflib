@@ -1,13 +1,16 @@
 import crypt
+import functools
 from collections import namedtuple
 
-import pymysql
 import requests
 from cached_property import cached_property
 
+from ocflib.infra import db
 
 VHOST_MAIL_DB_PATH = '/home/s/st/staff/vhost/vhost-mail.conf'
 VHOST_MAIL_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost-mail.conf'
+
+get_connection = functools.partial(db.get_connection, db='ocfmail')
 
 
 class MailVirtualHost(namedtuple('MailVirtualHost', ('user', 'domain'))):
@@ -93,16 +96,3 @@ def vhosts_for_user(user):
 def crypt_password(password):
     """Return hashed password, compatible with the vhost database."""
     return crypt.crypt(password, salt=crypt.METHOD_SHA512)
-
-
-def get_connection(user, password, db='ocfmail', **kwargs):
-    """Return a connection to MySQL."""
-    return pymysql.connect(
-        user=user,
-        password=password,
-        db=db,
-        host='mysql.ocf.berkeley.edu',
-        cursorclass=pymysql.cursors.DictCursor,
-        charset='utf8mb4',
-        **dict({'autocommit': True}, **kwargs)
-    )
