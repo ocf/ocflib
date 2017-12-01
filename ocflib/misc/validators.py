@@ -51,6 +51,7 @@ VALID_LOGIN_SHELLS = frozenset({
     '/usr/bin/tmux',
     '/bin/zsh',
     '/bin/tcsh',
+    '/usr/bin/fish',
 })
 
 # Separate the duplicates so we can list the above to users
