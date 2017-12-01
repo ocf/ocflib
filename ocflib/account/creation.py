@@ -327,13 +327,13 @@ def validate_username(username, realname):
 
     if similarity_heuristic(realname, username) > SIMILARITY_THRESHOLD:
         raise ValidationWarning(
-            'Username {} not based on real name {}'.format(username, realname))
+            'Username {} not based on real name {}.'.format(username, realname))
 
     if any(word in username for word in BAD_WORDS):
-        raise ValidationWarning('Username {} contains bad words'.format(username))
+        raise ValidationWarning('Username {} contains bad words.'.format(username))
 
     if any(word in username for word in RESTRICTED_WORDS):
-        raise ValidationWarning('Username {} contains restricted words'.format(username))
+        raise ValidationWarning('Username {} contains restricted words.'.format(username))
 
 
 def similarity_heuristic(realname, username):
