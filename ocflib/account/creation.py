@@ -29,7 +29,9 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 
 _KNOWN_UID = 50500
-BAD_WORDS = frozenset(('fuck', 'shit', 'cunt', 'bitch', 'dick'))
+BAD_WORDS = frozenset(('anal', 'anus', 'arse', 'ass', 'ballsack', 'balls', 'bastard', 'bitch', 'biatch', 'bloody', 'blowjob', 'blow job', 'bollock', 'bollok', 'boner', 'boob', 'bugger', 'bum', 'butt', 'buttplug', 'clitoris', 'cock', 'coon',
+'crap', 'cunt', 'damn', 'dick', 'dildo', 'dyke', 'fag', 'feck', 'fellate', 'fellatio', 'felching', 'fuck', 'fudgepacker', 'flange', 'Goddamn', 'hell', 'homo', 'jerk', 'jizz', 'knobend', 'knob end', 'labia', 'lmao', 'lmfao', 'muff',
+'nigger', 'nigga', 'omg', 'penis', 'piss', 'poop', 'prick', 'pube', 'pussy', 'queer', 'scrotum', 'sex', 'shit', 'slut', 'smegma', 'spunk', 'tit', 'tosser', 'turd', 'twat', 'vagina', 'wank', 'whore', 'wtf'))
 RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal', 'berkeley', 'university'))
 
 CREATE_PUBLIC_KEY = '''\
@@ -327,13 +329,13 @@ def validate_username(username, realname):
 
     if similarity_heuristic(realname, username) > SIMILARITY_THRESHOLD:
         raise ValidationWarning(
-            'Username {} not based on real name {}'.format(username, realname))
+            'Username {} not based on real name {}.'.format(username, realname))
 
     if any(word in username for word in BAD_WORDS):
-        raise ValidationWarning('Username {} contains bad words'.format(username))
+        raise ValidationWarning('Username {} contains bad words.'.format(username))
 
     if any(word in username for word in RESTRICTED_WORDS):
-        raise ValidationWarning('Username {} contains restricted words'.format(username))
+        raise ValidationWarning('Username {} contains restricted words.'.format(username))
 
 
 def similarity_heuristic(realname, username):
