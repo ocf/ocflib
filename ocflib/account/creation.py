@@ -30,11 +30,11 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 _KNOWN_UID = 50500
 BAD_WORDS = frozenset((
-    'anal', 'anus', 'arse', 'ass', 'balls', 'bastard', 'bitch', 'biatch', 'bloody', 'blowjob', 'bollock',
-    'bollok', 'boner', 'boob', 'chink', 'clit', 'cock', 'coon', 'crap', 'cunt', 'damn', 'dick', 'dildo', 'douche',
-    'dyke', 'fag', 'feck', 'fellate', 'fellatio', 'felching', 'fuck', 'flange', 'hell', 'homo', 'jerk', 'jizz', 'kike',
-    'knobend', 'labia', 'muff', 'nigger', 'nigga', 'penis', 'piss', 'prick', 'pube', 'pussy', 'queer', 'scrotum',
-    'sex', 'shit', 'slut', 'smegma', 'terrorist', 'tit', 'twat', 'vagina', 'wank', 'whore'
+    'anal', 'anus', 'arse', 'ass', 'bastard', 'bitch', 'biatch', 'bloody', 'blowjob', 'bollock',
+    'bollok', 'boner', 'chink', 'clit', 'cock', 'coon', 'cunt', 'damn', 'dick', 'dildo', 'douche',
+    'dyke', 'fag', 'fellate', 'fellatio', 'felching', 'fuck', 'flange', 'hell', 'homo', 'jerk', 'jizz', 'kike',
+    'labia', 'muff', 'nigger', 'nigga', 'penis', 'piss', 'prick', 'pube', 'pussy', 'queer', 'scrotum',
+    'sex', 'shit', 'slut', 'smegma', 'terrorist', 'twat', 'vagina', 'wank', 'whore'
 ))
 RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal', 'berkeley', 'university'))
 
