@@ -12,8 +12,8 @@ WEEKEND_QUOTA = 20
 SEMESTERLY_QUOTA = 100
 
 HAPPY_HOUR_QUOTA = 20
-HAPPY_HOUR_START = datetime(2017, 4, 30)
-HAPPY_HOUR_END = datetime(2017, 5, 13)
+HAPPY_HOUR_START = datetime(2017, 12, 4)
+HAPPY_HOUR_END = datetime(2017, 12, 17)
 
 
 get_connection = functools.partial(db.get_connection,
