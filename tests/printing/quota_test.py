@@ -52,10 +52,10 @@ TEST_REFUND = Refund(
     ('2015-08-25', WEEKDAY_QUOTA),  # Tuesday
     ('2015-08-26', WEEKDAY_QUOTA),  # Wednesday
     # Test "happy hour" quotas
-    ('2017-04-28', WEEKDAY_QUOTA),
-    ('2017-05-07', HAPPY_HOUR_QUOTA),
-    ('2017-05-08', HAPPY_HOUR_QUOTA),
-    ('2017-05-14', WEEKEND_QUOTA),
+    ('2017-12-01', WEEKDAY_QUOTA),
+    ('2017-12-07', HAPPY_HOUR_QUOTA),
+    ('2017-12-08', HAPPY_HOUR_QUOTA),
+    ('2017-12-23', WEEKEND_QUOTA),
 ])
 def test_daily_quota(time, expected):
     """Test that the daily quota returns reasonable things."""
