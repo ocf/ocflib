@@ -203,6 +203,7 @@ HOLIDAYS = [
     (date(2017, 11, 21), date(2017, 11, 21), 'Thanksgiving Break', [Hour(time(9), time(17))]),
     (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
     (date(2017, 11, 30), date(2017, 11, 30), 'Interview Workshop', [Hour(time(9), time(18))]),
+    (date(2017, 12, 10), date(2017, 12, 10), 'Late Lab Opening', [Hour(time(12), time(19))]),
     (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12))]),
     (date(2017, 12, 16), date(2018, 1, 15), 'Winter Break', []),
     (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
