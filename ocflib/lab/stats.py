@@ -39,6 +39,27 @@ class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
 UserTime = namedtuple('UserTime', ['user', 'time'])
 
 
+def humanize_bytes(n):
+    """
+    To convert bytes to human-readable units
+    Adapted from http://stackoverflow.com/a/1094933/1979001
+    """
+    for unit in ['', 'KB', 'MB', 'GB', 'TB', 'PB']:
+        if n < 1024.0:
+            return '{:3.2f} {}'.format(n, unit)
+        n /= 1024.0
+
+
+def bandwidth_by_dist(start):
+    with get_connection() as c:
+        c.execute(
+            'SELECT `dist`, SUM(`up` + `down`) as `bandwidth` FROM `mirrors_public` WHERE `date` > %s'
+            'GROUP BY `dist` ORDER BY `bandwidth` DESC', start,
+        )
+
+    return [(i['dist'], humanize_bytes(float(i['bandwidth']))) for i in c]
+
+
 def users_in_lab_count():
     """Return number of users in the lab, including staff and pubstaff."""
     with get_connection() as c:
