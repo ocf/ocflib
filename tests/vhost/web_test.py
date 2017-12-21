@@ -14,7 +14,7 @@ asucarch archive.asuc.org www.archive.asuc.org,modern.asuc.org,www.modern.asuc.o
 # [added 2015.04.16 ckuehl]
 staff contrib - /contrib [nossl]
 ocfwiki docs.ocf.berkeley.edu - - [hsts]
-"""  # noqa
+"""
 
 VHOSTS_EXAMPLE_PARSED = {
     'archive.asuc.org': {

@@ -15,14 +15,14 @@ GOOD_RESPONSE = """
         <cas:authenticationSuccess>
                 <cas:user>1034192</cas:user>
         </cas:authenticationSuccess>
-</cas:serviceResponse>"""  # noqa
+</cas:serviceResponse>"""
 
 BAD_RESPONSE = """
 <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
         <cas:authenticationFailure code='INVALID_TICKET'>
                 ticket &#039;ST-832595-ZOm6NYCTBJO0d41jjL6l-ncas-p3.calnet.berkeley.edu&#039; not recognized
         </cas:authenticationFailure>
-</cas:serviceResponse>"""  # noqa
+</cas:serviceResponse>"""
 
 
 class TestVerifyTicket:
