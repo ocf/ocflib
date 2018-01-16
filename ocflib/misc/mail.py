@@ -60,7 +60,7 @@ def send_mail_user(user, subject, body, sender=MAIL_FROM):
     send_mail(email_for_user(user), subject, body, sender=sender)
 
 
-def send_mail(to, subject, body, sender=MAIL_FROM):
+def send_mail(to, subject, body, cc=None, sender=MAIL_FROM):
     """Send a plain-text mail message.
 
     `body` should be a string with newlines, wrapped at about 80 characters."""
@@ -76,6 +76,7 @@ def send_mail(to, subject, body, sender=MAIL_FROM):
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = to
+    msg['Cc'] = cc
 
     # we send the message via sendmail, since we may one day prohibit traffic
     # to port 25 that doesn't go via the system mailserver
