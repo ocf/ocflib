@@ -12,11 +12,11 @@ from ocflib.account.utils import is_staff
 from ocflib.misc.mail import email_for_user
 
 
-STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours.yaml'
+STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
 
-
-Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
+Staffday = namedtuple('Staffday', ['day','hours']) 
+Hour = namedtuple('Hour', ['time', 'staff', 'cancelled'])
 
 
 class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
@@ -38,10 +38,12 @@ def _load_staff_hours():
         # fall back to loading from web
         return yaml.safe_load(requests.get(STAFF_HOURS_URL).text)
 
-
 def get_staff_hours():
-    staff_hours = _load_staff_hours()
+    staff_hours = load_staff_hours()
+    print(staff_hours)
+    return  [Staffday(day = staff_day,get_staff_hours_per_day(staff_hours[staff_day])) for staff_hour in staff_hours]
 
+def get_staff_hours_per_day(day):
     def position(uid):
         if uid in staff_hours['staff-positions']:
             return staff_hours['staff-positions'][uid]
@@ -49,11 +51,8 @@ def get_staff_hours():
             return 'Technical Manager'
         else:
             return 'Staff Member'
-
     return [
-        Hour(
-            day=hour['day'],
-            time=hour['time'],
+        Hour(time = hour,
             staff=[
                 Staffer(
                     user_name=attrs['uid'][0],
@@ -62,8 +61,8 @@ def get_staff_hours():
                 ) for attrs in map(user_attrs, hour['staff'])
             ],
             cancelled=hour['cancelled'],
-        ) for hour in staff_hours['staff-hours']
-    ]
+        ) for hour in day ]
+
 
 
 def _remove_middle_names(name):
