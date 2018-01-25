@@ -1,31 +1,33 @@
 import mock
 import pytest
 import yaml
-from freezegun import freeze_time
 
 from ocflib.lab.staff_hours import _load_staff_hours
+from ocflib.lab.staff_hours import date_is_holiday
 from ocflib.lab.staff_hours import get_staff_hours
-from ocflib.lab.staff_hours import get_staff_hours_soonest_first
 from ocflib.lab.staff_hours import Hour
+from ocflib.lab.staff_hours import StaffDay
 from ocflib.lab.staff_hours import Staffer
 
 
 TEST_HOURS = """\
-staff-hours:
--   day: Monday
-    time: 4:10-5:00pm
-    staff: [nickimp, ckuehl, lynntsai]
-    cancelled: false
+    staff-hours:
+      Monday:
+        4:10pm-5:00pm:
+          staff: [nickimp, ckuehl, lynntsai]
+          cancelled: false
+      Tuesday:
+        3:10pm-4:00pm:
+          staff: [willh]
+          cancelled: true
+        4:10pm-5:00pm:
+          staff: [willh]
+          cancelled: false
 
--   day: Tuesday
-    time: 3:10pm-4:00pm
-    staff: [willh]
-    cancelled: true
-
-staff-positions:
-    ckuehl: Site Manager
-    willh: Deputy Manager
-    nickimp: General Manager
+    staff-positions:
+        ckuehl: Site Manager
+        willh: Deputy Manager
+        nickimp: General Manager
 """
 
 
@@ -71,52 +73,54 @@ class TestLoadStaffHours:
 
 def test_get_staff_hours(mock_disk):
     assert get_staff_hours() == [
-        Hour(
-            day='Monday',
-            time='4:10-5:00pm',
-            staff=[
-                Staffer(
-                    user_name='nickimp',
-                    real_name='Nick Impicciche',
-                    position='General Manager',
-                ),
-                Staffer(
-                    user_name='ckuehl',
-                    real_name='Chris Kuehl',
-                    position='Site Manager',
-                ),
-                Staffer(
-                    user_name='lynntsai',
-                    real_name='Lynn Tsai',
-                    position='Staff Member',
-                ),
-            ],
-            cancelled=False,
-        ),
-        Hour(
-            day='Tuesday',
-            time='3:10pm-4:00pm',
-            staff=[
-                Staffer(
-                    user_name='willh',
-                    real_name='William Ho',
-                    position='Deputy Manager',
-                )
-            ],
-            cancelled=True,
-        ),
+        StaffDay(day='Monday',
+                 hours=[
+                     Hour(
+                         day='Monday',
+                         time='4:10pm-5:00pm',
+                         staff=[
+                             Staffer(
+                                 user_name='nickimp',
+                                 real_name='Nick Impicciche',
+                                 position='General Manager',
+                             ),
+                             Staffer(
+                                 user_name='ckuehl',
+                                 real_name='Chris Kuehl',
+                                 position='Site Manager',
+                             ),
+                             Staffer(
+                                 user_name='lynntsai',
+                                 real_name='Lynn Tsai',
+                                 position='Staff Member',
+                             ),
+                         ],
+                         cancelled=False,
+                     )],
+                 holiday=date_is_holiday('Monday')),
+        StaffDay(day='Tuesday',
+                 hours=[
+                     Hour(
+                         day='Tuesday',
+                         time='3:10pm-4:00pm',
+                         staff=[
+                             Staffer(
+                                 user_name='willh',
+                                 real_name='William Ho',
+                                 position='Deputy Manager',
+                             )
+                         ],
+                         cancelled=True),
+                     Hour(
+                         day='Tuesday',
+                         time='4:10pm-5:00pm',
+                         staff=[Staffer(
+                             user_name='willh',
+                             real_name='William Ho',
+                             position='Deputy Manager')],
+                         cancelled=False)],
+                 holiday=date_is_holiday('Tuesday'))
     ]
-
-
-@pytest.mark.parametrize('time,expected', [
-    ('2015-08-23', ['Monday', 'Tuesday']),  # Sunday
-    ('2015-08-24', ['Monday', 'Tuesday']),  # Monday
-    ('2015-08-25', ['Tuesday', 'Monday']),  # Tuesday
-    ('2015-08-26', ['Monday', 'Tuesday']),  # Wednesday
-])
-def test_get_staff_hours_soonest_first(mock_disk, time, expected):
-    with freeze_time(time):
-        assert [hour.day for hour in get_staff_hours_soonest_first()] == expected
 
 
 @pytest.mark.parametrize('size', [10, 100, 1000])
