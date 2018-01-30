@@ -16,8 +16,8 @@ STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
 
 Staffday = namedtuple('Staffday', ['day','hours']) 
-Hour = namedtuple('Hour', ['time', 'staff', 'cancelled'])
-
+Staffhour = namedtuple('Staffhour', ['time', 'staff', 'cancelled'])
+Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
 class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
 
@@ -41,7 +41,7 @@ def _load_staff_hours():
 def get_staff_hours():
     staff_hours = _load_staff_hours()
     hour_info = staff_hours['staff-hours']
-    print([Staffday(day = staff_day, hours = get_staff_hours_per_day(hour_info[staff_day], staff_hours)) for staff_day in hour_info])
+    return [Staffday(day = staff_day, hours = get_staff_hours_per_day(hour_info[staff_day], staff_hours)) for staff_day in hour_info]
 
 def get_staff_hours_per_day(day, staff_hours):
     def position(uid):
@@ -51,9 +51,8 @@ def get_staff_hours_per_day(day, staff_hours):
             return 'Technical Manager'
         else:
             return 'Staff Member'
-    print([day[hour] for hour in day])
     return [
-        Hour(time = hour,
+        Staffhour(time = hour,
             staff=[
                 Staffer(
                     user_name=attrs['uid'][0],
