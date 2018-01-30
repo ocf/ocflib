@@ -39,11 +39,11 @@ def _load_staff_hours():
         return yaml.safe_load(requests.get(STAFF_HOURS_URL).text)
 
 def get_staff_hours():
-    staff_hours = load_staff_hours()
-    print(staff_hours)
-    return  [Staffday(day = staff_day,get_staff_hours_per_day(staff_hours[staff_day])) for staff_hour in staff_hours]
+    staff_hours = _load_staff_hours()
+    hour_info = staff_hours['staff-hours']
+    print([Staffday(day = staff_day, hours = get_staff_hours_per_day(hour_info[staff_day], staff_hours)) for staff_day in hour_info])
 
-def get_staff_hours_per_day(day):
+def get_staff_hours_per_day(day, staff_hours):
     def position(uid):
         if uid in staff_hours['staff-positions']:
             return staff_hours['staff-positions'][uid]
@@ -51,6 +51,7 @@ def get_staff_hours_per_day(day):
             return 'Technical Manager'
         else:
             return 'Staff Member'
+    print([day[hour] for hour in day])
     return [
         Hour(time = hour,
             staff=[
@@ -58,9 +59,9 @@ def get_staff_hours_per_day(day):
                     user_name=attrs['uid'][0],
                     real_name=_remove_middle_names(attrs['cn'][0]),
                     position=position(attrs['uid'][0]),
-                ) for attrs in map(user_attrs, hour['staff'])
+                ) for attrs in map(user_attrs, day[hour]['staff'])
             ],
-            cancelled=hour['cancelled'],
+            cancelled= day[hour]['cancelled'],
         ) for hour in day ]
 
 
