@@ -76,5 +76,4 @@ def get_staff_hours_soonest_first():
     #change to include the next two staff hours not the first two in a day
     sorted_days = sorted(get_staff_hours(), key=lambda hour: days.index(hour.day))
     hours = list(chain.from_iterable([day.hours for day in sorted_days]))
-    print(hours)
     return(hours)
