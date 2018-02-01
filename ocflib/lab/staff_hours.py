@@ -60,14 +60,18 @@ def get_staff_hours():
     
     hour_info = staff_hours['staff-hours']
     for staff_day in hour_info:
-        hours_for_day = get_staff_hours_per_day(hour_info[staff_day],staff_hours, staff_day)
+        hours_for_day = get_staff_hours_per_day(hour_info[staff_day],
+                        staff_hours, staff_day)
         all_hours_cancelled = check_hours_cancelled(hours_for_day)
         my_holiday = date_is_holiday(staff_day)
-        lst_of_staff_days.append(Staffday(day = staff_day, hours = hours_for_day, 
+        lst_of_staff_days.append(Staffday(day = staff_day, 
+                hours = hours_for_day, 
                 no_staff_hours_today = all_hours_cancelled,
                 holiday = my_holiday))
-    return sorted(lst_of_staff_days, key = lambda staff_day: 
+    sorted_days = sorted(lst_of_staff_days, key = lambda staff_day: 
                 string_to_constant[staff_day.day])
+    print("In OCFLIB")
+    return sorted_days
 
 def get_staff_hours_per_day(day, staff_hours, name_of_day):
     def position(uid):
@@ -96,6 +100,12 @@ def _remove_middle_names(name):
 
 
 def get_staff_hours_soonest_first():
+    def determine_hours_away(hour):
+        def parse_time_string(time):
+            
+        time_as_string = hour[time]
+        day = hour[day]
+
     today = date.today()
     days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
     #change to include the next two staff hours not the first two in a day
