@@ -16,7 +16,7 @@ from ocflib.misc.mail import email_for_user
 STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
 
-Staffday = namedtuple('Staffday', ['day','hours']) 
+Staffday = namedtuple('Staffday', ['day','hours','no_staff_hours_today']) 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
 class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
@@ -39,9 +39,23 @@ def _load_staff_hours():
         return yaml.safe_load(requests.get(STAFF_HOURS_URL).text)
 
 def get_staff_hours():
+    lst_of_staff_days= []
     staff_hours = _load_staff_hours()
+
+    def check_hours_cancelled(lst_of_hours):
+        for hour in lst_of_hours:
+            if (getattr(hour,'cancelled') == False):
+                return False
+        return True
+
     hour_info = staff_hours['staff-hours']
-    return [Staffday(day = staff_day, hours = get_staff_hours_per_day(hour_info[staff_day], staff_hours, staff_day)) for staff_day in hour_info]
+    for staff_day in hour_info:
+        hours_for_day = get_staff_hours_per_day(hour_info[staff_day],staff_hours, staff_day)
+        all_hours_cancelled = check_hours_cancelled(hours_for_day)
+        lst_of_staff_days.append(Staffday(day = staff_day, hours = hours_for_day, 
+                no_staff_hours_today = all_hours_cancelled))
+    print (lst_of_staff_days)
+    return lst_of_staff_days
 
 def get_staff_hours_per_day(day, staff_hours, name_of_day):
     def position(uid):
@@ -51,6 +65,7 @@ def get_staff_hours_per_day(day, staff_hours, name_of_day):
             return 'Technical Manager'
         else:
             return 'Staff Member'
+
     return [
         Hour(day = name_of_day, time = hour,
             staff=[
@@ -60,10 +75,8 @@ def get_staff_hours_per_day(day, staff_hours, name_of_day):
                     position=position(attrs['uid'][0]),
                 ) for attrs in map(user_attrs, day[hour]['staff'])
             ],
-            cancelled= day[hour]['cancelled'],
+            cancelled = day[hour]['cancelled'],
         ) for hour in day ]
-
-
 
 def _remove_middle_names(name):
     names = name.split(' ')
