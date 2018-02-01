@@ -8,6 +8,7 @@ from itertools import chain
 import requests
 import yaml
 
+from ocflib.lab.hours import Day
 from ocflib.account.search import user_attrs
 from ocflib.account.utils import is_staff
 from ocflib.misc.mail import email_for_user
@@ -16,7 +17,7 @@ from ocflib.misc.mail import email_for_user
 STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
 
-Staffday = namedtuple('Staffday', ['day','hours','no_staff_hours_today']) 
+Staffday = namedtuple('Staffday', ['day','hours','no_staff_hours_today', 'holiday']) 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
 class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
@@ -52,8 +53,10 @@ def get_staff_hours():
     for staff_day in hour_info:
         hours_for_day = get_staff_hours_per_day(hour_info[staff_day],staff_hours, staff_day)
         all_hours_cancelled = check_hours_cancelled(hours_for_day)
+        my_holiday = date_is_holiday(staff_day)
         lst_of_staff_days.append(Staffday(day = staff_day, hours = hours_for_day, 
-                no_staff_hours_today = all_hours_cancelled))
+                no_staff_hours_today = all_hours_cancelled,
+                holiday = my_holiday))
     print (lst_of_staff_days)
     return lst_of_staff_days
 
@@ -90,3 +93,11 @@ def get_staff_hours_soonest_first():
     sorted_days = sorted(get_staff_hours(), key=lambda hour: days.index(hour.day))
     hours = list(chain.from_iterable([day.hours for day in sorted_days]))
     return(hours)
+
+def date_is_holiday(name_of_day):
+    #come up with a better way to convert from the day given in the textfile
+    string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
+    today = date.today() 
+    modded_day = today.isoweekday() % string_to_constant['Sunday'] 
+    date_object = Day.from_date(today + timedelta(days = string_to_constant[name_of_day] - modded_day))
+    return date_object.holiday
