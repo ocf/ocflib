@@ -209,6 +209,8 @@ RESERVED_USERNAMES = frozenset((
     'vhost',
     'vnc',
     'web',
+    'webhost',
+    'webhosting',
     'webmaster',
     'wiki',
     'wordpress',
