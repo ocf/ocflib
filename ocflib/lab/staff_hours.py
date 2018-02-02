@@ -119,7 +119,7 @@ def get_staff_hours_soonest_first():
             if (colon_index != -1):
                 print(type(digital_time_string))
                 secs += float((digital_time_string[colon_index + 1:]).strip())* seconds_in_a_min
-            secs += float((digital_time_string[:colon_index]).strip()) * seconds_in_an_hour
+            secs += int((digital_time_string[:colon_index]).strip()) * seconds_in_an_hour
             return secs
 
         def parse_time_string_with_am_pm(time):
@@ -145,7 +145,7 @@ def get_staff_hours_soonest_first():
         day = hour.day
         day_diff = today.isoweekday() - string_to_constant[day]
         staff_hours_seconds = parse_time_string_with_am_pm(time_as_string)
-        now = date.date.now().strftime("%H:%M")
+        now = date.datetime.now().strftime("%H:%M")
         seconds_now = parse_time_string_no_am_pm(now)
         earlier_in_day_or_earlier_in_week = day_diff < 0 \
                 or today.isoweekday() == string_to_constant[day] \
