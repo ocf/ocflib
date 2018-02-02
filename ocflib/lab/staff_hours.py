@@ -102,6 +102,12 @@ def _remove_middle_names(name):
 def get_staff_hours_soonest_first():
     def determine_hours_away(hour):
         def parse_time_string(time):
+            time_string_start = time[:time.index('-')]
+            am_or_pm = time_string_start[-2]
+            if (am_or_pm == 'a'):
+
+            
+            
             
         time_as_string = hour[time]
         day = hour[day]
