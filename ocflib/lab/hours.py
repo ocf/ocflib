@@ -188,24 +188,7 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
 
 HOLIDAYS = [
     # start date, end date, holiday name, list of hours (date ranges are inclusive)
-    (date(2017, 5, 13), date(2017, 8, 23), 'Summer Break', []),
-    (date(2017, 9, 3), date(2017, 9, 3), 'Early Lab Closure', [Hour(time(11), time(18))]),
-    (date(2017, 9, 4), date(2017, 9, 4), 'Labor Day', []),
-    (date(2017, 9, 5), date(2017, 9, 5), 'Early Lab Closure', [Hour(time(9), time(19))]),
-    (date(2017, 9, 14), date(2017, 9, 14), 'MLK Closed', [Hour(time(9), time(15))]),
-    (date(2017, 9, 27), date(2017, 9, 27), 'Closed due to MLK evacuation', []),
-    (date(2017, 10, 16), date(2017, 10, 16), 'Early Lab Closure', [Hour(time(9), time(17))]),
-    (date(2017, 11, 9), date(2017, 11, 9), 'Early Lab Closure for Resume Workshop', [Hour(time(9), time(18))]),
-    (date(2017, 11, 10), date(2017, 11, 10), 'Veterans Day (Academic Holiday)', []),
-    (date(2017, 11, 11), date(2017, 11, 11), 'Veterans Day', []),
-    (date(2017, 11, 14), date(2017, 11, 14), 'Early Lab Closure for FAFSA Workshop', [Hour(time(9), time(18))]),
-    (date(2017, 11, 16), date(2017, 11, 16), 'Job Search Workshop', [Hour(time(9), time(18))]),
-    (date(2017, 11, 21), date(2017, 11, 21), 'Thanksgiving Break', [Hour(time(9), time(17))]),
-    (date(2017, 11, 22), date(2017, 11, 26), 'Thanksgiving Break', []),
-    (date(2017, 11, 30), date(2017, 11, 30), 'Interview Workshop', [Hour(time(9), time(18))]),
-    (date(2017, 12, 10), date(2017, 12, 10), 'Late Lab Opening', [Hour(time(12), time(19))]),
-    (date(2017, 12, 15), date(2017, 12, 15), 'Last Day Fall 2017', [Hour(time(9), time(12))]),
-    (date(2017, 12, 16), date(2018, 1, 15), 'Winter Break', []),
+    (date(2018, 2, 1), date(2018, 2, 1), 'Early Lab Closure', [Hour(time(9), time(19))]),
     (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
     (date(2018, 3, 24), date(2018, 4, 1), 'Spring Break', []),
 ]
