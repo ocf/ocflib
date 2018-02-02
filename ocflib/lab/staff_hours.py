@@ -100,9 +100,11 @@ def _remove_middle_names(name):
 
 
 def get_staff_hours_soonest_first():
+    today = date.today()
     def determine_hours_away(hour):
         now = 0
         hours_away_in_sec = 0
+        seconds_in_day = 24 * 3600
         seconds_in_half_a_day = 12 * 3600
         seconds_in_an_hour = 3600
         seconds_in_a_min = 60
@@ -111,11 +113,13 @@ def get_staff_hours_soonest_first():
             'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
    
         def convert_to_sec_from_day_start(digital_time_string):
+            print(digital_time_string)
             secs = 0
             colon_index = digital_time_string.find(":")
             if (colon_index != -1):
-                secs += digital_time_string[colon_index + 1:] * seconds_in_a_min
-            secs += digital_time_string[:colon_index] * seconds_in_an_hour
+                print(type(digital_time_string))
+                secs += float((digital_time_string[colon_index + 1:]).strip())* seconds_in_a_min
+            secs += float((digital_time_string[:colon_index]).strip()) * seconds_in_an_hour
             return secs
 
         def parse_time_string_with_am_pm(time):
@@ -124,6 +128,7 @@ def get_staff_hours_soonest_first():
             time_string_start = time[:time.index('-')]
             am_or_pm = time_string_start[-2]
             if (am_or_pm == 'p'):
+                print(am_or_pm)
                 num_of_secs = seconds_in_half_a_day
             num_of_secs +=  convert_to_sec_from_day_start(time_string_start[:-2])
             return num_of_secs
@@ -132,27 +137,30 @@ def get_staff_hours_soonest_first():
             secs = 0
             colon_index = time.find(":")
             if (colon_index != -1):
-                secs += time[colon_index + 1:] * seconds_in_a_min
+                secs += int(time[colon_index + 1:]) * seconds_in_a_min
             secs += convert_to_sec_from_day_start(time[:colon_index]) * seconds_in_a_hour
             return secs
-
-        time_as_string = hour[time]
-        day = hour[day]
+        
+        time_as_string = hour.time
+        day = hour.day
         day_diff = today.isoweekday() - string_to_constant[day]
-        staff_hours_seconds = parse_time_string(time_as_string)
-        now = datetime.datetime.now().strftime("%H:%M")
+        staff_hours_seconds = parse_time_string_with_am_pm(time_as_string)
+        now = date.date.now().strftime("%H:%M")
         seconds_now = parse_time_string_no_am_pm(now)
-        if (day_diff < 0 or staff_hours_seconds < today_second):
+        earlier_in_day_or_earlier_in_week = day_diff < 0 \
+                or today.isoweekday() == string_to_constant[day] \
+                and staff_hours_second < today_second
+        if (earlier_in_day_or_earlier_in_week):
             day_diff += days_in_week
-        hours_away_in_sec += day_diff
-        hours_away_in_sec += staff_hours_seconds + (hours_in_a_day
+
+        hours_away_in_sec += day_diff * seconds_in_day 
+        hours_away_in_sec += staff_hour_seconds - seconds_now
         return hours_away_in_sec
         
 
-    today = date.today()
-    days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
-    #change to include the next two staff hours not the first two in a day
-    sorted_days = sorted(get_staff_hours(), key=lambda hour: days.index(hour.day))
-    hours = list(chain.from_iterable([day.hours for day in sorted_days]))
+    hours = chain.from_iterable([staff_day.hours for staff_day in get_staff_hours()])
+    print(hours)
+    hours = sorted(hours, key = lambda x: determine_hours_away(x))
     return(hours)
+
 
