@@ -99,6 +99,18 @@ def _remove_middle_names(name):
     return names[0] + ' ' + names[-1]
 
 
+def convert_to_sec_from_day_start(digital_time_string):
+    secs = 0
+    colon_index = digital_time_string.find(":")
+    if (colon_index != -1):
+        secs += int((digital_time_string[colon_index + 1:]).strip()) \
+                * seconds_in_a_min
+        secs += int((digital_time_string[:colon_index]).strip()) \
+                * seconds_in_a_hour
+        else:
+            secs += int((digital_time_string).strip()) * seconds_in_a_hour
+    return secs
+
 def get_staff_hours_soonest_first():
     today = date.today()
     def determine_hours_away(hour):
