@@ -71,7 +71,6 @@ def get_staff_hours():
                 holiday = my_holiday))
     sorted_days = sorted(lst_of_staff_days, key = lambda staff_day: 
                 string_to_constant[staff_day.day])
-    print("In OCFLIB")
     return sorted_days
 
 def get_staff_hours_per_day(day, staff_hours, name_of_day):
@@ -112,23 +111,20 @@ def get_staff_hours_soonest_first():
         days_in_week = 7
         string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 
             'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
-   
+        time_as_string = hour.time
+        day = hour.day
+        day_diff = today.isoweekday() - string_to_constant[day]
+        now = dtime.now().strftime("%H:%M")
+        
         def convert_to_sec_from_day_start(digital_time_string):
-            print("digital_time:" + digital_time_string)
             secs = 0
             colon_index = digital_time_string.find(":")
             if (colon_index != -1):
-                print(type(digital_time_string))
                 secs += int((digital_time_string[colon_index + 1:]).strip()) \
                         * seconds_in_a_min
                 secs += int((digital_time_string[:colon_index]).strip()) \
                         * seconds_in_a_hour
             else:
-                print("hello")
-                print("bye")
-                print("len is" + str(len(digital_time_string)))
-                print("type is" + str(type(digital_time_string)))
-                print(digital_time_string)
                 secs += int((digital_time_string).strip()) * seconds_in_a_hour
             return secs
 
@@ -136,43 +132,27 @@ def get_staff_hours_soonest_first():
             num_of_secs = 0
             am_or_pm = None 
             time_string_end = time[time.index('-') + 1:]
-            print("time string end is;" + time_string_end)
             time_string_end = time_string_end.strip()
-            print("time string end after strip:" + time_string_end)
             am_or_pm = time_string_end[-2]
             if (am_or_pm == 'p'):
-                print(am_or_pm)
                 num_of_secs = seconds_in_half_a_day
             num_of_secs +=  convert_to_sec_from_day_start(time_string_end[:-2])
             return num_of_secs
         
         def parse_time_string_no_am_pm(time):
-            secs = 0
-            print("parse time string no am_pm: " + time)
-            colon_index = time.find(":")
-            secs += int(time[colon_index + 1:]) * seconds_in_a_min
-            print("Secs now time 2:" + str(secs))
-            secs += int(time[:colon_index]) * seconds_in_a_hour
-            print("secs now time 3:" + str(secs))
-            return secs
+            return convert_to_sec_from_day_start(time)
         
-        time_as_string = hour.time
-        day = hour.day
-        day_diff = today.isoweekday() - string_to_constant[day]
         staff_hours_seconds = parse_time_string_with_am_pm(time_as_string)
-        print("return of parse_time_String:" + str(parse_time_string_with_am_pm(time_as_string)))
-        print("staff_hour second:" + str(staff_hours_seconds))
-        now = dtime.now().strftime("%H:%M")
         today_time_in_sec =  parse_time_string_no_am_pm(now)
         earlier_in_day_or_earlier_in_week = day_diff < 0 \
                 or today.isoweekday() == string_to_constant[day] \
                 and staff_hours_seconds < today_time_in_sec
+        
         if (earlier_in_day_or_earlier_in_week):
             day_diff += days_in_week
 
         hours_away_in_sec += day_diff * seconds_in_day 
         hours_away_in_sec += staff_hours_seconds - today_time_in_sec 
-        print("hours_Away" + str(day) + ":" + str(time_as_string) + "-" + str(hours_away_in_sec))
         return hours_away_in_sec
         
 
