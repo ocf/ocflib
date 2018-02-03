@@ -113,7 +113,9 @@ def get_staff_hours_soonest_first():
             'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
         time_as_string = hour.time
         day = hour.day
-        day_diff = today.isoweekday() - string_to_constant[day]
+        day_diff = string_to_constant[day] - today.isoweekday()
+        print("day:" + str(day))
+        print("day_diff" + str(day_diff))
         now = dtime.now().strftime("%H:%M")
         
         def convert_to_sec_from_day_start(digital_time_string):
@@ -146,9 +148,10 @@ def get_staff_hours_soonest_first():
         today_time_in_sec =  parse_time_string_no_am_pm(now)
         earlier_in_day_or_earlier_in_week = day_diff < 0 \
                 or today.isoweekday() == string_to_constant[day] \
-                and staff_hours_seconds < today_time_in_sec
-        
+                and staff_hours_seconds < today_time_in_sec 
         if (earlier_in_day_or_earlier_in_week):
+            print("day:" + str(day))
+            print("daydiff:" + str(day))
             day_diff += days_in_week
 
         hours_away_in_sec += day_diff * seconds_in_day 
