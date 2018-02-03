@@ -135,12 +135,15 @@ def get_staff_hours_soonest_first():
         def parse_time_string_with_am_pm(time):
             num_of_secs = 0
             am_or_pm = None 
-            time_string_start = time[:time.index('-')]
-            am_or_pm = time_string_start[-2]
+            time_string_end = time[time.index('-') + 1:]
+            print("time string end is;" + time_string_end)
+            time_string_end = time_string_end.strip()
+            print("time string end after strip:" + time_string_end)
+            am_or_pm = time_string_end[-2]
             if (am_or_pm == 'p'):
                 print(am_or_pm)
                 num_of_secs = seconds_in_half_a_day
-            num_of_secs +=  convert_to_sec_from_day_start(time_string_start[:-2])
+            num_of_secs +=  convert_to_sec_from_day_start(time_string_end[:-2])
             return num_of_secs
         
         def parse_time_string_no_am_pm(time):
