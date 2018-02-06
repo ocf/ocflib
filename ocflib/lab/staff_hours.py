@@ -21,6 +21,15 @@ STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
 Staffday = namedtuple('Staffday', ['day','hours','no_staff_hours_today', 'holiday']) 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
+string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 
+        'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
+
+hours_away_in_sec = 0
+seconds_in_day = 24 * 3600
+seconds_in_half_a_day = 12 * 3600
+seconds_in_a_hour = 3600
+seconds_in_a_min = 60
+
 class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
 
     def gravatar(self, size=100):
@@ -40,11 +49,37 @@ def _load_staff_hours():
         # fall back to loading from web
         return yaml.safe_load(requests.get(STAFF_HOURS_URL).text)
 
+def convert_to_sec_from_day_start(digital_time_string):
+    secs = 0
+    colon_index = digital_time_string.find(":")
+    if (colon_index != -1):
+        secs += int((digital_time_string[colon_index + 1:]).strip()) \
+            * seconds_in_a_min
+        secs += int((digital_time_string[:colon_index]).strip()) \
+            * seconds_in_a_hour
+    else:
+        secs += int((digital_time_string).strip()) * seconds_in_a_hour
+    return secs
+
+def parse_time_string_with_am_pm(time, end = True):
+    num_of_secs = 0
+    am_or_pm = None 
+    time_string_end = None
+    if (time_string_end):
+        time_string_end = time[time.index('-') + 1:]
+    else:
+        time_string_end = time[:time.index('-')]
+    time_string_end = time_string_end.strip()
+    am_or_pm = time_string_end[-2]
+    if (am_or_pm == 'p'):
+        num_of_secs = seconds_in_half_a_day
+    num_of_secs +=  convert_to_sec_from_day_start(time_string_end[:-2])
+    return num_of_secs
+
 def get_staff_hours():
     lst_of_staff_days= []
     staff_hours = _load_staff_hours()
-    string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 
-            'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
+
     def check_hours_cancelled(lst_of_hours):
         for hour in lst_of_hours:
             if (getattr(hour,'cancelled') == False):
@@ -60,6 +95,7 @@ def get_staff_hours():
         return date_object.holiday
     
     hour_info = staff_hours['staff-hours']
+    print(hour_info)
     for staff_day in hour_info:
         hours_for_day = get_staff_hours_per_day(hour_info[staff_day],
                         staff_hours, staff_day)
@@ -74,6 +110,7 @@ def get_staff_hours():
     return sorted_days
 
 def get_staff_hours_per_day(day, staff_hours, name_of_day):
+    
     def position(uid):
         if uid in staff_hours['staff-positions']:
             return staff_hours['staff-positions'][uid]
@@ -82,7 +119,7 @@ def get_staff_hours_per_day(day, staff_hours, name_of_day):
         else:
             return 'Staff Member'
 
-    return [
+    return sorted([
         Hour(day = name_of_day, time = hour,
             staff=[
                 Staffer(
@@ -92,27 +129,17 @@ def get_staff_hours_per_day(day, staff_hours, name_of_day):
                 ) for attrs in map(user_attrs, day[hour]['staff'])
             ],
             cancelled = day[hour]['cancelled'],
-        ) for hour in day ]
+            ) for hour in day ], key = lambda hour: 
+                parse_time_string_with_am_pm(hour.time, False))
+                    
 
 def _remove_middle_names(name):
     names = name.split(' ')
     return names[0] + ' ' + names[-1]
 
-
-def convert_to_sec_from_day_start(digital_time_string):
-    secs = 0
-    colon_index = digital_time_string.find(":")
-    if (colon_index != -1):
-        secs += int((digital_time_string[colon_index + 1:]).strip()) \
-                * seconds_in_a_min
-        secs += int((digital_time_string[:colon_index]).strip()) \
-                * seconds_in_a_hour
-        else:
-            secs += int((digital_time_string).strip()) * seconds_in_a_hour
-    return secs
-
 def get_staff_hours_soonest_first():
     today = date.today()
+    
     def determine_hours_away(hour):
         now = 0
         hours_away_in_sec = 0
@@ -121,35 +148,10 @@ def get_staff_hours_soonest_first():
         seconds_in_a_hour = 3600
         seconds_in_a_min = 60
         days_in_week = 7
-        string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 
-            'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
         time_as_string = hour.time
         day = hour.day
         day_diff = string_to_constant[day] - today.isoweekday()
         now = dtime.now().strftime("%H:%M")
-        
-        def convert_to_sec_from_day_start(digital_time_string):
-            secs = 0
-            colon_index = digital_time_string.find(":")
-            if (colon_index != -1):
-                secs += int((digital_time_string[colon_index + 1:]).strip()) \
-                        * seconds_in_a_min
-                secs += int((digital_time_string[:colon_index]).strip()) \
-                        * seconds_in_a_hour
-            else:
-                secs += int((digital_time_string).strip()) * seconds_in_a_hour
-            return secs
-
-        def parse_time_string_with_am_pm(time):
-            num_of_secs = 0
-            am_or_pm = None 
-            time_string_end = time[time.index('-') + 1:]
-            time_string_end = time_string_end.strip()
-            am_or_pm = time_string_end[-2]
-            if (am_or_pm == 'p'):
-                num_of_secs = seconds_in_half_a_day
-            num_of_secs +=  convert_to_sec_from_day_start(time_string_end[:-2])
-            return num_of_secs
         
         def parse_time_string_no_am_pm(time):
             return convert_to_sec_from_day_start(time)
