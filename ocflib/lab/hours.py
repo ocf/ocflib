@@ -21,8 +21,10 @@ from datetime import timedelta
 
 import requests
 
-HOURS_URL = 'https://www.ocf.berkeley.edu/api/hours'
+from ocflib.infra.db import get_connection
+from ocflib.printing.quota import _namedtuple_to_query
 
+HOURS_URL = 'https://www.ocf.berkeley.edu/api/hours'
 
 def _generate_regular_hours():
     """pull hours from ocfweb and return them in the manner expected by Day().
@@ -60,6 +62,35 @@ def _generate_regular_hours():
 def _parsetime(t):
     return datetime.strptime(t, '%H:%M:%S').time()
 
+def _get_holiday_connection():
+    return get_connection(user='anonymous',
+            password=None,
+            db='holiday')
+
+def add_holiday(holiday):
+    """Adds a holiday to the database"""
+    
+    with _get_holiday_connection() as c:
+        c.execute(*_namedtuple_to_query('INSERT INTO holiday ({}) VALUES({})', holiday))
+
+def _raw_holidays(limit):
+    with _get_holiday_connection() as c:
+        c.execute("SELECT * FROM holiday")
+        return c.fetchmany(size=limit)
+
+def get_holidays(limit=10):
+    """Get a list of holidays from a database"""
+    raw = _raw_holidays(limit)
+    holidays = []
+    for day in raw:
+        d = (day['start_date'],
+            day['end_date'],
+            day['holiday'],
+            (datetime.min + day['start_time']).time(),
+            (datetime.min + day['end_time']).time()
+            )
+        holidays.append(d)
+    return holidays
 
 class Hour:
 
@@ -105,7 +136,7 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
         my_holiday = None
         my_hours = _generate_regular_hours()[when.weekday()]
 
-        for start, end, name, hours in HOLIDAYS:
+        for start, end, name, hours in get_holidays(): 
             if start <= when <= end:
                 my_holiday = name
                 my_hours = hours
@@ -186,10 +217,3 @@ class Day(namedtuple('Day', ['date', 'weekday', 'holiday', 'hours'])):
         return not self.hours
 
 
-HOLIDAYS = [
-    # start date, end date, holiday name, list of hours (date ranges are inclusive)
-    (date(2018, 2, 1), date(2018, 2, 1), 'Early Lab Closure', [Hour(time(9), time(19))]),
-    (date(2018, 2, 4), date(2018, 2, 4), 'Early Lab Closure', [Hour(time(9), time(15))]),
-    (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
-    (date(2018, 3, 24), date(2018, 4, 1), 'Spring Break', []),
-]
