@@ -165,6 +165,7 @@ RESERVED_USERNAMES = frozenset((
     'shellinabox',
     'shirts',
     'shorturl',
+    'signin',
     'snmp',
     'spamass-milter',
     'spamd',
