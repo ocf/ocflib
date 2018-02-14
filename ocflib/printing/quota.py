@@ -87,29 +87,11 @@ def get_quota(c, user):
     )
 
 
-def _namedtuple_to_query(query, nt):
-    """Return a filled-out query and arguments.
-
-    The return value can be exploded and passed directly into execute.
-
-    >>> query = 'INSERT INTO jobs ({}) VALUES ({});'
-    >>> namedtuple_to_query(query, job)
-    ('INSERT INTO jobs (`user`, `pages`) VALUES (%s, %s)', ('ckuehl', 42))
-    """
-    return (
-        query.format(
-            ', '.join('`{}`'.format(column) for column in nt._fields),
-            ', '.join('%s' for _ in nt._fields),
-        ),
-        tuple(getattr(nt, column) for column in nt._fields),
-    )
-
-
 def add_job(c, job):
     """Add a new job to the database."""
-    c.execute(*_namedtuple_to_query('INSERT INTO jobs ({}) VALUES ({})', job))
+    c.execute(*db.namedtuple_to_query('INSERT INTO jobs ({}) VALUES ({})', job))
 
 
 def add_refund(c, refund):
     """Add a new refund to the database."""
-    c.execute(*_namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
+    c.execute(*db.namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
