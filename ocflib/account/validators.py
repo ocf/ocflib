@@ -46,6 +46,7 @@ RESERVED_USERNAMES = frozenset((
     'cricket',
     'csgo',
     'daemon',
+    'datathon',
     'davfs2',
     'dca',
     'debian-security-support',
