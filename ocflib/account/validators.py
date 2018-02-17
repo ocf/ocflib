@@ -54,6 +54,7 @@ RESERVED_USERNAMES = frozenset((
     'debian-transmission',
     'debmirror',
     'deforestation',
+    'directors',
     'dns',
     'dnsmasq',
     'docs',
