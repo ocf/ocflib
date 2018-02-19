@@ -76,6 +76,14 @@ def parse_time_string_with_am_pm(time, end = True):
     num_of_secs +=  convert_to_sec_from_day_start(time_string_end[:-2])
     return num_of_secs
 
+def date_is_holiday(name_of_day):
+    #come up with a better way to convert from the day given in the textfile
+    today = date.today() 
+    modded_day = today.isoweekday() % string_to_constant['Sunday'] 
+    date_object = Day.from_date(today + timedelta(days = 
+                                    string_to_constant[name_of_day] - modded_day))
+    return date_object.holiday
+
 def get_staff_hours():
     lst_of_staff_days= []
     staff_hours = _load_staff_hours()
@@ -85,17 +93,8 @@ def get_staff_hours():
             if (getattr(hour,'cancelled') == False):
                 return False
         return True
-
-    def date_is_holiday(name_of_day):
-        #come up with a better way to convert from the day given in the textfile
-        today = date.today() 
-        modded_day = today.isoweekday() % string_to_constant['Sunday'] 
-        date_object = Day.from_date(today + timedelta(days = 
-                        string_to_constant[name_of_day] - modded_day))
-        return date_object.holiday
     
     hour_info = staff_hours['staff-hours']
-    print(hour_info)
     for staff_day in hour_info:
         hours_for_day = get_staff_hours_per_day(hour_info[staff_day],
                         staff_hours, staff_day)
@@ -171,7 +170,8 @@ def get_staff_hours_soonest_first():
 
     hours = chain.from_iterable([staff_day.hours for staff_day in get_staff_hours()])
     hours = sorted(hours, key = lambda x: determine_hours_away(x))
-    hours_with_no_cancelled_hours  = [hour for hour in hours if not hour.cancelled]
+    hours = [hour for hour in hours if not hour.cancelled]
+    hours_with_no_cancelled_hours = [hour for hour in hours if not date_is_holiday(hour.day)] 
     return(hours_with_no_cancelled_hours)
 
 
