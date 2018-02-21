@@ -8,6 +8,7 @@ from itertools import chain
 
 import requests
 import yaml
+import json
 
 from ocflib.lab.hours import Day
 from ocflib.account.search import user_attrs
@@ -17,7 +18,8 @@ from ocflib.misc.mail import email_for_user
 
 STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
-
+STAFF_BIOS_FILE = 'home/s/st/staff/staff_bios_example_vaibhav.yaml'
+STAFF_BIOS_URL = ''
 Staffday = namedtuple('Staffday', ['day','hours','no_staff_hours_today', 'holiday']) 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
@@ -30,14 +32,27 @@ seconds_in_half_a_day = 12 * 3600
 seconds_in_a_hour = 3600
 seconds_in_a_min = 60
 
-class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
+def _load_staff_bios():
+    """Load staff bios"""
+    try:
+        with open(STAFF_BIOS_FILE) as f:
+            return yaml.safe_load(f)
+    except IOError:
+        return yaml.safe_load(requests.get(STAFF_BIOS_URL).txt)
+staff_bios = _load_staff_bios()
 
+class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
     def gravatar(self, size=100):
         email = email_for_user(self.user_name, check_exists=False)
         return 'https://www.gravatar.com/avatar/{hash}?{params}'.format(
             hash=md5(email.lower().encode('utf-8')).hexdigest(),
             params=urlencode({'d': 'mm', 's': size}),
         )
+
+    def get_bio(self):
+        staff_bio = staff_bios[self.username]
+        return staff_bio
+        
 
 
 def _load_staff_hours():
@@ -173,5 +188,4 @@ def get_staff_hours_soonest_first():
     hours = [hour for hour in hours if not hour.cancelled]
     hours_with_no_cancelled_hours = [hour for hour in hours if not date_is_holiday(hour.day)] 
     return(hours_with_no_cancelled_hours)
-
 
