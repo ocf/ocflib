@@ -18,14 +18,15 @@ from ocflib.misc.mail import email_for_user
 
 STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
-STAFF_BIOS_FILE = 'home/s/st/staff/staff_bios_example_vaibhav.yaml'
-STAFF_BIOS_URL = ''
+STAFF_BIOS_FILE = '/home/s/st/staff/staff_bios_example_vaibhav.yaml'
+STAFF_BIOS_URL = 'https://www.ocf.berkeley.edu/~staff/vaibhav.yaml'
 Staffday = namedtuple('Staffday', ['day','hours','no_staff_hours_today', 'holiday']) 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
 string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 
         'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7}
 
+default_staff_bio_string = "I spend every waking minute of my life at the OCF."
 hours_away_in_sec = 0
 seconds_in_day = 24 * 3600
 seconds_in_half_a_day = 12 * 3600
@@ -38,8 +39,9 @@ def _load_staff_bios():
         with open(STAFF_BIOS_FILE) as f:
             return yaml.safe_load(f)
     except IOError:
-        return yaml.safe_load(requests.get(STAFF_BIOS_URL).txt)
+        return yaml.safe_load(requests.get(STAFF_BIOS_URL).text)
 staff_bios = _load_staff_bios()
+print(staff_bios)
 
 class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
     def gravatar(self, size=100):
@@ -50,7 +52,7 @@ class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
         )
 
     def get_bio(self):
-        staff_bio = staff_bios[self.username]
+        staff_bio = staff_bios.get(self.user_name, default_staff_bio_string)
         return staff_bio
         
 
