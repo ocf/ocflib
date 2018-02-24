@@ -5,4 +5,5 @@ ipdb
 mock
 pre-commit
 pytest
+pytest-xdist
 twine
