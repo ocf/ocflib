@@ -17,7 +17,7 @@ from ocflib.misc.mail import email_for_user
 
 STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours_example_vaibhav.yaml'
 STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
-Staffday = namedtuple('Staffday', ['day', 'hours', 'no_staff_hours_today', 'holiday'])
+StaffDay = namedtuple('Staffday', ['day', 'hours', 'holiday'])
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
 string_to_constant = {'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
@@ -90,25 +90,18 @@ def get_staff_hours():
     lst_of_staff_days = []
     staff_hours = _load_staff_hours()
 
-    def check_hours_cancelled(lst_of_hours):
-        for hour in lst_of_hours:
-            if (getattr(hour, 'cancelled') is False):
-                return False
-        return True
-
     hour_info = staff_hours['staff-hours']
     for staff_day in hour_info:
         hours_for_day = get_staff_hours_per_day(hour_info[staff_day],
                                                 staff_hours, staff_day)
-        all_hours_cancelled = check_hours_cancelled(hours_for_day)
         my_holiday = date_is_holiday(staff_day)
-        lst_of_staff_days.append(Staffday(day=staff_day,
-                                          hours=hours_for_day,
-                                          no_staff_hours_today=all_hours_cancelled,
-                                          holiday=my_holiday))
-    sorted_days = sorted(lst_of_staff_days, key=lambda staff_day:
-                         string_to_constant[staff_day.day])
-    return sorted_days
+        lst_of_staff_days.append(
+            StaffDay(day=staff_day,
+                     hours=hours_for_day,
+                     holiday=my_holiday)
+        )
+    return sorted(lst_of_staff_days, key=lambda staff_day:
+                  string_to_constant[staff_day.day])
 
 
 def get_staff_hours_per_day(day, staff_hours, name_of_day):
@@ -131,7 +124,7 @@ def get_staff_hours_per_day(day, staff_hours, name_of_day):
                  ) for attrs in map(user_attrs, day[hour]['staff'])
              ],
              cancelled=day[hour]['cancelled'] or
-             date_is_holiday(name_of_day),
+             date_is_holiday(name_of_day) is not None,
              ) for hour in day], key=lambda hour:
         parse_time_string_with_am_pm(hour.time, False))
 
