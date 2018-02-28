@@ -191,5 +191,6 @@ HOLIDAYS = [
     (date(2018, 2, 1), date(2018, 2, 1), 'Early Lab Closure', [Hour(time(9), time(19))]),
     (date(2018, 2, 4), date(2018, 2, 4), 'Early Lab Closure', [Hour(time(9), time(15))]),
     (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
+    (date(2018, 3, 3), date(2018, 3, 3), 'Early Lab Closure', [Hour(time(9), time(12))]),
     (date(2018, 3, 24), date(2018, 4, 1), 'Spring Break', []),
 ]
