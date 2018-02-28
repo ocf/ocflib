@@ -113,6 +113,7 @@ GRANT SELECT ON `ocfstats`.`session_duration_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`users_in_lab_count_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`unique_users_in_lab_count_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`staff_in_lab_public` TO 'anonymous'@'%';
+GRANT SELECT ON `ocfstats`.`desktops_in_use_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`staff_session_duration_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`printer_pages_public` TO 'anonymous'@'%';
 GRANT SELECT ON `ocfstats`.`printer_toner_public` TO 'anonymous'@'%';
