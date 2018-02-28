@@ -81,6 +81,11 @@ CREATE VIEW `staff_in_lab_public` AS
         SELECT `user` FROM `staff`
     );
 
+DROP VIEW IF EXISTS desktops_in_use_public;
+CREATE VIEW desktops_in_use_public AS
+    SELECT `host` FROM `session_duration_public`
+    WHERE `end` IS NULL;
+
 DROP VIEW IF EXISTS printer_pages_public;
 CREATE VIEW `printer_pages_public` AS
     SELECT `id`, `date`, `printer`, `value` FROM `printer_pages`;
