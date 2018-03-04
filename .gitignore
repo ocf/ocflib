@@ -61,8 +61,3 @@ debian/python3-ocflib/
 debian/python3-ocflib.substvars
 debian/*.debhelper
 /venv
-.pytest_cache
-Makefile
-ocflib/lab/.nfs00000000017d843a000002de
-tests/lab/.nfs00000000017d843c00000282
-pytest.ini
