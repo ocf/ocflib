@@ -108,7 +108,7 @@ def _remove_middle_names(name):
 def sort_hours(hour):
     now = datetime.now()
     end_of_staff_hr = hour.time[hour.time.find('-') + 1:]
-    time_diff = parse(end_of_staff_hr) - now
+    time_diff = parse(hour.day + end_of_staff_hr) - now
     if (time_diff < timedelta(0)):
         time_diff = timedelta.max
     return time_diff
