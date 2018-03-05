@@ -49,15 +49,8 @@ clean: autoversion
 autoversion:
 	date +%Y.%-m.%-d.%-H.%-M > .version
 	rm -f debian/changelog
-<<<<<<< HEAD
 	DEBFULLNAME="Open Computing Facility" DEBEMAIL="help@ocf.berkeley.edu" \
 		dch -v `cat .version` -D stable --no-force-save-on-release \
 		--create --force-distribution --package "python-ocflib" "Package for Debian."
 	dch --local "~deb$(shell lsb_release -rs | cut -d . -f 1)u" \
                 "Package for $(shell lsb_release -cs)."
-=======
-	DEBFULLNAME="Open Computing Facility" DEBEMAIL="help@ocf.berkeley.edu" VISUAL=true \
-		dch -v `cat .version` -D stable --no-force-save-on-release \
-		--create --force-distribution --package "python-ocflib" "Package for Debian."
-	VISUAL=touch dch --local "~deb$(shell lsb_release -rs | cut -d . -f 1)u"
->>>>>>> Update .gitignore

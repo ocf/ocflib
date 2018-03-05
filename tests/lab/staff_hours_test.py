@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import mock
 import pytest
 import yaml
@@ -5,6 +7,7 @@ import yaml
 from ocflib.lab.staff_hours import _load_staff_hours
 from ocflib.lab.staff_hours import date_is_holiday
 from ocflib.lab.staff_hours import get_staff_hours
+from ocflib.lab.staff_hours import get_staff_hours_soonest_first
 from ocflib.lab.staff_hours import Hour
 from ocflib.lab.staff_hours import StaffDay
 from ocflib.lab.staff_hours import Staffer
@@ -121,6 +124,22 @@ def test_get_staff_hours(mock_disk):
                          cancelled=False)],
                  holiday=date_is_holiday('Tuesday'))
     ]
+
+
+@pytest.mark.parametrize('time,expected', [
+    ('2015-08-23 9:33 am', ['Monday', 'Tuesday']),  # Sunday
+    ('2015-08-24 9:33 am', ['Monday', 'Tuesday']),  # Monday Morning
+    ('2015-08-24 5:01 pm', ['Tuesday', 'Monday']),  # Monday evening
+    ('2015-08-25 9:33 am', ['Tuesday', 'Monday']),  # Tueday Morning
+    ('2015-08-25 3:33 pm', ['Tuesday', 'Monday']),  # Tuesday during cancelled hours
+    ('2015-08-25 4:15 pm', ['Tuesday', 'Monday']),  # Tuesday during staff hours
+    ('2015-08-27 9:33 am', ['Monday', 'Tuesday']),  # Thursday morning
+    ('2015-08-29 1:00 pm', ['Monday', 'Tuesday']),  # Saturday Afternoon
+])
+def test_get_staff_hours_soonest_first(mock_disk, time, expected):
+    test_time = datetime.strptime(time, '%Y-%m-%d %I:%M %p')
+    print(test_time)
+    assert [hour.day for hour in get_staff_hours_soonest_first(test_time)] == expected
 
 
 @pytest.mark.parametrize('size', [10, 100, 1000])
