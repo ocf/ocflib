@@ -11,6 +11,12 @@ WEEKDAY_QUOTA = 10
 WEEKEND_QUOTA = 20
 SEMESTERLY_QUOTA = 100
 
+# Per BoD decision of 2017-04-24, the rules for making changes to the printing
+# quota, (non-normatively) summarized, are:
+#   - BoD alone normally holds sole authority to change the printing quota.
+#   - During breaks, Cabinet can make temporary changes to this quota.
+#   - At the next BoD meeting, BoD can ratify those temporary changes to make
+#     them permanent. If it doesn't, then those changes automatically expire.
 HAPPY_HOUR_QUOTA = 20
 HAPPY_HOUR_START = datetime(2017, 12, 4)
 HAPPY_HOUR_END = datetime(2017, 12, 17)
