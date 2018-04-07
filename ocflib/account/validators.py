@@ -29,6 +29,7 @@ RESERVED_USERNAMES = frozenset((
     'backup',
     'bin',
     'bind',
+    'bjb',
     'board',
     'boinc',
     'bullseye',
