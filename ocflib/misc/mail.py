@@ -24,15 +24,15 @@ group providing free printing, web hosting, disk space, and Unix shell
 accounts.
 
 We love free & open-source software. Sound like you? Get involved!
-https://ocf.io/staff
+    https://ocf.io/staff
 
 OCF volunteers hold weekly staff hours to provide support:
     https://ocf.io/staff-hours
 
-    Need help connecting to the OCF?
+Need help connecting to the OCF?
     https://ocf.io/ssh
 
-    Need to reset your account password?
+Need to reset your account password?
     https://ocf.io/password"""
 
 jinja_mail_env = Environment(loader=PackageLoader('ocflib', ''))
