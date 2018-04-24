@@ -1,5 +1,6 @@
 """Information, stats, and control of printers."""
 from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.proto.rfc1905 import NoSuchObject
 
 PRINTERS = ['papercut', 'pagefault']
 
@@ -28,6 +29,10 @@ def _snmp(host, oid):
     elif err_status:
         raise IOError(
             'Device {} returned error status: {}'.format(host, err_status),
+        )
+    elif isinstance(response_kv[0][1], NoSuchObject):
+        raise IOError(
+            'Device {} returned error status: NoSuchObject()'.format(host),
         )
     else:
         return response_kv[0][1]
