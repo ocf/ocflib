@@ -149,6 +149,7 @@ RESERVED_USERNAMES = frozenset((
     'postgres',
     'postgrey',
     'print',
+    'printerlog',
     'printing',
     'procmail',
     'prometheus',
