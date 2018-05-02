@@ -17,9 +17,10 @@ SEMESTERLY_QUOTA = 100
 #   - During breaks, Cabinet can make temporary changes to this quota.
 #   - At the next BoD meeting, BoD can ratify those temporary changes to make
 #     them permanent. If it doesn't, then those changes automatically expire.
+
 HAPPY_HOUR_QUOTA = 20
-HAPPY_HOUR_START = datetime(2017, 12, 4)
-HAPPY_HOUR_END = datetime(2017, 12, 17)
+HAPPY_HOUR_START = datetime(2018, 4, 30)
+HAPPY_HOUR_END = datetime(2018, 5, 13)
 
 
 get_connection = functools.partial(db.get_connection,
