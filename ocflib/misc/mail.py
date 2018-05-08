@@ -78,8 +78,8 @@ def send_mail(to, subject, body, cc=None, sender=MAIL_FROM):
     msg['To'] = to
     msg['Cc'] = cc
 
-    # we send the message via sendmail, since we may one day prohibit traffic
-    # to port 25 that doesn't go via the system mailserver
+    # we send the message via sendmail because direct traffic to port 25
+    # is firewalled off
     p = subprocess.Popen((SENDMAIL_PATH, '-t', '-oi'),
                          stdin=subprocess.PIPE)
     p.communicate(msg.as_string().encode('utf8'))
