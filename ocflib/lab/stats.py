@@ -8,6 +8,7 @@ from datetime import timedelta
 from cached_property import cached_property
 
 from ocflib.infra import db
+from ocflib.infra.hosts import hostname_from_domain
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
@@ -155,6 +156,12 @@ def list_desktops(public_only=False):
     with ldap_ocf() as c:
         c.search(OCF_LDAP_HOSTS, filter, attributes=['cn'])
         return [entry['attributes']['cn'][0] for entry in c.response]
+
+def desktops_in_use():
+    """Return list of desktop names in use."""
+    with get_connection() as c:
+        c.execute('SELECT * FROM `desktops_in_use_public`')
+        return [hostname_from_domain(h['host']) for h in c]
 
 
 class UtilizationProfile(namedtuple('UtilizationProfile', [
