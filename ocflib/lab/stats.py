@@ -157,11 +157,12 @@ def list_desktops(public_only=False):
         c.search(OCF_LDAP_HOSTS, filter, attributes=['cn'])
         return [entry['attributes']['cn'][0] for entry in c.response]
 
+
 def desktops_in_use():
     """Return list of desktop names in use."""
     with get_connection() as c:
-        c.execute('SELECT * FROM `desktops_in_use_public`')
-        return [hostname_from_domain(h['host']) for h in c]
+        c.execute('SELECT `host` FROM `desktops_in_use_public`')
+        return {hostname_from_domain(h) for h in c}
 
 
 class UtilizationProfile(namedtuple('UtilizationProfile', [
