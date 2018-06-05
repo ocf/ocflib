@@ -21,7 +21,7 @@ from datetime import timedelta
 
 import requests
 
-HOURS_URL = 'https://www.ocf.berkeley.edu/api/hours'
+HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/hours_temp'
 
 
 def _generate_regular_hours():
