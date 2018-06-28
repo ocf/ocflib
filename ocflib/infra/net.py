@@ -8,7 +8,7 @@ OCF_DNS_RESOLVER = ip_address('169.229.226.22')
 OCF_GATEWAY_V4 = ip_address('169.229.226.1')
 OCF_GATEWAY_V6 = ip_address('2607:f140:8801::1')
 OCF_SUBNET_V4 = ip_network('169.229.226.0/24')
-OCF_SUBNET_V6 = ip_network('2607:f140:8801::/64')
+OCF_SUBNET_V6 = ip_network('2607:f140:8801::/48')
 OCF_SUBNET_V6_COMPAT = ip_network('2607:f140:8801::1:0/112')
 
 

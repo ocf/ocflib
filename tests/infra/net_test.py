@@ -69,8 +69,10 @@ def test_6to4_failure(ipv6):
     (ip_address('169.229.226.212'), True),
     (ip_address('2607:f140:8801::10'), True),
     (ip_address('2607:f140:8801::1:10'), True),
+    (ip_address('2607:f140:8801:100::1'), True),
 
     (ip_address('8.8.8.8'), False),
+    (ip_address('2607:f140:8802::1'), False),
     (ip_address('cafe:f140:8801::1:10'), False),
 ])
 def test_is_ocf_ip(ip, expected):
