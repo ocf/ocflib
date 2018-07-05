@@ -24,3 +24,21 @@ def get_connection(user,
         autocommit=autocommit,
         **kwargs
     )
+
+
+def namedtuple_to_query(query, nt):
+    """Return a filled-out query and arguments.
+
+    The return value can be exploded and passed directly into execute.
+
+    >>> query = 'INSERT INTO jobs ({}) VALUES ({});'
+    >>> namedtuple_to_query(query, job)
+    ('INSERT INTO jobs (`user`, `pages`) VALUES (%s, %s)', ('ckuehl', 42))
+    """
+    return (
+        query.format(
+            ', '.join('`{}`'.format(column) for column in nt._fields),
+            ', '.join('%s' for _ in nt._fields),
+        ),
+        tuple(getattr(nt, column) for column in nt._fields),
+    )
