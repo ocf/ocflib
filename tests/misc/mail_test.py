@@ -58,6 +58,23 @@ class TestEmailSending:
         assert msg['Subject'] == 'hello world'
         assert msg['From'] == 'ocflib <help@ocf.berkeley.edu>'
         assert msg['To'] == 'devnull@ocf.berkeley.edu'
+        assert msg['Cc'] == ''
+        assert msg.get_payload() == 'this is a body'
+
+    def test_send_mail_cc(self, mock_popen):
+        send_mail(
+            'devnull@ocf.berkeley.edu',
+            'hello world',
+            'this is a body',
+            sender='ocflib <help@ocf.berkeley.edu>',
+            cc='keur@ocf.berkeley.edu',
+        )
+
+        msg = self.get_message(mock_popen)
+        assert msg['Subject'] == 'hello world'
+        assert msg['From'] == 'ocflib <help@ocf.berkeley.edu>'
+        assert msg['To'] == 'devnull@ocf.berkeley.edu'
+        assert msg['Cc'] == 'keur@ocf.berkeley.edu'
         assert msg.get_payload() == 'this is a body'
 
     def test_send_mail_user(self, mock_popen):
@@ -72,6 +89,7 @@ class TestEmailSending:
         assert msg['Subject'] == 'hello world'
         assert msg['From'] == 'ocflib <help@ocf.berkeley.edu>'
         assert msg['To'] == 'ckuehl@ocf.berkeley.edu'
+        assert msg['Cc'] == ''
         assert msg.get_payload() == 'this is a body'
 
     @pytest.mark.parametrize('sender,recipient', [
@@ -90,4 +108,5 @@ class TestEmailSending:
         assert msg['Subject'].startswith('[ocflib] Problem report')
         assert msg['From'] == 'ocflib <root@ocf.berkeley.edu>'
         assert msg['To'] == MAIL_ROOT
+        assert msg['Cc'] == ''
         assert 'hellllo world' in msg.get_payload()
