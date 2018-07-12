@@ -9,6 +9,7 @@ from ocflib.account.search import user_is_sorried
 from ocflib.account.search import users_by_callink_oid
 from ocflib.account.search import users_by_calnet_uid
 from ocflib.account.search import users_by_filter
+from ocflib.account.search import users_in_group
 from tests.conftest import TEST_PERSON_CALNET_UID
 
 
@@ -101,3 +102,13 @@ class TestUserIsGroup:
     def test_notexistent_user(self):
         with pytest.raises(Exception):
             user_is_group('doesnotexist')
+
+
+@pytest.mark.parametrize('user,group,is_in', [
+    ('ckuehl', 'ocfroot', True),
+    ('gstaff', 'ocfstaff', True),
+    ('guser', 'ocfstaff', False),
+    ('testopstaff', 'opstaff', True),
+])
+def test_user_is_in_group(user, group, is_in):
+    assert (user in users_in_group(group)) == is_in
