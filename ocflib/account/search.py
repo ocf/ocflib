@@ -2,6 +2,7 @@
 import ldap3
 
 import ocflib.infra.ldap as ldap
+from ocflib.infra.ldap import OCF_LDAP_GROUPS
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 from ocflib.infra.ldap import UCB_LDAP_PEOPLE
 
@@ -70,3 +71,16 @@ def user_is_group(username):
     """Returns whether username is an OCF group account."""
     attrs = user_attrs(username)
     return 'callinkOid' in attrs
+
+
+def users_in_group(groupname):
+    """Returns the list of users in an LDAP group."""
+
+    with ldap.ldap_ocf() as c:
+        c.search(
+            OCF_LDAP_GROUPS,
+            '(cn={})'.format(groupname),
+            attributes=('memberUid',),
+            search_scope=ldap3.LEVEL,
+        )
+        return c.response[0]['attributes']['memberUid']
