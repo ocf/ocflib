@@ -67,6 +67,8 @@ def public_html_path(user):
 def is_staff(user, group='ocfstaff'):
     """Return whether the user is a staff member.
 
+    DEPRECATED. Use is_in_group instead.
+
     :param group: UNIX group to use to determine if someone is a staff member.
     """
     return user in list_staff(group=group)
@@ -75,7 +77,25 @@ def is_staff(user, group='ocfstaff'):
 def list_staff(group='ocfstaff'):
     """Return a list of staff members.
 
+    DEPRECATED. Use list_group instead,
+
     :param group: UNIX group to use to determine if someone is a staff member.
+    """
+    return grp.getgrnam(group).gr_mem
+
+
+def is_in_group(user, group):
+    """Return whether the user is in a group.
+
+    :param group: UNIX group to use.
+    """
+    return user in list_group(group)
+
+
+def list_group(group):
+    """Return a list of OCF users in a group
+
+    :param group: UNIX group to list.
     """
     return grp.getgrnam(group).gr_mem
 

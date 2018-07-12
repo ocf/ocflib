@@ -8,7 +8,7 @@ import requests
 import yaml
 
 from ocflib.account.search import user_attrs
-from ocflib.account.utils import is_staff
+from ocflib.account.utils import is_in_group
 from ocflib.misc.mail import email_for_user
 
 
@@ -45,7 +45,7 @@ def get_staff_hours():
     def position(uid):
         if uid in staff_hours['staff-positions']:
             return staff_hours['staff-positions'][uid]
-        elif is_staff(uid, group='ocfroot'):
+        elif is_in_group(uid, 'ocfroot'):
             return 'Technical Manager'
         else:
             return 'Staff Member'
