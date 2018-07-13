@@ -87,6 +87,9 @@ def list_staff(group='ocfstaff'):
 def is_in_group(user, group):
     """Return whether the user is in a group.
 
+    Only will return True if the user is a supplementary member, so "sorry"
+    won't work here.
+
     :param group: UNIX group to use.
     """
     return user in list_group(group)
@@ -94,6 +97,9 @@ def is_in_group(user, group):
 
 def list_group(group):
     """Return a list of OCF users in a group
+
+    Only returns users who have this group listed as a supplementary group, so
+    "sorry" won't work here.
 
     :param group: UNIX group to list.
     """
