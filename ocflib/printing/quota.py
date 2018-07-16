@@ -4,7 +4,7 @@ from datetime import datetime
 
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
-from ocflib.account.utils import is_staff
+from ocflib.account.utils import is_in_group
 from ocflib.infra import db
 
 WEEKDAY_QUOTA = 10
@@ -72,7 +72,7 @@ def daily_quota(day=None):
 
 def get_quota(c, user):
     """Return a UserQuota representing the user's quota."""
-    if is_staff(user, 'opstaff'):
+    if is_in_group(user, 'opstaff'):
         return UserQuota(user, 500, 500)
 
     if not user_exists(user) or user_is_group(user):

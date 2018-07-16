@@ -5,8 +5,8 @@ import pytest
 from ocflib.account.utils import dn_for_username
 from ocflib.account.utils import extract_username_from_principal
 from ocflib.account.utils import home_dir
-from ocflib.account.utils import is_staff
-from ocflib.account.utils import list_staff
+from ocflib.account.utils import is_in_group
+from ocflib.account.utils import list_group
 from ocflib.account.utils import password_matches
 from ocflib.account.utils import web_dir
 
@@ -137,21 +137,27 @@ class TestUserPaths:
 
 
 @pytest.mark.parametrize('user,group,expected', [
-    ('ckuehl', None, True),
-    ('ckuehl', 'ocfroot', True),
-    ('bpreview', None, False),
-    ('bpreview', 'ocfroot', False),
+    ('gstaff', 'ocfstaff', True),
+    ('guser', 'ocfstaff', False),
+    ('testopstaff', 'opstaff', True),
+    ('guser', 'opstaff', False),
 ])
-def test_is_staff(user, group, expected):
-    kwargs = {} if not group else {'group': group}
-    assert is_staff(user, **kwargs) is expected
+def test_is_in_group(user, group, expected):
+    assert is_in_group(user, group) is expected
 
 
-def test_list_staff():
-    staff = list_staff()
-    assert 'ckuehl' in staff
-    assert 'bpreview' not in staff
-    assert 5 <= len(staff) <= 125
+def test_list_group():
+    ocfstaff = list_group('ocfstaff')
+    assert 'gstaff' in ocfstaff
+    assert 'guser' not in ocfstaff
+    assert 5 <= len(ocfstaff) <= 200
+
+    opstaff = list_group('opstaff')
+    assert 'testopstaff' in opstaff
+    assert 'guser' not in opstaff
+    assert 1 <= len(opstaff) <= 30
+
+    assert len(list_group('ocfroot')) >= 1
 
 
 def test_dn_for_username():
