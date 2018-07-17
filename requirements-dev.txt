@@ -1,8 +1,10 @@
 coverage
 coveralls
 freezegun
+google-api-python-client
 ipdb
 mock
+oauth2client
 pre-commit
 pytest
 pytest-xdist

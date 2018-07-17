@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+from ocflib.misc.gapps_lists import GAppsAdmin
+
+if __name__ == '__main__':
+    print('Enter path to service account credentials')
+    path = input('-> ')
+
+    admin = GAppsAdmin(path)
+
+    print('officers@ocf.berkeley.edu:')
+    print('\n'.join(admin.list_members('officers@ocf.berkeley.edu')))
