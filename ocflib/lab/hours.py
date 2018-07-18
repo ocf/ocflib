@@ -193,7 +193,7 @@ HOLIDAYS = [
     (date(2018, 2, 19), date(2018, 2, 19), 'Presidents\' Day', []),
     (date(2018, 3, 3), date(2018, 3, 3), 'Early Lab Closure', [Hour(time(9), time(12))]),
     (date(2018, 3, 24), date(2018, 4, 1), 'Spring Break', []),
-    (date(2018, 5, 12), date(2018, 8, 14), 'Summer Break', []),
+    (date(2018, 5, 12), date(2018, 8, 21), 'Summer Break', []),
     (date(2018, 9, 3), date(2018, 9, 3), 'Labor Day', []),
     (date(2018, 11, 12), date(2018, 11, 12), 'Veterans Day', []),
     (date(2018, 11, 21), date(2018, 11, 25), 'Thanksgiving Break', []),
