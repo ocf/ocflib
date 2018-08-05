@@ -12,4 +12,5 @@ mk-build-deps -i --tool 'apt-get --no-install-recommends -y'
 make builddeb
 
 shopt -s nullglob
-install -o "$DIST_UID" -g "$DIST_GID" -m 644 ../{*.changes,*.deb,*.dsc,*.tar.*,*.buildinfo} /mnt/dist/
+install -o "$DIST_UID" -g "$DIST_GID" -d "/mnt/dist_$1/"
+install -o "$DIST_UID" -g "$DIST_GID" -m 644 ../{*.changes,*.deb,*.dsc,*.tar.*,*.buildinfo} "/mnt/dist_$1/"
