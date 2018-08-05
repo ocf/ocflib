@@ -26,7 +26,6 @@ setup(
         'dnspython',
         'jinja2',
         'ldap3',
-        'paramiko',
         'pexpect',
         'pycryptodome',
         'pymysql',
