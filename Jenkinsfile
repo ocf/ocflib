@@ -33,6 +33,12 @@ pipeline {
   }
 
   stages {
+    stage('check-gh-trust') {
+      steps {
+        checkGitHubAccess()
+      }
+    }
+
     stage('test') {
       environment {
         COVERALLS_REPO_TOKEN = credentials('coveralls_token')
