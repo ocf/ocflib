@@ -1,6 +1,12 @@
 try {
     node('slave') {
         step([$class: 'WsCleanup'])
+        
+        stage('test-command') {
+            dir('src') {
+                sh 'ls'
+            }
+        }
 
         stage('check-out-code') {
             dir('src') {
