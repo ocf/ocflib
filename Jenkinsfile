@@ -2,12 +2,10 @@ def dists = ['jessie', 'stretch', 'buster']
 
 def parallelBuilds = dists.collectEntries {
   ["${it}" : { dist ->
-    { ->
-      stage("build-${dist}") {
-        sh 'make clean'
-        sh "make package_${dist}"
-        archiveArtifacts artifacts: "dist_${dist}/*"
-      }
+    stage("build-${dist}") {
+      sh 'make clean'
+      sh "make package_${dist}"
+      archiveArtifacts artifacts: "dist_${dist}/*"
     }
   }]
 }
