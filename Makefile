@@ -1,7 +1,7 @@
 # first set COVERALLS_REPO_TOKEN=<repo token> environment variable
 .PHONY: coveralls
 coveralls:
-	ls
+	ls -lha
 
 venv: setup.py requirements-dev.txt
 	vendor/venv-update \
