@@ -1,7 +1,7 @@
 def dists = ['jessie', 'stretch', 'buster']
 
-def parallelBuilds = dists.collectEntries {
-  ["${it}" : { dist ->
+def parallelBuilds = dists.collectEntries { dist ->
+  [dist, {
     stage("build-${dist}") {
       sh 'make clean'
       sh "make package_${dist}"
