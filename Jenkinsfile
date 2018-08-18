@@ -1,94 +1,84 @@
-try {
-    node('slave') {
-        step([$class: 'WsCleanup'])
+def dists = ['jessie', 'stretch', 'buster']
 
-        stage('check-out-code') {
-            dir('src') {
-                checkout scm
-            }
-        }
+def parallelStagesMap = dists.collectEntries {
+  ["${it}" : generateStage(it)]
+}
 
-        withCredentials([[
-            $class: 'StringBinding',
-            credentialsId: 'coveralls_token',
-            variable: 'COVERALLS_REPO_TOKEN'
-        ]]) {
-            stage('test') {
-                dir('src') {
-                    sh 'make coveralls'
-                }
-            }
-        }
-
-        stash 'src'
+def generateStage(dist) {
+  return {
+    stage("build-${dist}") {
+      sh 'make clean'
+      sh "make package_${dist}"
+      archiveArtifacts artifacts: "dist_${dist}/*"
     }
-
 
     if (env.BRANCH_NAME == 'master') {
-        node('deploy') {
-            step([$class: 'WsCleanup'])
-            unstash 'src'
-
-            stage('push-to-pypi') {
-                dir('src') {
-                    sh 'make release-pypi'
-                }
-            }
+      node('deploy') {
+        stage("upload-${dist}") {
+          uploadChanges(dist, "dist_${dist}/*.changes")
         }
+      }
+    }
+  }
+}
+
+pipeline {
+  agent {
+    label 'slave'
+  }
+
+  options {
+    ansiColor('xterm')
+    timeout(time: 1, unit: 'HOURS')
+  }
+
+  stages {
+    stage('check-gh-trust') {
+      steps {
+        checkGitHubAccess()
+      }
     }
 
+    stage('test') {
+      environment {
+        COVERALLS_REPO_TOKEN = credentials('coveralls_token')
+      }
+      steps {
+        sh 'make coveralls'
+      }
+    }
 
-    def dists = ['jessie', 'stretch']
-    def branches = [:]
+    stage('push-to-pypi') {
+      when {
+        branch 'master'
+      }
+      agent {
+        label 'deploy'
+      }
+      steps {
+        sh 'make release-pypi'
+      }
+    }
 
-    for (def i = 0; i < dists.size(); i++) {
-        def dist = dists[i]
-        branches["build-and-deploy-${dist}"] = {
-            stage("build-${dist}") {
-                node('slave') {
-                    step([$class: 'WsCleanup'])
-                    unstash 'src'
-
-                    dir('src') {
-                        sh 'make clean'
-                        sh "make package_${dist}"
-                        sh "mv dist dist_${dist}"
-                        archiveArtifacts artifacts: "dist_${dist}/*"
-                    }
-
-                    stash 'src'
-                }
-            }
-
-            if (env.BRANCH_NAME == 'master') {
-                stage("upload-${dist}") {
-                    build job: 'upload-changes', parameters: [
-                        [$class: 'StringParameterValue', name: 'path_to_changes', value: "dist_${dist}/*.changes"],
-                        [$class: 'StringParameterValue', name: 'dist', value: dist],
-                        [$class: 'StringParameterValue', name: 'job', value: env.JOB_NAME.replace('/', '/job/')],
-                        [$class: 'StringParameterValue', name: 'job_build_number', value: env.BUILD_NUMBER],
-                    ]
-                }
-            }
+    stage('parallel-builds') {
+      steps {
+        script {
+          parallel parallelStagesMap
         }
+      }
     }
-    parallel branches
+  }
 
-} catch (err) {
-    def subject = "${env.JOB_NAME} - Build #${env.BUILD_NUMBER} - Failure!"
-    def message = "${env.JOB_NAME} (#${env.BUILD_NUMBER}) failed: ${env.BUILD_URL}"
-
-    if (env.BRANCH_NAME == 'master') {
-        slackSend color: '#FF0000', message: message
-        mail to: 'root@ocf.berkeley.edu', subject: subject, body: message
-    } else {
-        mail to: emailextrecipients([
-            [$class: 'CulpritsRecipientProvider'],
-            [$class: 'DevelopersRecipientProvider']
-        ]), subject: subject, body: message
+  post {
+    failure {
+      emailNotification()
     }
-
-    throw err
+    always {
+      node(label: 'slave') {
+        ircNotification()
+      }
+    }
+  }
 }
 
 // vim: ft=groovy

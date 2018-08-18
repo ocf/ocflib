@@ -22,7 +22,6 @@ release-pypi: clean autoversion
 	twine upload dist/*
 
 .PHONY: builddeb
-
 builddeb: autoversion
 	dpkg-buildpackage -us -uc
 
@@ -37,9 +36,9 @@ dist:
 	mkdir -p "$@"
 
 .PHONY: clean
-clean: autoversion
+clean:
 	python3 setup.py clean
-	rm -rf dist deb_dist
+	rm -rf dist deb_dist dist_*
 
 # PEP440 sets terrible restrictions on public version schemes which prohibit:
 #   - appending a SHA
