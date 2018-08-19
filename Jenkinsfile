@@ -29,7 +29,7 @@ pipeline {
 
     stage('test') {
       environment {
-        COVERALLS_REPO_TOKEN = credentials('coveralls_token')
+        COVERALLS_REPO_TOKEN = credentials('coveralls_ocflib_token')
       }
       steps {
         sh 'make coveralls'
