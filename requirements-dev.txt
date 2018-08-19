@@ -1,9 +1,9 @@
-coverage
 coveralls
 freezegun
 ipdb
 mock
 pre-commit
 pytest
+pytest-cov
 pytest-xdist
 twine
