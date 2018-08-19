@@ -11,6 +11,19 @@ OCF_SUBNET_V4 = ip_network('169.229.226.0/24')
 OCF_SUBNET_V6 = ip_network('2607:f140:8801::/48')
 OCF_SUBNET_V6_COMPAT = ip_network('2607:f140:8801::1:0/112')
 
+GOOGLE_PUBLIC_DNS_1 = ip_address('8.8.8.8')
+GOOGLE_PUBLIC_DNS_2 = ip_address('8.8.4.4')
+CLOUDFLARE_DNS_1 = ip_address('1.1.1.1')
+CLOUDFLARE_DNS_2 = ip_address('1.0.0.1')
+
+PUBLIC_DNS_SERVERS = [
+    GOOGLE_PUBLIC_DNS_1,
+    GOOGLE_PUBLIC_DNS_2,
+    CLOUDFLARE_DNS_1,
+    CLOUDFLARE_DNS_2,
+]
+DNS_SERVERS = [OCF_DNS_RESOLVER] + PUBLIC_DNS_SERVERS
+
 
 def ipv6_to_ipv4(ipv6):
     """Convert an OCF IPv6 address to its equivalent IPv4.

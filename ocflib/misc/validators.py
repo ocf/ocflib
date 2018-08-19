@@ -4,7 +4,7 @@ import re
 import dns
 import dns.resolver
 
-from ocflib.infra.net import OCF_DNS_RESOLVER
+from ocflib.infra.net import DNS_SERVERS
 
 
 def host_exists(host):
@@ -13,7 +13,16 @@ def host_exists(host):
     except dns.name.EmptyLabel:
         return False
 
-    response = dns.query.udp(message, str(OCF_DNS_RESOLVER))
+    # Since dnspython resolvers don't support making ANY requests, we just loop
+    # through resolvers here instead and exit once one confirms the records
+    # actually exist (not great for lookups that return no records though):
+    # https://github.com/rthalley/dnspython/issues/117
+    for server in DNS_SERVERS:
+        response = dns.query.udp(message, str(server))
+
+        if bool(response.answer):
+            break
+
     return bool(response.answer)
 
 
@@ -33,9 +42,11 @@ def valid_email(email):
     m = re.match(regex, email, re.IGNORECASE)
     if m:
         domain = m.group(1)
+        resolver = dns.resolver.Resolver()
+        resolver.nameservers = [str(server) for server in DNS_SERVERS]
         try:
             # Check that the domain has MX record(s)
-            return bool(dns.resolver.query(domain, 'MX'))
+            return bool(resolver.query(domain, 'MX'))
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             pass
     return False
