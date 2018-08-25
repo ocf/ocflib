@@ -50,6 +50,7 @@ RESERVED_USERNAMES = frozenset((
     'datathon',
     'davfs2',
     'dca',
+    'decalform', 
     'debian-security-support',
     'debian-spamd',
     'debian-transmission',
