@@ -173,6 +173,7 @@ RESERVED_USERNAMES = frozenset((
     'shorturl',
     'signin',
     'snmp',
+    'socialrules',
     'spamass-milter',
     'spamd',
     'srcds',
