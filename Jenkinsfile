@@ -10,6 +10,7 @@ def parallelBuilds = dists.collectEntries { dist ->
   }]
 }
 
+
 pipeline {
   agent {
     label 'slave'
@@ -18,6 +19,7 @@ pipeline {
   options {
     ansiColor('xterm')
     timeout(time: 1, unit: 'HOURS')
+    timestamps()
   }
 
   stages {
