@@ -264,6 +264,7 @@ RESERVED_USERNAMES = frozenset((
     'opstaff',
     'pimp',
     'postmaster',
+    'projects',
     'puppet',
     'rancid',
     'root',
