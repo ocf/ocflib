@@ -34,7 +34,7 @@ pipeline {
         COVERALLS_REPO_TOKEN = credentials('coveralls_ocflib_token')
       }
       steps {
-        sh 'make coveralls'
+        sh 'make test'
       }
     }
 

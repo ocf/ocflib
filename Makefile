@@ -1,8 +1,3 @@
-# first set COVERALLS_REPO_TOKEN=<repo token> environment variable
-.PHONY: coveralls
-coveralls: test
-	.tox/py35/bin/coveralls
-
 venv: setup.py requirements-dev.txt
 	vendor/venv-update \
 		venv= $@ -ppython3 \
@@ -12,9 +7,14 @@ venv: setup.py requirements-dev.txt
 install-hooks: venv
 	venv/bin/pre-commit install
 
+# set COVERALLS_REPO_TOKEN=<repo token> environment variable to report coverage
+# after running tests
 .PHONY: test
 test:
 	tox
+ifneq ($(strip $(COVERALLS_REPO_TOKEN)),)
+	.tox/py35/bin/coveralls
+endif
 
 .PHONY: release-pypi
 release-pypi: clean autoversion
