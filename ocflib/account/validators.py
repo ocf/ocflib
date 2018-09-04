@@ -172,6 +172,7 @@ RESERVED_USERNAMES = frozenset((
     'shirts',
     'shorturl',
     'signin',
+    'slack',
     'snmp',
     'socialrules',
     'spamass-milter',
