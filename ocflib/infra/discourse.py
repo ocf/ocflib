@@ -4,6 +4,9 @@ from collections import namedtuple
 import requests
 
 
+DISCOURSE_ROOT = 'https://discourse.ocf.berkeley.edu'
+
+
 class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter', 'category'))):
     """A namedtuple representing a Discourse topic."""
 
@@ -11,27 +14,29 @@ class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter',
         return (
             't#{self.number}: "{self.title}" | '
             '{self.category}, started by {self.starter} | '
-            'https://ocf.io/t/{self.number}'
+            'https://ocf.io/d/{self.number}'
         ).format(self=self)
 
     @classmethod
     def from_number(cls, api_key, num):
         params = {'api_key': api_key, 'api_username': 'gstaff'}
 
-        topic_resp = requests.get(
-            'https://discourse.ocf.berkeley.edu/t/{}.json'.format(num),
-            params=params
+        topic_resp = requests.get('{}/t/{}.json'.format(DISCOURSE_ROOT, num),
+                                  params=params
+                                  )
+        assert topic_resp.status_code == 200, (
+            'Request for topic gave HTTP {}'.format(topic_resp.status_code)
         )
-        assert topic_resp.status_code == 200, topic_resp.status_code
         topic = topic_resp.json()
 
         category_id = topic['category_id']
 
-        cat_resp = requests.get(
-            'https://discourse.ocf.berkeley.edu/categories.json',
-            params=params
+        cat_resp = requests.get('{}/categories.json'.format(DISCOURSE_ROOT),
+                                params=params
+                                )
+        assert cat_resp.status_code == 200, (
+            'Request for category gave HTTP {}'.format(cat_resp.status_code)
         )
-        assert cat_resp.status_code == 200, cat_resp.status_code
         categories = cat_resp.json()
 
         cat_name = next(
