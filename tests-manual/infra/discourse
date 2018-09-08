@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+
+from ocflib.infra.discourse import DiscourseTopic
+
+
+if __name__ == '__main__':
+    api_key = input('api key: ')
+    print(DiscourseTopic.from_number(api_key, 75))
