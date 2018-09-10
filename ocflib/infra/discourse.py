@@ -12,7 +12,7 @@ class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter',
 
     def __str__(self):
         return (
-            't#{self.number}: "{self.title}" | '
+            'd#{self.number}: "{self.title}" | '
             '{self.category}, started by {self.starter} | '
             'https://ocf.io/d/{self.number}'
         ).format(self=self)
