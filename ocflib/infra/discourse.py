@@ -29,7 +29,9 @@ class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter',
                                   params=params
                                   )
         if topic_resp.status_code != 200:
-            raise DiscourseError(topic_resp.status_code)
+            raise DiscourseError(
+                'Topic request gave {}'.format(topic_resp.status_code)
+            )
 
         topic = topic_resp.json()
 
@@ -39,7 +41,8 @@ class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter',
                                 params=params
                                 )
         if cat_resp.status_code != 200:
-            raise DiscourseError(cat_resp.status_code)
+            raise DiscourseError(
+                'Category request gave {}'.format(cat_resp.status_code))
 
         categories = cat_resp.json()
 
