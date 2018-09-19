@@ -161,6 +161,7 @@ RESERVED_USERNAMES = frozenset((
     'redis',
     'register',
     'requesttracker',
+    'reserve',
     'rtkit',
     'sales',
     'saned',
