@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `session` (
     `start` datetime NOT NULL,
     `end` datetime DEFAULT NULL,
     `last_update` datetime,
-    'flags' varchar(32) DEFAULT NULL,
+    'flags' varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
