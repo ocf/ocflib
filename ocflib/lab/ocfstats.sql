@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `session` (
     `start` datetime NOT NULL,
     `end` datetime DEFAULT NULL,
     `last_update` datetime,
+    'flags' varchar(32) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
@@ -63,7 +64,7 @@ CREATE VIEW `staff_session_duration_public` AS
 
 DROP VIEW IF EXISTS users_in_lab;
 CREATE VIEW `users_in_lab` AS
-    SELECT `user`, `host`, `start` FROM `session` WHERE `end` IS NULL;
+    SELECT `user`, `host`, `start` 'flags' FROM `session` WHERE `end` IS NULL;
 
 DROP VIEW IF EXISTS users_in_lab_count_public;
 CREATE VIEW `users_in_lab_count_public` AS
