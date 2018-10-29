@@ -7,14 +7,14 @@ from datetime import timedelta
 
 from cached_property import cached_property
 
-from ocflib.infra import db
+from ocflib.infra import mysql
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
 # when we started keeping stats
 STATS_EPOCH = date(2014, 2, 15)
 
-get_connection = functools.partial(db.get_connection,
+get_connection = functools.partial(mysql.get_connection,
                                    user='anonymous',
                                    password=None,
                                    db='ocfstats')

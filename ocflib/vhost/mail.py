@@ -5,12 +5,12 @@ from collections import namedtuple
 import requests
 from cached_property import cached_property
 
-from ocflib.infra import db
+from ocflib.infra import mysql
 
 VHOST_MAIL_DB_PATH = '/home/s/st/staff/vhost/vhost-mail.conf'
 VHOST_MAIL_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost-mail.conf'
 
-get_connection = functools.partial(db.get_connection, db='ocfmail')
+get_connection = functools.partial(mysql.get_connection, db='ocfmail')
 
 
 class MailVirtualHost(namedtuple('MailVirtualHost', ('user', 'domain'))):

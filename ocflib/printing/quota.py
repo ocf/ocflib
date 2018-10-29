@@ -5,7 +5,7 @@ from datetime import datetime
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
 from ocflib.account.utils import is_in_group
-from ocflib.infra import db
+from ocflib.infra import mysql
 
 WEEKDAY_QUOTA = 10
 WEEKEND_QUOTA = 20
@@ -23,7 +23,7 @@ HAPPY_HOUR_START = datetime(2018, 4, 30)
 HAPPY_HOUR_END = datetime(2018, 5, 13)
 
 
-get_connection = functools.partial(db.get_connection,
+get_connection = functools.partial(mysql.get_connection,
                                    user='anonymous',
                                    password=None,
                                    db='ocfprinting')
