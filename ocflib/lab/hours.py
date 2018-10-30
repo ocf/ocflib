@@ -44,7 +44,7 @@ def _generate_regular_hours():
 
     regular_hours = {}
 
-    for day, hours in requests.get(HOURS_URL).json().items():
+    for day, hours in requests.get(HOURS_URL, timeout=20).json().items():
         regular_hours[int(day)] = [
             Hour(
                 open=_parsetime(hour[0]),

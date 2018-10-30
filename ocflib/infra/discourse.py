@@ -25,9 +25,11 @@ class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter',
     def from_number(cls, api_key, num):
         params = {'api_key': api_key, 'api_username': 'gstaff'}
 
-        topic_resp = requests.get('{}/t/{}.json'.format(DISCOURSE_ROOT, num),
-                                  params=params
-                                  )
+        topic_resp = requests.get(
+            '{}/t/{}.json'.format(DISCOURSE_ROOT, num),
+            params=params,
+            timeout=10,
+        )
         if topic_resp.status_code != 200:
             raise DiscourseError(
                 'Topic request gave {}'.format(topic_resp.status_code)
@@ -37,9 +39,11 @@ class DiscourseTopic(namedtuple('DiscourseTopic', ('number', 'title', 'starter',
 
         category_id = topic['category_id']
 
-        cat_resp = requests.get('{}/categories.json'.format(DISCOURSE_ROOT),
-                                params=params,
-                                )
+        cat_resp = requests.get(
+            '{}/categories.json'.format(DISCOURSE_ROOT),
+            params=params,
+            timeout=10,
+        )
         if cat_resp.status_code != 200:
             raise DiscourseError(
                 'Category request gave {}'.format(cat_resp.status_code)

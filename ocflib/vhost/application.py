@@ -14,7 +14,7 @@ def get_app_vhost_db():
             return f.read().splitlines()
     except IOError:
         # fallback to database loaded from web
-        return requests.get(VHOST_DB_URL).text.split('\n')
+        return requests.get(VHOST_DB_URL, timeout=20).text.split('\n')
 
 
 def get_app_vhosts():

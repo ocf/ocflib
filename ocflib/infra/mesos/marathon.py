@@ -38,7 +38,7 @@ class MarathonClient:
         return req
 
     def app_status(self, app):
-        req = self.get('/v2/apps/' + app)
+        req = self.get('/v2/apps/' + app, timeout=20)
         return req.json()
 
     def deploy_app(
@@ -66,6 +66,7 @@ class MarathonClient:
         self.put(
             '/v2/apps/' + app + ('?force=true' if force else ''),
             json=new_config,
+            timeout=20,
         )
 
         # wait for deployment to finish, report status
@@ -80,7 +81,7 @@ class MarathonClient:
                 time.sleep(1)
         else:
             bad_deployment, = status['app']['deployments']
-            self.delete('/v2/deployments/' + bad_deployment['id'])
+            self.delete('/v2/deployments/' + bad_deployment['id'], timeout=20)
             raise DeploymentException(
                 'Gave up waiting for deployment {} after {} seconds.\n'
                 'Automatically rolling back.'.format(

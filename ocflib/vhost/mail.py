@@ -73,7 +73,7 @@ def get_mail_vhost_db():
             return list(map(str.strip, f))
     except IOError:
         # fallback to database loaded from web
-        return requests.get(VHOST_MAIL_DB_URL).text.split('\n')
+        return requests.get(VHOST_MAIL_DB_URL, timeout=20).text.split('\n')
 
 
 def get_mail_vhosts():
