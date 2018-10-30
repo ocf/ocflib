@@ -13,11 +13,12 @@ def verify_ticket(ticket, service):
     Returns CalNet UID on success and None on failure.
     """
     params = {'ticket': ticket, 'service': service}
-    url = (urljoin(CAS_URL, 'serviceValidate') + '?' +
-           urlencode(params))
+    url = urljoin(CAS_URL, 'serviceValidate') + '?' + urlencode(params)
+
     try:
-        req = requests.get(url)
+        req = requests.get(url, timeout=30)
         tree = ElementTree.fromstring(req.text)
+
         if tree[0].tag.endswith('authenticationSuccess'):
             return tree[0][0].text
         else:

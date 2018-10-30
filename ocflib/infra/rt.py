@@ -45,6 +45,7 @@ def rt_connection(user, password):
     resp = s.post(
         'https://rt.ocf.berkeley.edu/REST/1.0/',
         data=urlencode({'user': user, 'pass': password}),
+        timeout=20,
     )
     assert resp.status_code == 200, resp.status_code
     assert '200 Ok' in resp.text

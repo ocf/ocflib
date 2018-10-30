@@ -36,7 +36,7 @@ def _load_staff_hours():
             return yaml.safe_load(f)
     except IOError:
         # fall back to loading from web
-        return yaml.safe_load(requests.get(STAFF_HOURS_URL).text)
+        return yaml.safe_load(requests.get(STAFF_HOURS_URL, timeout=20).text)
 
 
 def get_staff_hours():
