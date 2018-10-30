@@ -9,7 +9,7 @@ from ocflib.ucb.directory import name_by_calnet_uid
 
 
 _API = {
-    'BASE': 'https://studentservices.berkeley.edu/WebServices/StudentGroupServiceV2/Service.asmx',
+    'BASE': 'https://orapps.berkeley.edu/StudentGroupServiceV2/service.asmx',
     'SERVICE': {
         'ORGS': 'CalLinkOrganizations',
         'SIGNATORIES_BY_OID': 'CalLinkGroupSignatories',
