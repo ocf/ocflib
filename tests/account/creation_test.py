@@ -537,7 +537,7 @@ class TestCreateAccount:
         with mock.patch('ocflib.account.creation.create_kerberos_principal_with_keytab') as kerberos, \
                 mock.patch('ocflib.account.creation.get_kerberos_principal_with_keytab',
                            return_value=None) as kerberos_get, \
-                mock.patch('ocflib.account.creation.create_ldap_entry_with_keytab') as ldap, \
+                mock.patch('ocflib.account.creation.create_ldap_entry') as ldap, \
                 mock.patch('ocflib.account.creation.create_home_dir') as home_dir, \
                 mock.patch('ocflib.account.creation.ensure_web_dir') as web_dir, \
                 mock.patch('ocflib.account.creation.send_created_mail') as send_created_mail, \
@@ -582,8 +582,8 @@ class TestCreateAccount:
                     'userPassword': '{SASL}someuser@OCF.BERKELEY.EDU',
                     'creationTime': datetime.now(timezone.utc).astimezone(),
                 }, **expected),
-                fake_credentials.kerberos_keytab,
-                fake_credentials.kerberos_principal,
+                keytab=fake_credentials.kerberos_keytab,
+                admin_principal=fake_credentials.kerberos_principal,
             )
             call.assert_called_once_with(('sudo', 'nscd', '-i', 'passwd'))
             home_dir.assert_called_once_with(fake_new_account_request.user_name)

@@ -2,13 +2,13 @@
 from datetime import datetime
 from datetime import timezone
 
-from ocflib.infra.ldap import create_ldap_entry_with_keytab
+from ocflib.infra.ldap import create_ldap_entry
 
 
 # Run with:
 #   sudo /path/to/ocflib/venv/bin/python3 create-ldap-keytab
 if __name__ == '__main__':
-    create_ldap_entry_with_keytab(
+    create_ldap_entry(
         'uid=ggroup2,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
         {
             'objectClass': ['ocfAccount', 'account', 'posixAccount'],
@@ -20,6 +20,6 @@ if __name__ == '__main__':
             'gidNumber': 1000,
             'creationTime': datetime.now(timezone.utc).astimezone(),
         },
-        '/etc/ocf-create/create.keytab',
-        'create/admin',
+        keytab='/etc/ocf-create/create.keytab',
+        admin_principal='create/admin',
     )
