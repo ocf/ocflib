@@ -1,5 +1,8 @@
 import pymysql
+import warnings
 
+warn("ocflib.infra.db is deprecated, use ocflib.infra.mysql instead.",
+    DeprecationWarning)
 
 def get_connection(user,
                    password,
