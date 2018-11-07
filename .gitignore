@@ -12,6 +12,7 @@ build/
 develop-eggs/
 deb_dist/
 dist/
+dist_*/
 eggs/
 parts/
 sdist/
