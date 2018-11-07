@@ -19,7 +19,7 @@ import ocflib.account.utils as utils
 import ocflib.account.validators as validators
 from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
 from ocflib.infra.kerberos import get_kerberos_principal_with_keytab
-from ocflib.infra.ldap import create_ldap_entry_with_keytab
+from ocflib.infra.ldap import create_ldap_entry
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 from ocflib.misc.mail import jinja_mail_env
@@ -126,8 +126,11 @@ def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
             attrs['callinkOid'] = request.callink_oid
 
         with report_status('Creating', 'Created', 'LDAP entry'):
-            create_ldap_entry_with_keytab(
-                dn, attrs, creds.kerberos_keytab, creds.kerberos_principal,
+            create_ldap_entry(
+                dn,
+                attrs,
+                keytab=creds.kerberos_keytab,
+                admin_principal=creds.kerberos_principal,
             )
 
             # invalidate passwd cache so that we can immediately chown files

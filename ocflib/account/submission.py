@@ -47,7 +47,6 @@ from ocflib.account.creation import NewAccountRequest
 from ocflib.account.creation import send_rejected_mail
 from ocflib.account.creation import validate_request
 from ocflib.account.manage import change_password_with_keytab
-from ocflib.account.manage import modify_ldap_attributes as real_modify_ldap_attributes
 
 
 Base = declarative_base()
@@ -334,22 +333,6 @@ def get_tasks(celery_app, credentials=None):
         )
 
     @celery_app.task
-    def modify_ldap_attributes(username, attributes):
-        """Modify the ldap attributes of a username.
-
-        Validation is applied for e.g. the 'mail' and 'loginShell' fields, but
-        this operation is not guaranteed to be safe.
-
-        :param attributes: dictionary of attribute names and values
-        """
-        real_modify_ldap_attributes(
-            username=username,
-            attributes=attributes,
-            keytab=credentials.kerberos_keytab,
-            principal=credentials.kerberos_principal,
-        )
-
-    @celery_app.task
     def status():
         """A testing route."""
         return {
@@ -364,7 +347,6 @@ def get_tasks(celery_app, credentials=None):
         approve_request=approve_request,
         reject_request=reject_request,
         change_password=change_password,
-        modify_ldap_attributes=modify_ldap_attributes,
         status=status,
     )
 
@@ -376,7 +358,6 @@ _AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
     'approve_request',
     'reject_request',
     'change_password',
-    'modify_ldap_attributes',
     'status',
 ])
 

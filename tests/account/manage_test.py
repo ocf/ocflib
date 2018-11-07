@@ -22,19 +22,11 @@ def mock_notify_password_change():
 
 
 @pytest.yield_fixture
-def mock_create_ldap_entry_with_keytab():
+def mock_modify_ldap_entry():
     with mock.patch(
-        'ocflib.infra.ldap.create_ldap_entry_with_keytab',
-    ) as create_ldap_entry_with_keytab:
-        yield create_ldap_entry_with_keytab
-
-
-@pytest.yield_fixture
-def mock_modify_ldap_entry_with_keytab():
-    with mock.patch(
-        'ocflib.infra.ldap.modify_ldap_entry_with_keytab',
-    ) as modify_ldap_entry_with_keytab:
-        yield modify_ldap_entry_with_keytab
+        'ocflib.infra.ldap.modify_ldap_entry',
+    ) as modify_ldap_entry:
+        yield modify_ldap_entry
 
 
 class TestChangePasswordWithStaffer:
@@ -106,33 +98,33 @@ class TestChangePasswordWithKeytab:
 
 class TestModifyLdapAttributes:
 
-    def test_success(self, mock_modify_ldap_entry_with_keytab):
+    def test_success(self, mock_modify_ldap_entry):
         modify_ldap_attributes(
             'ggroup',
             {'a': ('b', 'c'), 'loginShell': ('/bin/bash',)},
-            '/some/keytab',
-            'create/admin',
+            keytab='/some/keytab',
+            admin_principal='create/admin',
         )
-        mock_modify_ldap_entry_with_keytab.assert_called_once_with(
+        mock_modify_ldap_entry.assert_called_once_with(
             'uid=ggroup,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
             {'a': ('b', 'c'), 'loginShell': ('/bin/bash',)},
-            '/some/keytab',
-            'create/admin',
+            keytab='/some/keytab',
+            admin_principal='create/admin',
         )
 
     @pytest.mark.parametrize('attrs', [
         {'loginShell': ['/bin/bush']},
         {'loginShell': ['']},
     ])
-    def test_invalid_attributes(self, attrs, mock_modify_ldap_entry_with_keytab):
+    def test_invalid_attributes(self, attrs, mock_modify_ldap_entry):
         with pytest.raises(ValueError):
             modify_ldap_attributes(
                 'ggroup',
                 attrs,
-                '/some/keytab',
-                'create/admin',
+                keytab='/some/keytab',
+                admin_principal='create/admin',
             )
-        assert not mock_modify_ldap_entry_with_keytab.called
+        assert not mock_modify_ldap_entry.called
 
 
 class TestNotifyPasswordChange:

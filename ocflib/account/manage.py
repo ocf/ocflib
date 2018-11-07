@@ -86,7 +86,7 @@ def change_password_with_keytab(username, password, keytab, principal, comment=N
     _notify_password_change(username, comment=comment)
 
 
-def modify_ldap_attributes(username, attributes, keytab, principal):
+def modify_ldap_attributes(username, attributes, **kwargs):
     """Adds or modifies arbitrary attributes of a user's LDAP record subject to
     minor validation beyond the LDAP schema.
 
@@ -98,11 +98,10 @@ def modify_ldap_attributes(username, attributes, keytab, principal):
         if not misc.validators.valid_login_shell(value):
             raise ValueError("Invalid login shell '{}'".format(value))
 
-    ldap_ocf.modify_ldap_entry_with_keytab(
+    ldap_ocf.modify_ldap_entry(
         utils.dn_for_username(username),
         attributes,
-        keytab,
-        principal,
+        **kwargs,
     )
 
 

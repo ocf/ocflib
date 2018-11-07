@@ -1,4 +1,5 @@
 import string
+import subprocess
 from base64 import b64encode
 from contextlib import contextmanager
 from datetime import datetime
@@ -6,7 +7,6 @@ from itertools import chain
 from textwrap import dedent
 
 import ldap3
-import pexpect
 
 from ocflib.misc.mail import send_problem_report
 
@@ -89,90 +89,107 @@ def _format_attr(key, values):
     return lines
 
 
-def _write_ldif(lines, dn, keytab, admin_principal):
+def _write_ldif(lines, dn, keytab=None, admin_principal=None):
     """Issue an update to LDAP via ldapmodify in the form of lines of an LDIF
-    file.
+    file. This could be a new addition to LDAP, a modification of an existing
+    item, or even a deletion depending on the changetype attribute given as
+    part of the sequence of lines.
 
     :param lines: ldif file as a sequence of lines
+
+    A ldif file looks something like this:
+
+        dn: uid=jvperrin,ou=People,dc=OCF,dc=Berkeley,dc=EDU
+        changetype: modify
+        replace: loginShell
+        loginShell: /bin/zsh
+
+    It specifies the record or records to change, the type of change, and the
+    changes to make. To handle special characters (e.g. anything unprintable)
+    we base64-encode the dn and the values we set to get something more like
+    this (note the two colons instead of one to designate base64 data):
+
+        dn:: dWlkPWp2cGVycmluLG91PVBlb3BsZSxkYz1PQ0YsZGM9QmVya2VsZXksZGM9RURV
+        changetype: modify
+        replace: loginShell
+        loginShell:: L2Jpbi96c2g=
     """
 
-    cmd = 'kinit -t {keytab} {principal} ldapmodify'.format(
-        keytab=keytab,
-        principal=admin_principal,
-    )
+    # Authenticate if these options are given. Otherwise, assume that
+    # authentication has already been done and that a valid kerberos ticket
+    # for the current user already exists
+    if keytab and admin_principal:
+        command = ('/usr/bin/kinit', '-t', keytab, admin_principal, '/usr/bin/ldapmodify', '-Q')
+    else:
+        command = ('/usr/bin/ldapmodify', '-Q')
 
-    child = pexpect.spawn(cmd, timeout=10)
-    child.expect('SASL data security layer installed.')
-
-    for line in lines:
-        child.sendline(line)
-
-    child.sendeof()
-    child.expect('entry "{}"'.format(dn))
-    child.expect(pexpect.EOF)
-
-    output_after_adding = child.before.decode('utf8').strip()
-
-    if 'Already exists (68)' in output_after_adding:
-        raise ValueError('Tried to create duplicate entry.')
-    elif 'No such object (32)' in output_after_adding:
-        raise ValueError('Tried to modify nonexistent entry.')
-
-    if output_after_adding != '':
-        send_problem_report(
-            dedent(
-                '''\
-                Unknown problem occured when trying to write to LDAP; the code
-                should be updated to handle this case.
-
-                dn: {dn}
-                keytab: {keytab}
-                principal: {principal}
-
-                Unexpected output:
-                {output_after_adding}
-
-                Lines passed to ldapadd:
-                {lines}
-                '''
-            ).format(
-                dn=dn,
-                keytab=keytab,
-                principal=admin_principal,
-                output_after_adding=output_after_adding,
-                lines='\n'.join('    ' + line for line in lines)
-            )
+    try:
+        subprocess.check_output(
+            command,
+            input='\n'.join(lines),
+            universal_newlines=True,
+            timeout=10,
         )
-        raise ValueError('Unknown LDAP failure was encountered.')
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 32:
+            raise ValueError('Tried to modify nonexistent entry.')
+        elif e.returncode == 68:
+            raise ValueError('Tried to create duplicate entry.')
+        else:
+            send_problem_report(
+                dedent(
+                    '''\
+                    Unknown problem occured when trying to write to LDAP; the
+                    code should be updated to handle this case.
+
+                    dn: {dn}
+                    keytab: {keytab}
+                    principal: {principal}
+
+                    Error code: {returncode}
+
+                    Unexpected output:
+                    {output}
+
+                    Lines passed to ldapmodify:
+                    {lines}
+                    '''
+                ).format(
+                    dn=dn,
+                    keytab=keytab,
+                    principal=admin_principal,
+                    returncode=e.returncode,
+                    output=e.output,
+                    lines='\n'.join('    ' + line for line in lines)
+                )
+            )
+            raise ValueError('Unknown LDAP failure was encountered.')
 
 
-def create_ldap_entry_with_keytab(
+def create_ldap_entry(
     dn,
     attributes,
-    keytab,
-    admin_principal,
+    **kwargs  # TODO: Add a trailing comma here in Python 3.6+
 ):
     """Creates an LDAP entry by shelling out to ldapadd.
 
     :param dn: distinguished name of the new entry
     :param attributes: dict mapping attribute name to list of values
-    :param keytab: path to the admin keytab
-    :param admin_principal: admin principal to use with the keytab
+    :param **kwargs: any additional keyword arguments to pass on to _write_ldif
     """
     lines = chain(
         _format_attr('dn', [dn]),
         ('changetype: add',),
-        *(_format_attr(key, values) for key, values in attributes.items())
+        *(_format_attr(key, values) for key, values in sorted(attributes.items()))
     )
 
-    _write_ldif(lines, dn, keytab, admin_principal)
+    _write_ldif(lines, dn, **kwargs)
 
 
-def modify_ldap_entry_with_keytab(
+def modify_ldap_entry(
     dn,
     attributes,
-    keytab,
-    admin_principal,
+    **kwargs  # TODO: Add a trailing comma here in Python 3.6+
 ):
     """Modifies the attributes of an existing LDAP entry by shelling out to
     ldapmodify.
@@ -182,8 +199,7 @@ def modify_ldap_entry_with_keytab(
 
     :param dn: distinguished name of the entry to modify
     :param attributes: dict mapping attribute name to list of values
-    :param keytab: path to the admin keytab
-    :param admin_principal: admin principal to use with the keytab
+    :param **kwargs: any additional keyword arguments to pass on to _write_ldif
     """
     lines = chain(
         _format_attr('dn', [dn]),
@@ -193,11 +209,11 @@ def modify_ldap_entry_with_keytab(
                 ('replace: {}'.format(key),),
                 _format_attr(key, values),
                 ('-',),
-            ) for key, values in attributes.items()
+            ) for key, values in sorted(attributes.items())
         )
     )
 
-    _write_ldif(lines, dn, keytab, admin_principal)
+    _write_ldif(lines, dn, **kwargs)
 
 
 def format_timestamp(timestamp):
