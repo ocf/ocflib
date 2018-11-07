@@ -101,20 +101,20 @@ class TestModifyLdapAttributes:
     def test_success(self, mock_modify_ldap_entry):
         modify_ldap_attributes(
             'ggroup',
-            {'a': ('b', 'c'), 'loginShell': ('/bin/bash',)},
+            {'a': ('b', 'c'), 'loginShell': '/bin/bash'},
             keytab='/some/keytab',
             admin_principal='create/admin',
         )
         mock_modify_ldap_entry.assert_called_once_with(
             'uid=ggroup,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
-            {'a': ('b', 'c'), 'loginShell': ('/bin/bash',)},
+            {'a': ('b', 'c'), 'loginShell': '/bin/bash'},
             keytab='/some/keytab',
             admin_principal='create/admin',
         )
 
     @pytest.mark.parametrize('attrs', [
-        {'loginShell': ['/bin/bush']},
-        {'loginShell': ['']},
+        {'loginShell': '/bin/bush'},
+        {'loginShell': ''},
     ])
     def test_invalid_attributes(self, attrs, mock_modify_ldap_entry):
         with pytest.raises(ValueError):

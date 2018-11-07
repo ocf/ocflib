@@ -94,9 +94,13 @@ def modify_ldap_attributes(username, attributes, **kwargs):
     the 'loginShell' attribute.
     """
 
-    for value in attributes.get('loginShell', ()):
-        if not misc.validators.valid_login_shell(value):
-            raise ValueError("Invalid login shell '{}'".format(value))
+    login_shell = attributes.get('loginShell', None)
+    if login_shell is not None:
+        if not isinstance(login_shell, str):
+            raise ValueError('Login shell must be a string')
+
+        if not misc.validators.valid_login_shell(login_shell):
+            raise ValueError("Invalid login shell '{}'".format(login_shell))
 
     ldap_ocf.modify_ldap_entry(
         utils.dn_for_username(username),
