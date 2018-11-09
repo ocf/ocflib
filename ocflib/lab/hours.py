@@ -199,7 +199,7 @@ HOLIDAYS = [
     (date(2018, 9, 18), date(2018, 9, 18), 'Early Lab Closure', [Hour(time(9), time(17))]),
     (date(2018, 9, 19), date(2018, 9, 19), 'Early Lab Closure', [Hour(time(9), time(19))]),
     (date(2018, 11, 10), date(2018, 11, 10), 'OCF Hackathon', []),
-    (date(2018, 11, 12), date(2018, 11, 11), 'Veterans Day Weekend', []),
+    (date(2018, 11, 11), date(2018, 11, 11), 'Veterans Day Weekend', []),
     (date(2018, 11, 12), date(2018, 11, 12), 'Veterans Day Weekend', []),
     (date(2018, 11, 15), date(2018, 11, 15), 'Early Lab Closure', [Hour(time(9), time(18))]),
     (date(2018, 11, 21), date(2018, 11, 25), 'Thanksgiving Break', []),
