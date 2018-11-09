@@ -9,6 +9,7 @@ from freezegun import freeze_time
 
 from ocflib.lab.hours import _generate_regular_hours
 from ocflib.lab.hours import Day
+from ocflib.lab.hours import HOLIDAYS
 from ocflib.lab.hours import Hour
 
 FAKE_HOLIDAYS = [
@@ -128,3 +129,8 @@ def test_hours(day):
     for hour in hours:
         assert isinstance(hour.open, time)
         assert isinstance(hour.close, time)
+
+
+def test_holidays():
+    for holiday in HOLIDAYS:
+        assert holiday[0] <= holiday[1]
