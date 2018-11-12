@@ -105,8 +105,9 @@ def modify_ldap_attributes(username, attributes, **kwargs):
     ldap_ocf.modify_ldap_entry(
         utils.dn_for_username(username),
         attributes,
-        **kwargs,
+        **kwargs
     )
+    # TODO: Add trailing comma to **kwargs for Python 3.6+
 
 
 def _notify_password_change(username, comment=None):
