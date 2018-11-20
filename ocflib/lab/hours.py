@@ -202,7 +202,7 @@ HOLIDAYS = [
     (date(2018, 11, 11), date(2018, 11, 11), 'Veterans Day Weekend', []),
     (date(2018, 11, 12), date(2018, 11, 12), 'Veterans Day Weekend', []),
     (date(2018, 11, 15), date(2018, 11, 15), 'Early Lab Closure', [Hour(time(9), time(18))]),
-    (date(2018, 11, 16), date(2018, 11, 18), 'Campus AQI Closure', []),
+    (date(2018, 11, 16), date(2018, 11, 20), 'Campus AQI Closure', []),
     (date(2018, 11, 21), date(2018, 11, 25), 'Thanksgiving Break', []),
     (date(2018, 12, 15), date(2019, 1, 14), 'Winter Break', []),
 ]
