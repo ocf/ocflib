@@ -26,7 +26,7 @@ builddeb: autoversion
 	dpkg-buildpackage -us -uc
 
 .PHONY: package
-package: package_jessie package_stretch
+package: package_stretch
 
 .PHONY: package_%
 package_%: dist
