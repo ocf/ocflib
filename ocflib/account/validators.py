@@ -155,6 +155,7 @@ RESERVED_USERNAMES = frozenset((
     'printerlog',
     'printing',
     'procmail',
+    'production',
     'prometheus',
     'prosody',
     'proxy',
