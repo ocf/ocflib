@@ -8,8 +8,8 @@ ocflib
 ocflib is a Python library for working with [Open Computing Facility][ocf]
 services (in particular, accounts and server management).
 
-The library targets Python 3.4 and 3.5 (the versions available in Debian jessie
-and stretch).
+The library targets Python 3.5.3 and 3.7 (the versions available in Debian
+stretch and buster).
 
 The goal of the library is to make it easier to re-use OCF python code. In the
 past, code was split between approve, atool, create, chpass, sorry, signat,
