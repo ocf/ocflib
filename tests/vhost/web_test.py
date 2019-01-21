@@ -8,15 +8,23 @@ from ocflib.vhost.web import has_vhost
 
 
 VHOSTS_EXAMPLE = """
+# added 2017-09-16 kpengboy
+staff ofc - /ofc
+
 # [added 2015.05.05 ckuehl]
 asucarch archive.asuc.org www.archive.asuc.org,modern.asuc.org,www.modern.asuc.org -
 
 # [added 2015.04.16 ckuehl]
-staff contrib - /contrib [nossl]
 ocfwiki docs.ocf.berkeley.edu - - [hsts]
 """
 
 VHOSTS_EXAMPLE_PARSED = {
+    'ofc.berkeley.edu': {
+        'aliases': [],
+        'docroot': '/ofc',
+        'flags': [],
+        'username': 'staff',
+    },
     'archive.asuc.org': {
         'aliases': [
             'www.archive.asuc.org',
@@ -26,12 +34,6 @@ VHOSTS_EXAMPLE_PARSED = {
         'docroot': '/',
         'flags': [],
         'username': 'asucarch',
-    },
-    'contrib.berkeley.edu': {
-        'aliases': [],
-        'docroot': '/contrib',
-        'flags': ['nossl'],
-        'username': 'staff',
     },
     'docs.ocf.berkeley.edu': {
         'aliases': [],
