@@ -72,6 +72,8 @@ RESERVED_USERNAMES = frozenset((
     'ftp',
     'games',
     'geoclue',
+    'getinvolved',
+    'gettinginvolved',
     'gh',
     'github',
     'gitlab-runner',
