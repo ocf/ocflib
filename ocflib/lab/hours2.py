@@ -49,7 +49,7 @@ def _parse_regular_hours(regular):
             weekday = Weekday(weekday)
         else:
             # Convert strings ('Monday') to int (0)
-            weekday = getattr(Weekday, weekday)
+            weekday = Weekday[weekday]
 
         out[weekday] = _parse_hours_list(hours)
 
