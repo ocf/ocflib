@@ -45,10 +45,9 @@ def _parse_regular_hours(regular):
     """
     out = {}
     for weekday, hours in regular.items():
-        try:
-            # First see if it's an int already
+        if isinstance(weekday, int):
             weekday = Weekday(weekday)
-        except ValueError:
+        else:
             # Convert strings ('Monday') to int (0)
             weekday = getattr(Weekday, weekday)
 
@@ -108,7 +107,7 @@ def _parse_holiday(holiday):
         start = end = holiday['date']
     else:
         raise ValueError(
-            'Holiday date is not a (start, end) pair or single datetime'
+            'Holiday date is not a [start, end] pair or single datetime'
         )
 
     return Holiday(
@@ -148,7 +147,7 @@ class HoursListing(object):
 
         If not provided, when defaults to today.
         """
-        if not when:
+        if when is None:
             when = date.today()
 
         if not isinstance(when, date):
@@ -166,7 +165,7 @@ class HoursListing(object):
 
         If not provided, when defaults to now.
         """
-        if not when:
+        if when is None:
             when = datetime.now()
 
         if not isinstance(when, datetime):
@@ -184,7 +183,7 @@ class HoursListing(object):
 
         If not provided, when defaults to now.
         """
-        if not when:
+        if when is None:
             when = datetime.now()
 
         if not isinstance(when, datetime):
@@ -219,7 +218,7 @@ class HoursListing(object):
 
         If not provided, when defaults to now.
         """
-        if not when:
+        if when is None:
             when = datetime.now()
 
         if not isinstance(when, datetime):
