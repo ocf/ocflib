@@ -64,7 +64,7 @@ def _parse_hours_list(time_ranges):
 
     This function idempotently does nothing on a list of Hour objects.
 
-    Raises an ValueError if the timeranges overlap.
+    Raises an ValueError if the timeranges overlap or are out of order.
 
     >>> _parse_hours_list([['8:30', '10:00'], ['11:00', '3:00']])
     [Hour(time(8, 30), time(10)), Hour(time(11), time(3))]
