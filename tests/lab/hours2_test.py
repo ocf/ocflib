@@ -47,7 +47,7 @@ FAKE_NOW = datetime(2015, 8, 22, 14, 11)
 
 @pytest.fixture
 def mock_hours_yaml(fs):
-    fs.create_file('/etc/ocf/configs/hours.yaml', contents=FAKE_HOURS_YAML)
+    fs.create_file('/etc/ocf/hours.yaml', contents=FAKE_HOURS_YAML)
 
 
 @pytest.fixture
