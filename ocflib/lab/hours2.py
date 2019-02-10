@@ -283,6 +283,6 @@ class Hour(object):
 
 
 def read_hours_listing():
-    hours_config = yaml.safe_load(open('/etc/ocf/configs/hours.yaml'))
+    hours_config = yaml.safe_load(open('/etc/ocf/hours.yaml'))
 
     return HoursListing(**hours_config)
