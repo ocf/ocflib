@@ -91,6 +91,7 @@ RESERVED_USERNAMES = frozenset((
     'https',
     'icinga',
     'info',
+    'infra',
     'iodine',
     'irc',
     'jabber',
