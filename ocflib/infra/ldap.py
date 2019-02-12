@@ -21,11 +21,11 @@ OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
 UCB_LDAP = 'ldap.berkeley.edu'
 UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
 UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
-
+UCB_LDAP_DN = 'uid=ocf,ou=applications,dc=berkeley,dc=edu'
 
 @contextmanager
-def ldap_connection(host):
-    """Context manager that provides an ldap3 Connection.
+def ldap_connection(host, dn=None, password=None):
+    """Context manager that provides an ldap3 Connection. Also supports optional arguments for a privileged bind.
 
     Example usage:
 
@@ -37,10 +37,14 @@ def ldap_connection(host):
 
     :param host: server hostname
     """
+    
     server = ldap3.Server(host, use_ssl=True)
-    with ldap3.Connection(server) as connection:
-        yield connection
-
+    if(dn is None or password is None):
+        with ldap3.Connection(server) as connection:
+            yield connection
+    else:
+        with ldap3.Connection(server, dn, password) as connection:
+            yield connection
 
 def ldap_ocf():
     """Context manager that provides an ldap3 Connection to OCF's LDAP server.
@@ -61,7 +65,10 @@ def ldap_ucb():
        with ldap_ucb() as c:
             c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    return ldap_connection(UCB_LDAP)
+    with open('/etc/ucbldap.passwd', 'r') as passwordFile:
+        password = passwordFile.read()
+        return ldap_connection(UCB_LDAP, UCB_LDAP_DN, password)
+    
 
 
 def _format_attr(key, values):

@@ -276,7 +276,6 @@ class TestAccountEligibility:
     def test_validate_calnet_uid_success(self, mock_valid_calnet_uid):
         validate_calnet_uid(9999999999999)
 
-    @pytest.mark.skip(reason='Checking for affiliations temp. patched out (ocflib PR 140)')
     def test_validate_calnet_affiliations_failure(self, mock_invalid_calnet_uid):
         with pytest.raises(ValidationWarning):
             validate_calnet_uid(9999999999999)
