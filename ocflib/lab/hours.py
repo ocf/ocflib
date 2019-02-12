@@ -209,5 +209,5 @@ HOLIDAYS = [
     (date(2018, 12, 15), date(2019, 1, 21), 'Winter Break', []),
     (date(2019, 2, 18), date(2019, 2, 18), 'Presidents\' Day', []),
     (date(2019, 2, 20), date(2019, 2, 20), 'Early Closure for FAFSA/DREAM Act Workshop', [Hour(time(9), time(18))]),
-    (date(2018, 2, 28), date(2019, 2, 28), 'Early Closure for FAFSA/DREAM Act Workshop', [Hour(time(9), time(18))]),
+    (date(2019, 2, 28), date(2019, 2, 28), 'Early Closure for FAFSA/DREAM Act Workshop', [Hour(time(9), time(18))]),
 ]
