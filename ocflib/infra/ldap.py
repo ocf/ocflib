@@ -39,7 +39,7 @@ def ldap_connection(host, dn=None, password=None):
     """
     
     server = ldap3.Server(host, use_ssl=True)
-    if(dn is None or password is None):
+    if dn is None or password is None:
         with ldap3.Connection(server) as connection:
             yield connection
     else:
