@@ -261,7 +261,6 @@ def validate_calnet_uid(uid):
             'CalNet UID already has account: ' + str(existing_accounts))
     
     ldap_password = read_ucb_password()
-
     attrs = search.user_attrs_ucb(uid, UCB_LDAP_DN, ldap_password)
 
     if not attrs:
