@@ -4,6 +4,8 @@ import requests
 
 from ocflib.account.search import user_attrs
 from ocflib.account.search import user_attrs_ucb
+from ocflib.infra.ldap import UCB_LDAP_DN
+from ocflib.infra.ldap import read_ucb_password
 
 VHOST_DB_PATH = '/home/s/st/staff/vhost/vhost.conf'
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
@@ -86,7 +88,9 @@ def eligible_for_vhost(user):
     if 'callinkOid' in attrs:
         return True
     elif 'calnetUid' in attrs:
-        attrs_ucb = user_attrs_ucb(attrs['calnetUid'])
+        ldap_password = read_ucb_password()
+        attrs_ucb = user_attrs_ucb(attrs['calnetUid'], UCB_LDAP_DN, ldap_password)
+
         if attrs_ucb and 'EMPLOYEE-TYPE-ACADEMIC' in attrs_ucb['berkeleyEduAffiliations']:
             return True
 

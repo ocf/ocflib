@@ -22,10 +22,11 @@ UCB_LDAP = 'ldap.berkeley.edu'
 UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
 UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
 UCB_LDAP_DN = 'uid=ocf,ou=applications,dc=berkeley,dc=edu'
+UCB_LDAP_PASSWORD_PATH = ''
 
 @contextmanager
 def ldap_connection(host, dn=None, password=None):
-    """Context manager that provides an ldap3 Connection. Also supports optional arguments for a privileged bind.
+    """Context manager that provides an ldap3 Connection. Also supports optional credentials for a privileged bind.
 
     Example usage:
 
@@ -39,35 +40,29 @@ def ldap_connection(host, dn=None, password=None):
     """
     
     server = ldap3.Server(host, use_ssl=True)
-    if dn is None or password is None:
-        with ldap3.Connection(server) as connection:
-            yield connection
-    else:
-        with ldap3.Connection(server, dn, password) as connection:
-            yield connection
+    with ldap3.Connection(server, dn, password) as connection:
+        yield connection
 
-def ldap_ocf():
-    """Context manager that provides an ldap3 Connection to OCF's LDAP server.
+def ldap_ocf(dn=None, password=None):
+    """Context manager that provides an ldap3 Connection to OCF's LDAP server. Accepts optional DN and password.
 
     Example usage:
 
        with ldap_ocf() as c:
             c.search(OCF_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    return ldap_connection(OCF_LDAP)
+    return ldap_connection(OCF_LDAP, dn, password)
 
-
-def ldap_ucb():
-    """Context manager that provides an ldap3 Connection to the campus LDAP.
+def ldap_ucb(dn=None, password=None):
+    """Context manager that provides an ldap3 Connection to the campus LDAP. Accepts optional DN and password.
 
     Example usage:
 
        with ldap_ucb() as c:
             c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    with open('/etc/ucbldap.passwd', 'r') as passwordFile:
-        password = passwordFile.read()
-        return ldap_connection(UCB_LDAP, UCB_LDAP_DN, password)
+    return ldap_connection(UCB_LDAP, dn, password)
+
     
 
 
@@ -233,3 +228,13 @@ def format_timestamp(timestamp):
     if timestamp.tzinfo is None or timestamp.tzinfo.utcoffset(timestamp) is None:
         raise ValueError('Timestamp has no timezone info')
     return timestamp.strftime('%Y%m%d%H%M%S%z')
+
+def read_ucb_password():
+    """Returns a string of the current campus LDAP privileged bind password
+    found in UCB_LDAP_PASSWORD_PATH
+
+    :return: A string of the campus LDAP bind password
+    """
+
+    with open('/etc/ucbldap.passwd', 'r') as passwordFile:
+        return passwordFile.read()
