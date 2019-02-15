@@ -21,6 +21,7 @@ setup(
         'ocflib.vhost': ['ocfmail.schema'],
     },
     install_requires=(
+        'attr',
         'cached_property',
         'cracklib',
         'dnspython',
