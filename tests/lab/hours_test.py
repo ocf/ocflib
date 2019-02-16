@@ -1,54 +1,79 @@
-import json
 from datetime import date
 from datetime import datetime
 from datetime import time
+from datetime import timedelta
 
-import mock
 import pytest
 from freezegun import freeze_time
 
-from ocflib.lab.hours import _generate_regular_hours
-from ocflib.lab.hours import Day
-from ocflib.lab.hours import HOLIDAYS
-from ocflib.lab.hours import Hour
+from ocflib.lab.hours2 import Holiday
+from ocflib.lab.hours2 import Hour
+from ocflib.lab.hours2 import HoursListing
+from ocflib.lab.hours2 import read_hours_listing
+from ocflib.lab.hours2 import Weekday
 
-FAKE_HOLIDAYS = [
-    (date(2015, 3, 14), date(2015, 3, 14), 'Pi Day', []),
-    (date(2015, 3, 20), date(2015, 3, 22), 'Random 3 Days', [Hour(time(1), time(2), 'test')]),
-]
 
-FAKE_REGULAR_HOURS = {
-    Day.MONDAY: [Hour(time(9), time(18), 'test')],
-    Day.TUESDAY: [Hour(time(9), time(18), 'test')],
-    Day.WEDNESDAY: [Hour(time(9, 10), time(18), 'test')],
-    Day.THURSDAY: [Hour(time(9), time(18), 'test')],
-    Day.FRIDAY: [Hour(time(9), time(18), 'test')],
-    Day.SATURDAY: [Hour(time(11), time(18), 'test')],
-    Day.SUNDAY: [Hour(time(12), time(17), 'test')],
-}
+FAKE_HOURS_YAML = '''
+regular:
+  Monday:
+    - ['9:00', '18:00']
+  Tuesday:
+    - ['9:00', '18:00']
+  Wednesday:
+    - ['9:10', '18:00']
+  Thursday:
+    - ['9:00', '12:00']
+    - ['14:00', '18:00']
+  Friday:
+    - ['9:00', '18:00']
+  Saturday:
+    - ['11:00', '18:00']
+  Sunday:
+    - ['12:00', '17:00']
+holidays:
+  - date: 2015-03-14
+    reason: Pi Day
+  - date: [2015-03-20, 2015-03-22]
+    reason: Random 3 Days
+    hours:
+      - ['1:00', '2:00']
+  - date: [2015-12-19, 2016-01-18]
+    reason: Winter Break
+'''
 
-FAKE_WEB_HOURS = json.loads('{"0": [["09:30:00", "14:00:00", "test1"], ["15:00:00", "15:30:00", "test2"]]}')
+EMPTY_REGULAR_HOURS = dict(zip(Weekday, [[]] * 7))
+FAKE_NOW = datetime(2015, 8, 22, 14, 11)
 
 
 @pytest.fixture
-def mock_hours_response():
-    with mock.patch('ocflib.lab.hours.requests.get') as m:
-        m.return_value.json.return_value = FAKE_WEB_HOURS
+def mock_hours_yaml(fs):
+    fs.create_file('/etc/ocf/hours.yaml', contents=FAKE_HOURS_YAML)
+
+
+@pytest.fixture
+def mock_now():
+    with freeze_time(FAKE_NOW):
         yield
 
 
-@pytest.fixture
-def mock_hours():
-    with mock.patch('ocflib.lab.hours.HOLIDAYS', FAKE_HOLIDAYS), \
-            mock.patch('ocflib.lab.hours._generate_regular_hours') as m:
-        m.return_value = FAKE_REGULAR_HOURS
-        yield FAKE_HOLIDAYS, m
+@pytest.mark.parametrize('now,expected_hours', [
+    # regular hours
+    (date(2015, 3, 13), [Hour(open=time(9), close=time(18))]),
+    (None, [Hour(open=time(11), close=time(18))]),
 
-
-@pytest.fixture
-def mock_today():
-    with freeze_time('2015-08-22 14:11:00'):
-        yield
+    # holidays
+    (date(2015, 3, 14), []),
+    (date(2015, 3, 19), [
+        Hour(open=time(9), close=time(12)),
+        Hour(open=time(14), close=time(18)),
+    ]),
+    (date(2015, 3, 20), [Hour(open=time(1), close=time(2))]),
+    (date(2015, 3, 21), [Hour(open=time(1), close=time(2))]),
+    (date(2015, 3, 22), [Hour(open=time(1), close=time(2))]),
+    (date(2015, 3, 23), [Hour(open=time(9), close=time(18))]),
+])
+def test_hours_on_date(now, expected_hours, mock_hours_yaml, mock_now):
+    assert read_hours_listing().hours_on_date(now) == expected_hours
 
 
 @pytest.mark.parametrize('now,expected_open', [
@@ -69,68 +94,96 @@ def mock_today():
     (datetime(2015, 3, 20, 1, 59), True),
     (datetime(2015, 3, 20, 2, 0), False),
 ])
-def test_is_open(now, expected_open, mock_hours, mock_today):
-    assert Day.from_date(now).is_open(now) == expected_open
+def test_is_open(now, expected_open, mock_hours_yaml, mock_now):
+    assert read_hours_listing().is_open(now) == expected_open
 
 
-def test_is_open_fails_with_just_date():
-    with pytest.raises(ValueError):
-        Day.from_date().is_open(date(2015, 3, 14))
+@pytest.mark.parametrize('now,expected_next_open', [
+    (datetime(2015, 1, 5, 8), datetime(2015, 1, 5, 9)),
+    (datetime(2015, 1, 6, 19), datetime(2015, 1, 7, 9, 10)),
+    (datetime(2015, 1, 8, 8), datetime(2015, 1, 8, 9)),
+    (datetime(2015, 1, 8, 13), datetime(2015, 1, 8, 14)),
+    (datetime(2015, 1, 8, 19), datetime(2015, 1, 9, 9)),
 
+    # Pi Day
+    (datetime(2015, 3, 13, 19), datetime(2015, 3, 15, 12)),
+    (datetime(2015, 3, 14, 9), datetime(2015, 3, 15, 12)),
+    (datetime(2015, 3, 14, 12), datetime(2015, 3, 15, 12)),
+    (datetime(2015, 3, 14, 19), datetime(2015, 3, 15, 12)),
 
-def test_generate_regular_hours(mock_hours_response):
-    hours = _generate_regular_hours()
+    # Random 3 Days
+    (datetime(2015, 3, 19, 19), datetime(2015, 3, 20, 1)),
+    (datetime(2015, 3, 20, 0), datetime(2015, 3, 20, 1)),
+    (datetime(2015, 3, 20, 3), datetime(2015, 3, 21, 1)),
+    (datetime(2015, 3, 22, 3), datetime(2015, 3, 23, 9)),
 
-    # hours[0] because FAKE_WEB_HOURS mocks Monday at index 0
-    assert hours[0][0] == Hour(open=time(9, 30), close=time(14, 00), staffer='test1')
-    assert hours[0][1] == Hour(open=time(15, 00), close=time(15, 30), staffer='test2')
+    # Winter Break
+    (datetime(2015, 12, 18, 21), datetime(2016, 1, 19, 9)),
+    (datetime(2015, 12, 19, 12), datetime(2016, 1, 19, 9)),
+    (datetime(2016, 1, 18, 12), datetime(2016, 1, 19, 9)),
 
-
-class TestDay:
-
-    @pytest.mark.parametrize('when,weekday,holiday,hours', [
-        (date(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17), 'test')]),
-        (datetime(2015, 3, 15), 'Sunday', None, [Hour(time(12), time(17), 'test')]),
-        (datetime(2015, 3, 18), 'Wednesday', None, [Hour(time(9, 10), time(18), 'test')]),
-        (datetime(2015, 3, 14), 'Saturday', 'Pi Day', []),
-        (date(2015, 3, 22), 'Sunday', 'Random 3 Days', [Hour(time(1), time(2), 'test')]),
-        (None, 'Saturday', None, [Hour(time(11), time(18), 'test')]),
-    ])
-    def test_creation(self, mock_hours, mock_today, when, weekday, holiday, hours):
-        day_hours = Day.from_date(when)
-        if when:
-            if isinstance(when, datetime):
-                day = when.date()
-            else:
-                day = when
-        else:
-            day = date.today()
-
-        assert day_hours.date == day
-        assert day_hours.weekday == weekday
-        assert day_hours.hours == hours
-        assert day_hours.holiday == holiday
-
-
-@pytest.mark.parametrize('day', [
-    Day.SUNDAY,
-    Day.MONDAY,
-    Day.TUESDAY,
-    Day.WEDNESDAY,
-    Day.THURSDAY,
-    Day.FRIDAY,
-    Day.SATURDAY,
+    # Far in the future
+    (datetime(2500, 3, 1, 21), datetime(2500, 3, 2, 9)),
 ])
-def test_hours(day):
-    hours = _generate_regular_hours()[day]
-    assert isinstance(hours, list)
-    assert len(hours) >= 1
-
-    for hour in hours:
-        assert isinstance(hour.open, time)
-        assert isinstance(hour.close, time)
+def test_time_to_open(now, expected_next_open, mock_hours_yaml):
+    hours_listing = read_hours_listing()
+    assert hours_listing.time_to_open(now) == expected_next_open - now
+    assert hours_listing.time_to_close(now) == timedelta()
 
 
-def test_holidays():
-    for holiday in HOLIDAYS:
-        assert holiday[0] <= holiday[1]
+@pytest.mark.parametrize('now,expected_next_close', [
+    (datetime(2015, 1, 5, 10), datetime(2015, 1, 5, 18)),
+    (datetime(2015, 1, 8, 10), datetime(2015, 1, 8, 12)),
+    (datetime(2015, 1, 8, 15), datetime(2015, 1, 8, 18)),
+
+    # Random 3 Days
+    (datetime(2015, 3, 20, 1, 30), datetime(2015, 3, 20, 2)),
+
+    # Far in the future
+    (datetime(2500, 3, 1, 10), datetime(2500, 3, 1, 18)),
+])
+def test_time_to_close(now, expected_next_close, mock_hours_yaml):
+    hours_listing = read_hours_listing()
+    assert hours_listing.time_to_close(now) == expected_next_close - now
+    assert hours_listing.time_to_open(now) == timedelta()
+
+
+def test_time_to_close_now(mock_hours_yaml, mock_now):
+    hours_listing = read_hours_listing()
+    assert hours_listing.time_to_open() == timedelta()
+    assert hours_listing.time_to_close() == datetime(2015, 8, 22, 18) - FAKE_NOW
+
+
+def test_no_hours():
+    # Pray that this never comes to pass 🙏🙏🙏
+    hours_listing = HoursListing(regular=EMPTY_REGULAR_HOURS, holidays=[])
+    assert hours_listing.time_to_close() == timedelta()
+    assert hours_listing.time_to_open() is None
+
+
+@pytest.mark.parametrize('startdate,enddate,hours', [
+    (date(2015, 2, 3), date(2015, 2, 2), []),
+    (
+        date(2015, 2, 2),
+        date(2015, 2, 3),
+        [Hour(time(10), time(12)), Hour(time(11), time(14))],
+    ),
+    (
+        date(2015, 2, 2),
+        date(2015, 2, 3),
+        [Hour(time(10), time(12)), Hour(time(8), time(14))],
+    ),
+    (
+        date(2015, 2, 2),
+        date(2015, 2, 3),
+        [Hour(time(10), time(12)), Hour(time(8), time(9))],
+    ),
+])
+def test_invalid_holiday(startdate, enddate, hours):
+    with pytest.raises(ValueError):
+        Holiday(reason='', startdate=startdate, enddate=enddate, hours=hours)
+
+
+def test_idempotence(mock_hours_yaml):
+    hours_listing = read_hours_listing()
+    assert hours_listing == HoursListing(**vars(hours_listing))
