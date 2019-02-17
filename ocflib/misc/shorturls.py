@@ -4,7 +4,7 @@ import re
 from ocflib.infra import mysql
 
 
-SHORTURL_SLUG_ALLOWED_CHARS = r'[\w./+:]+'
+SHORTURL_SLUG_ALLOWED_CHARS = r'^[\w./+:]+$'
 SHORTURL_REGEX = re.compile(SHORTURL_SLUG_ALLOWED_CHARS)
 
 get_connection = functools.partial(
@@ -18,7 +18,7 @@ get_connection = functools.partial(
 def _validate_slug(slug):
     if len(slug) > 100:
         raise ValueError('shorturl len is {}, must be less than 100'.format(len(slug)))
-    if bool(SHORTURL_REGEX.search(slug)):
+    if not bool(SHORTURL_REGEX.search(slug)):
         raise ValueError("shorturl '{}' contains illegal characters".format(slug))
 
 
