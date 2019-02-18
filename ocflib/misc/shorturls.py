@@ -18,7 +18,7 @@ get_connection = functools.partial(
 def _validate_slug(slug):
     if len(slug) > 100:
         raise ValueError('shorturl len is {}, must be less than 100'.format(len(slug)))
-    if not bool(SHORTURL_REGEX.search(slug)):
+    if not SHORTURL_REGEX.search(slug):
         raise ValueError("shorturl '{}' contains illegal characters".format(slug))
 
 
