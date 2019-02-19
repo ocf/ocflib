@@ -421,14 +421,15 @@ def fake_credentials(mock_rsa_key):
         redis_uri='redis://create',
     )
 
+
 @pytest.yield_fixture
 def mock_existing_calnet_uid():
     with mock.patch(
         'ocflib.account.search.users_by_calnet_uid',
-        return_value=["not empty"]
+        return_value=['not empty']
     ):
-        with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
-            yield
+        yield
+
 
 @pytest.yield_fixture
 def mock_nonexistent_calnet_uid():
@@ -440,17 +441,16 @@ def mock_nonexistent_calnet_uid():
             'ocflib.account.search.user_attrs_ucb',
             return_value=None
         ):
-            with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
-                yield
+            yield
+
 
 @pytest.yield_fixture
 def mock_valid_calnet_uid():
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
-    ): 
-        with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
-            yield
+    ):
+        yield
 
 
 @pytest.yield_fixture
@@ -459,8 +459,7 @@ def mock_invalid_calnet_uid():
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
     ):
-        with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
-            yield
+        yield
 
 
 class TestValidateRequest:

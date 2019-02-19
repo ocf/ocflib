@@ -24,6 +24,7 @@ UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
 UCB_LDAP_DN = 'uid=ocf,ou=applications,dc=berkeley,dc=edu'
 UCB_LDAP_PASSWORD_PATH = '/etc/ucbldap.passwd'
 
+
 @contextmanager
 def ldap_connection(host, dn=None, password=None):
     """Context manager that provides an ldap3 Connection. Also supports optional credentials for a privileged bind.
@@ -38,10 +39,11 @@ def ldap_connection(host, dn=None, password=None):
 
     :param host: server hostname
     """
-    
+
     server = ldap3.Server(host, use_ssl=True)
     with ldap3.Connection(server, dn, password) as connection:
         yield connection
+
 
 def ldap_ocf(dn=None, password=None):
     """Context manager that provides an ldap3 Connection to OCF's LDAP server. Accepts optional DN and password.
@@ -53,6 +55,7 @@ def ldap_ocf(dn=None, password=None):
     """
     return ldap_connection(OCF_LDAP, dn, password)
 
+
 def ldap_ucb(dn=None, password=None):
     """Context manager that provides an ldap3 Connection to the campus LDAP. Accepts optional DN and password.
 
@@ -63,7 +66,20 @@ def ldap_ucb(dn=None, password=None):
     """
     return ldap_connection(UCB_LDAP, dn, password)
 
-    
+
+def ldap_ucb_privileged(dn=None, password=None):
+    """Context manager that provides a privileged ldap3 Connection to the campus LDAP.
+
+    Note that this method will ignore all dn and password arguments,
+    which are being kept for compatibility with user_attrs().
+
+    Example usage:
+
+       with ldap_ucb_privileged() as c:
+            c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
+    """
+    password = _read_ucb_password()
+    return ldap_ucb(UCB_LDAP_DN, password)
 
 
 def _format_attr(key, values):
@@ -229,7 +245,8 @@ def format_timestamp(timestamp):
         raise ValueError('Timestamp has no timezone info')
     return timestamp.strftime('%Y%m%d%H%M%S%z')
 
-def read_ucb_password():
+
+def _read_ucb_password():
     """Returns a string of the current campus LDAP privileged bind password
     found in UCB_LDAP_PASSWORD_PATH
 

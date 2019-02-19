@@ -22,8 +22,6 @@ from ocflib.infra.kerberos import get_kerberos_principal_with_keytab
 from ocflib.infra.ldap import create_ldap_entry
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
-from ocflib.infra.ldap import UCB_LDAP_DN
-from ocflib.infra.ldap import read_ucb_password
 from ocflib.misc.mail import jinja_mail_env
 from ocflib.misc.mail import send_mail
 from ocflib.misc.validators import valid_email
@@ -259,9 +257,8 @@ def validate_calnet_uid(uid):
     if existing_accounts:
         raise ValidationError(
             'CalNet UID already has account: ' + str(existing_accounts))
-    
-    ldap_password = read_ucb_password()
-    attrs = search.user_attrs_ucb(uid, UCB_LDAP_DN, ldap_password)
+
+    attrs = search.user_attrs_ucb(uid)
 
     if not attrs:
         raise ValidationError("CalNet UID can't be found in university LDAP.")

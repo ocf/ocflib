@@ -52,42 +52,36 @@ def mock_get_vhosts_db():
     ):
         yield
 
+
 @pytest.yield_fixture
-def mock_group_ucb_attrs():
+def mock_group_user_attrs():
     with mock.patch(
         'ocflib.vhost.web.user_attrs',
         return_value={'callinkOid': ['0']}
-    ): 
-        with mock.patch('ocflib.vhost.web.read_ucb_password',
-        return_value=""
-        ):
-            yield
+    ):
+        yield
+
 
 @pytest.yield_fixture
 def mock_staff_ucb_attrs():
     with mock.patch(
         'ocflib.vhost.web.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['EMPLOYEE-TYPE-ACADEMIC']}
-    ): 
+    ):
         with mock.patch(
             'ocflib.vhost.web.user_attrs',
             return_value={'calnetUid': ['0']}
-        ): 
-            with mock.patch('ocflib.vhost.web.read_ucb_password',
-            return_value=""
-            ):
-                yield
+        ):
+            yield
+
 
 @pytest.yield_fixture
-def mock_ucb_attrs_uneligible():
+def mock_user_attrs_uneligible():
     with mock.patch(
         'ocflib.vhost.web.user_attrs_ucb',
         return_value=None
-    ): 
-        with mock.patch('ocflib.vhost.web.read_ucb_password',
-        return_value=""
-        ):
-            yield
+    ):
+        yield
 
 
 class TestVirtualHosts:
@@ -121,14 +115,14 @@ class TestVirtualHosts:
     def test_has_vhost(self, user, should_have_vhost, mock_get_vhosts_db):
         assert has_vhost(user) == should_have_vhost
 
-    @pytest.mark.usefixtures('mock_group_ucb_attrs')
+    @pytest.mark.usefixtures('mock_group_user_attrs')
     def test_groups_eligible_for_vhost(self):
-        assert eligible_for_vhost('ggroups') == True
+        assert eligible_for_vhost('ggroups')
 
     @pytest.mark.usefixtures('mock_staff_ucb_attrs')
     def test_staff_eligible_for_vhost(self):
-        assert eligible_for_vhost('bh') == True
+        assert eligible_for_vhost('bh')
 
-    @pytest.mark.usefixtures('mock_ucb_attrs_uneligible')
+    @pytest.mark.usefixtures('mock_user_attrs_uneligible')
     def test_not_eligible_for_vhost(self):
-        assert eligible_for_vhost('mattmcal') == False
+        assert not eligible_for_vhost('mattmcal')

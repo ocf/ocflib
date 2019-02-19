@@ -51,9 +51,9 @@ def user_attrs(uid, connection=ldap.ldap_ocf, base=OCF_LDAP_PEOPLE, dn=None, pas
             return c.response[0]['attributes']
 
 
-def user_attrs_ucb(uid, dn=None, password=None):
-    return user_attrs(uid, connection=ldap.ldap_ucb, 
-                base=UCB_LDAP_PEOPLE, dn=dn, password=password)
+def user_attrs_ucb(uid):
+    return user_attrs(uid, connection=ldap.ldap_ucb_privileged,
+                      base=UCB_LDAP_PEOPLE)
 
 
 def user_exists(account):
