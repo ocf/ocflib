@@ -52,6 +52,28 @@ def mock_get_vhosts_db():
     ):
         yield
 
+@pytest.yield_fixture
+def mock_ucb_attrs_allowed():
+    with mock.patch(
+        'ocflib.account.search.user_attrs_ucb',
+        return_value={'callinkOid': ['0']}
+    ): 
+        with mock.patch('ocflib.vhost.web.read_ucb_password',
+        return_value=""
+        ):
+            yield
+
+@pytest.yield_fixturee
+def mock_ucb_attrs_disallowed():
+    with mock.patch(
+        'ocflib.account.search.user_attrs_ucb',
+        return_value=None
+    ): 
+        with mock.patch('ocflib.vhost.web.read_ucb_password',
+        return_value=""
+        ):
+            yield
+
 
 class TestVirtualHosts:
 
@@ -85,9 +107,13 @@ class TestVirtualHosts:
         assert has_vhost(user) == should_have_vhost
 
     @pytest.mark.parametrize('user,should_be_eligible', [
-        ('mattmcal', False),
         ('ggroup', True),
         ('bh', True),
     ])
+    @pytest.mark.usefixtures('mock_ucb_attrs_eligible')
     def test_eligible_for_vhost(self, user, should_be_eligible):
         assert eligible_for_vhost(user) == should_be_eligible
+
+    @pytest.mark.usefixtures('mock_ucb_attrs_disallowed')
+    def test_not_eligible_for_vhost(self, user, should_be_eligible):
+        assert eligible_for_vhost('mattmcal') == False

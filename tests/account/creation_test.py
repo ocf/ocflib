@@ -426,24 +426,31 @@ def mock_existing_calnet_uid():
     with mock.patch(
         'ocflib.account.search.users_by_calnet_uid',
         return_value=["not empty"]
-    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
-        yield
+    ):
+        with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
+            yield
 
 @pytest.yield_fixture
 def mock_nonexistent_calnet_uid():
     with mock.patch(
         'ocflib.account.search.users_by_calnet_uid',
         return_value=None
-    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
-        yield
+    ):
+        with mock.patch(
+            'ocflib.account.search.user_attrs_ucb',
+            return_value=None
+        ):
+            with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
+                yield
 
 @pytest.yield_fixture
 def mock_valid_calnet_uid():
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
-    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
-        yield
+    ): 
+        with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
+            yield
 
 
 @pytest.yield_fixture
@@ -451,8 +458,9 @@ def mock_invalid_calnet_uid():
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
-    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
-        yield
+    ):
+        with mock.patch('ocflib.account.creation.read_ucb_password', return_value=""):
+            yield
 
 
 class TestValidateRequest:
