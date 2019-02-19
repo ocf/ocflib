@@ -22,7 +22,7 @@ UCB_LDAP = 'ldap.berkeley.edu'
 UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
 UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
 UCB_LDAP_DN = 'uid=ocf,ou=applications,dc=berkeley,dc=edu'
-UCB_LDAP_PASSWORD_PATH = ''
+UCB_LDAP_PASSWORD_PATH = '/etc/ucbldap.passwd'
 
 @contextmanager
 def ldap_connection(host, dn=None, password=None):
@@ -236,5 +236,5 @@ def read_ucb_password():
     :return: A string of the campus LDAP bind password
     """
 
-    with open('/etc/ucbldap.passwd', 'r') as passwordFile:
+    with open(UCB_LDAP_PASSWORD_PATH, 'r') as passwordFile:
         return passwordFile.read()
