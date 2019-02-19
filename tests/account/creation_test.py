@@ -265,13 +265,13 @@ class TestUsernameBasedOnRealName:
 
 class TestAccountEligibility:
 
-    @pytest.mark.parametrize('bad_uid', [
-        1101587,     # good uid, but already has account
-        9999999999,  # fake uid, not in university ldap
-    ])
-    def test_validate_calnet_uid_error(self, bad_uid):
+    def test_validate_calnet_uid_error(self, mock_existing_calnet_uid):
         with pytest.raises(ValidationError):
-            validate_calnet_uid(bad_uid)
+            validate_calnet_uid(1101587)
+
+    def test_validate_nonexistent_calnet_uid(self, mock_nonexistent_calnet_uid):
+        with pytest.raises(ValidationError):
+            validate_calnet_uid(9999999999)
 
     def test_validate_calnet_uid_success(self, mock_valid_calnet_uid):
         validate_calnet_uid(9999999999999)
@@ -421,13 +421,28 @@ def fake_credentials(mock_rsa_key):
         redis_uri='redis://create',
     )
 
+@pytest.yield_fixture
+def mock_existing_calnet_uid():
+    with mock.patch(
+        'ocflib.account.search.users_by_calnet_uid',
+        return_value=["not empty"]
+    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
+        yield
+
+@pytest.yield_fixture
+def mock_nonexistent_calnet_uid():
+    with mock.patch(
+        'ocflib.account.search.users_by_calnet_uid',
+        return_value=None
+    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
+        yield
 
 @pytest.yield_fixture
 def mock_valid_calnet_uid():
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
-    ):
+    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
         yield
 
 
@@ -436,7 +451,7 @@ def mock_invalid_calnet_uid():
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
-    ):
+    ), mock.patch('ocflib.infra.ldap.read_ucb_password', return_value=""):
         yield
 
 
