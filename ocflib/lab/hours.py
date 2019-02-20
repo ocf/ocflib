@@ -1,1 +1,1 @@
-from ocflib.lab.hours2 import *
+from ocflib.lab.hours2 import *  # NOQA
