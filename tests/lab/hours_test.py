@@ -6,11 +6,11 @@ from datetime import timedelta
 import pytest
 from freezegun import freeze_time
 
-from ocflib.lab.hours2 import Holiday
-from ocflib.lab.hours2 import Hour
-from ocflib.lab.hours2 import HoursListing
-from ocflib.lab.hours2 import read_hours_listing
-from ocflib.lab.hours2 import Weekday
+from ocflib.lab.hours import Holiday
+from ocflib.lab.hours import Hour
+from ocflib.lab.hours import HoursListing
+from ocflib.lab.hours import read_hours_listing
+from ocflib.lab.hours import Weekday
 
 
 FAKE_HOURS_YAML = '''
