@@ -51,7 +51,7 @@ def get_vhosts():
         if len(fields) < 5:
             flags = []
         else:
-            flags = re.match('\[(.*)\]$', fields[4]).group(1).split(',')
+            flags = re.match(r'\[(.*)\]$', fields[4]).group(1).split(',')
 
         username, host, aliases, docroot = fields[:4]
 

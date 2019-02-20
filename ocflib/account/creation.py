@@ -367,7 +367,7 @@ def similarity_heuristic(realname, username):
     max_words = 8
     max_iterations = math.factorial(max_words)
 
-    words = re.findall('\w+', realname)
+    words = re.findall(r'\w+', realname)
     initials = [word[0] for word in words]
 
     if len(words) > max_words:

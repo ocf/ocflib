@@ -48,7 +48,7 @@ def get_app_vhosts():
         if len(fields) < 5:
             flags = []
         else:
-            flags = re.match('\[(.*)\]$', fields[4]).group(1).split(',')
+            flags = re.match(r'\[(.*)\]$', fields[4]).group(1).split(',')
 
         username, host, socket, aliases = fields[:4]
 
