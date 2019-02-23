@@ -2,14 +2,12 @@ import pytest
 from ldap3.core.exceptions import LDAPAttributeError
 
 from ocflib.account.search import user_attrs
-from ocflib.account.search import user_attrs_ucb
 from ocflib.account.search import user_exists
 from ocflib.account.search import user_is_group
 from ocflib.account.search import user_is_sorried
 from ocflib.account.search import users_by_callink_oid
 from ocflib.account.search import users_by_calnet_uid
 from ocflib.account.search import users_by_filter
-from tests.conftest import TEST_PERSON_CALNET_UID
 
 
 class TestUsersByFilter:
@@ -59,17 +57,6 @@ class TestUserAttrs:
 
     def test_nonexistent_user(self):
         assert user_attrs('doesnotexist') is None
-
-
-class TestUserAttrsUCB:
-
-    def test_existing_user(self, test_uid=TEST_PERSON_CALNET_UID):
-        user = user_attrs_ucb(test_uid)
-        assert user['uid'] == [str(test_uid)]
-        assert 'person' in user['objectClass']
-
-    def test_nonexistent_user(self):
-        assert user_attrs_ucb(9999999999) is None
 
 
 @pytest.mark.parametrize('user,exists', [

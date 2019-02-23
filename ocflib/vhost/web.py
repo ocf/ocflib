@@ -87,8 +87,8 @@ def eligible_for_vhost(user):
         return True
     elif 'calnetUid' in attrs:
         attrs_ucb = user_attrs_ucb(attrs['calnetUid'])
-        # TODO: Uncomment when we get a privileged LDAP bind.
-        if attrs_ucb:  # and 'EMPLOYEE-TYPE-ACADEMIC' in attrs_ucb['berkeleyEduAffiliations']:
+
+        if attrs_ucb and 'EMPLOYEE-TYPE-ACADEMIC' in attrs_ucb['berkeleyEduAffiliations']:
             return True
 
     return False

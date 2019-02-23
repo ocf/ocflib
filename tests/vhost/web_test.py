@@ -53,6 +53,37 @@ def mock_get_vhosts_db():
         yield
 
 
+@pytest.yield_fixture
+def mock_group_user_attrs():
+    with mock.patch(
+        'ocflib.vhost.web.user_attrs',
+        return_value={'callinkOid': ['0']}
+    ):
+        yield
+
+
+@pytest.yield_fixture
+def mock_staff_ucb_attrs():
+    with mock.patch(
+        'ocflib.vhost.web.user_attrs_ucb',
+        return_value={'berkeleyEduAffiliations': ['EMPLOYEE-TYPE-ACADEMIC']}
+    ):
+        with mock.patch(
+            'ocflib.vhost.web.user_attrs',
+            return_value={'calnetUid': ['0']}
+        ):
+            yield
+
+
+@pytest.yield_fixture
+def mock_user_attrs_uneligible():
+    with mock.patch(
+        'ocflib.vhost.web.user_attrs_ucb',
+        return_value=None
+    ):
+        yield
+
+
 class TestVirtualHosts:
 
     def test_reads_file_if_exists(self):
@@ -84,10 +115,14 @@ class TestVirtualHosts:
     def test_has_vhost(self, user, should_have_vhost, mock_get_vhosts_db):
         assert has_vhost(user) == should_have_vhost
 
-    @pytest.mark.parametrize('user,should_be_eligible', [
-        ('mattmcal', False),
-        ('ggroup', True),
-        ('bh', True),
-    ])
-    def test_eligible_for_vhost(self, user, should_be_eligible):
-        assert eligible_for_vhost(user) == should_be_eligible
+    @pytest.mark.usefixtures('mock_group_user_attrs')
+    def test_groups_eligible_for_vhost(self):
+        assert eligible_for_vhost('ggroups')
+
+    @pytest.mark.usefixtures('mock_staff_ucb_attrs')
+    def test_staff_eligible_for_vhost(self):
+        assert eligible_for_vhost('bh')
+
+    @pytest.mark.usefixtures('mock_user_attrs_uneligible')
+    def test_not_eligible_for_vhost(self):
+        assert not eligible_for_vhost('mattmcal')
