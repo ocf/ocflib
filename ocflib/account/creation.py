@@ -263,11 +263,12 @@ def validate_calnet_uid(uid):
     if not attrs:
         raise ValidationError("CalNet UID can't be found in university LDAP.")
 
+    # TODO: Uncomment when we get privileged LDAP bind.
     # check if user is eligible for an account
-    affiliations = attrs['berkeleyEduAffiliations']
-    if not eligible_for_account(affiliations):
-        raise ValidationWarning(
-            'Affiliate type not eligible for account: ' + str(affiliations))
+    # affiliations = attrs['berkeleyEduAffiliations']
+    # if not eligible_for_account(affiliations):
+    #    raise ValidationWarning(
+    #        'Affiliate type not eligible for account: ' + str(affiliations))
 
 
 def eligible_for_account(affiliations):

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import ocflib.account.search as search
-import ocflib.ucb.directory as directory
 
 if __name__ == '__main__':
     print('Users with CalNet UID 1034192: {}'.format(
@@ -20,14 +19,3 @@ if __name__ == '__main__':
 
     for user in ('ckuehl', 'ggroup'):
         print('User {} is group: {}'.format(user, search.user_is_group(user)))
-
-    """ Note: the following tests will fail if the password file in
-        UCB_LDAP_PASSWORD_PATH does not exist or is invalid
-    """
-    user = search.user_attrs_ucb(1101587)  # jvperrin's uid
-    print('User with uid {} has uid {}'.format(user['uid'], str(1101587)))
-
-    print('{} should be in user[\'objectClass\']: {}'.format('person', 'person' in user['objectClass']))
-
-    print('Real query with invalid uid 9999999 should be empty: {}'.format(
-        (None or '').lower() == (directory.name_by_calnet_uid(9999999) or '').lower()))

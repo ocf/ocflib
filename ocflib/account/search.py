@@ -32,7 +32,7 @@ def users_by_callink_oid(callink_oid):
     return users_by_filter('(callinkOid={})'.format(callink_oid))
 
 
-def user_attrs(uid, connection=ldap.ldap_ocf, base=OCF_LDAP_PEOPLE, dn=None, password=None):
+def user_attrs(uid, connection=ldap.ldap_ocf, base=OCF_LDAP_PEOPLE):
     """Returns a dictionary of LDAP attributes for a given LDAP UID.
 
     The returned dictionary looks like:
@@ -44,7 +44,7 @@ def user_attrs(uid, connection=ldap.ldap_ocf, base=OCF_LDAP_PEOPLE, dn=None, pas
 
     Returns None if no account exists with uid=user_account.
     """
-    with connection(dn, password) as c:
+    with connection() as c:
         c.search(base, '(uid={})'.format(uid), attributes=ldap3.ALL_ATTRIBUTES)
 
         if len(c.response) > 0:
@@ -52,7 +52,7 @@ def user_attrs(uid, connection=ldap.ldap_ocf, base=OCF_LDAP_PEOPLE, dn=None, pas
 
 
 def user_attrs_ucb(uid):
-    return user_attrs(uid, connection=ldap.ldap_ucb_privileged,
+    return user_attrs(uid, connection=ldap.ldap_ucb,
                       base=UCB_LDAP_PEOPLE)
 
 

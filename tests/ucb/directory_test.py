@@ -23,6 +23,13 @@ class TestNameByCalNetUID:
         ):
             assert name_by_calnet_uid(0) == expected
 
+    @pytest.mark.parametrize('uid,expected', [
+        (TEST_PERSON_CALNET_UID, TEST_PERSON_NAME),
+        (9999999, None),
+    ])
+    def test_name_by_calnet_uid_real_query(self, uid, expected):
+        assert (name_by_calnet_uid(uid) or '').lower() == (expected or '').lower()
+
 
 class TestCalNetUIDsByName:
 

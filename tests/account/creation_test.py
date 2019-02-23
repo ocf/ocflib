@@ -265,17 +265,18 @@ class TestUsernameBasedOnRealName:
 
 class TestAccountEligibility:
 
-    def test_validate_calnet_uid_error(self, mock_existing_calnet_uid):
+    @pytest.mark.parametrize('bad_uid', [
+        1101587,     # good uid, but already has account
+        9999999999,  # fake uid, not in university ldap
+    ])
+    def test_validate_calnet_uid_error(self, bad_uid):
         with pytest.raises(ValidationError):
-            validate_calnet_uid(1101587)
-
-    def test_validate_nonexistent_calnet_uid(self, mock_nonexistent_calnet_uid):
-        with pytest.raises(ValidationError):
-            validate_calnet_uid(9999999999)
+            validate_calnet_uid(bad_uid)
 
     def test_validate_calnet_uid_success(self, mock_valid_calnet_uid):
         validate_calnet_uid(9999999999999)
 
+    @pytest.mark.skip(reason='Checking for affiliations temp. patched out (ocflib PR 140)')
     def test_validate_calnet_affiliations_failure(self, mock_invalid_calnet_uid):
         with pytest.raises(ValidationWarning):
             validate_calnet_uid(9999999999999)
@@ -420,28 +421,6 @@ def fake_credentials(mock_rsa_key):
         kerberos_principal='create/admin',
         redis_uri='redis://create',
     )
-
-
-@pytest.yield_fixture
-def mock_existing_calnet_uid():
-    with mock.patch(
-        'ocflib.account.search.users_by_calnet_uid',
-        return_value=['not empty']
-    ):
-        yield
-
-
-@pytest.yield_fixture
-def mock_nonexistent_calnet_uid():
-    with mock.patch(
-        'ocflib.account.search.users_by_calnet_uid',
-        return_value=None
-    ):
-        with mock.patch(
-            'ocflib.account.search.user_attrs_ucb',
-            return_value=None
-        ):
-            yield
 
 
 @pytest.yield_fixture
