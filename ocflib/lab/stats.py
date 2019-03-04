@@ -139,35 +139,30 @@ def list_desktops(public_only=False):
         c.search(OCF_LDAP_HOSTS, filter, attributes=['cn'])
         return [entry['attributes']['cn'][0] for entry in c.response]
 
-def build_query(host):
-    def add_ocf(hostname):
-        if not hostname.endswith('.ocf.berkeley.edu'):
-            return hostname + '.ocf.berkeley.edu'
-        return hostname
-    query = 'SELECT * FROM `session`'
-    query_args = []
+def add_ocf(hostname):
+    if not hostname.endswith('.ocf.berkeley.edu'):
+        return hostname + '.ocf.berkeley.edu'
+    return hostname
 
-    query_conditions = []
-    query_conditions.append('`host` = %s')
-    query_args.append(add_ocf(host))
-    
-    query += ' WHERE ' + ' AND '.join(query_conditions)
-    query += ' ORDER BY `start` DESC LIMIT 1'
-    # we can't have another user start before current user ends so here we order by start
-
-    return (query, query_args)
-
-def last_used(desktop_host):
-    try:
-        with open('/etc/ocfstats-ro.passwd', 'r') as fin:
-            password = fin.read().strip()
-    except FileNotFoundError:
-        return {"err": 'Could not find the file for ocfstats credentials. Are you running this on supernova?'}
+def last_used(host):
+    with open('/etc/ocfstats-ro.passwd', 'r') as fin:
+        password = fin.read().strip()
     with mysql.get_connection(user='ocfstats-ro', password=password, db='ocfstats') as c:
         # The reason for not using the partial `get_connection` is because of this: 
         # https://github.com/PyCQA/pylint/issues/2271 
-        query = build_query(desktop_host)
-        c.execute(*query)
+        
+        query = 'SELECT * FROM `session`'
+        query_args = []
+
+        query_conditions = []
+        query_conditions.append('`host` = %s')
+        query_args.append(add_ocf(host))
+        
+        query += ' WHERE ' + ' AND '.join(query_conditions)
+        query += ' ORDER BY `start` DESC LIMIT 1'
+        # we can't have another user start before current user ends so here we order by start
+
+        c.execute(query, query_args)
         return Session.from_row(c.fetchone())
 
 class UtilizationProfile(namedtuple('UtilizationProfile', [
