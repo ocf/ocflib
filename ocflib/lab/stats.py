@@ -163,7 +163,9 @@ def last_used(desktop_host):
             password = fin.read().strip()
     except FileNotFoundError:
         return {"err": 'Could not find the file for ocfstats credentials. Are you running this on supernova?'}
-    with get_connection(user='ocfstats-ro', password=password) as c:
+    with mysql.get_connection(user='ocfstats-ro', password=password, db='ocfstats') as c:
+        # The reason for not using the partial `get_connection` is because of this: 
+        # https://github.com/PyCQA/pylint/issues/2271 
         query = build_query(desktop_host)
         c.execute(*query)
         return Session.from_row(c.fetchone())
