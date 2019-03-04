@@ -197,10 +197,6 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
 
     @classmethod
     def from_hostnames(cls, hostnames, start, end):
-        def add_ocf(hostname):
-            if not hostname.endswith('.ocf.berkeley.edu'):
-                return hostname + '.ocf.berkeley.edu'
-            return hostname
 
         hostnames = tuple(map(add_ocf, hostnames))
 
