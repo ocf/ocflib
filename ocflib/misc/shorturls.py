@@ -4,7 +4,7 @@ import re
 from ocflib.infra import mysql
 
 
-SHORTURL_SLUG_ALLOWED_CHARS = r'^[\w./+:]+$'
+SHORTURL_SLUG_ALLOWED_CHARS = r'^[\w./+:-]+$'
 SHORTURL_REGEX = re.compile(SHORTURL_SLUG_ALLOWED_CHARS)
 
 get_connection = functools.partial(
