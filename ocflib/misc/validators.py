@@ -1,7 +1,6 @@
 """Misc validators for things like emails, domains, etc."""
 import re
 
-import dns
 import dns.resolver
 
 from ocflib.infra.net import OCF_DNS_RESOLVER

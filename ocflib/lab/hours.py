@@ -138,7 +138,7 @@ def _parse_holiday_list(holidays):
 
 
 @attr.s(frozen=True)
-class HoursListing(object):
+class HoursListing:
     regular = attr.ib(converter=_parse_regular_hours)
     holidays = attr.ib(converter=_parse_holiday_list)
 
@@ -248,7 +248,7 @@ class HoursListing(object):
 
 
 @attr.s(frozen=True)
-class Holiday(object):
+class Holiday:
     reason = attr.ib(validator=[attr.validators.instance_of(str)])
     startdate = attr.ib(validator=[attr.validators.instance_of(date)])
     enddate = attr.ib(validator=[attr.validators.instance_of(date)])
@@ -261,7 +261,7 @@ class Holiday(object):
 
 
 @attr.s(frozen=True)
-class Hour(object):
+class Hour:
     open = attr.ib(
         validator=[attr.validators.instance_of(time)],
         converter=_parsetime,
