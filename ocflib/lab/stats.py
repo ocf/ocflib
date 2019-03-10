@@ -147,7 +147,7 @@ def last_used(host, ctx):
     query = 'SELECT * FROM `session` WHERE `host` = %s ORDER BY `start` DESC LIMIT 1'
     # we can't have another user start before current user ends so here we order by start
 
-    ctx.execute(query, hostname)
+    ctx.execute(query, host)
     return Session.from_row(ctx.fetchone())
 
 
