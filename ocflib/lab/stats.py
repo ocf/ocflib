@@ -141,13 +141,13 @@ def list_desktops(public_only=False):
         return [entry['attributes']['cn'][0] for entry in c.response]
 
 
-def last_used(hostname, ctx):
+def last_used(host, ctx):
     """Show the last used statistics for a computer."""
 
     query = 'SELECT * FROM `session` WHERE `host` = %s ORDER BY `start` DESC LIMIT 1'
     # we can't have another user start before current user ends so here we order by start
 
-    ctx.execute(query, domain_from_hostname(hostname))
+    ctx.execute(query, hostname)
     return Session.from_row(ctx.fetchone())
 
 
