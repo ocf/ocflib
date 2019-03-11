@@ -8,6 +8,7 @@ from datetime import timedelta
 from cached_property import cached_property
 
 from ocflib.infra import mysql
+from ocflib.infra.hosts import domain_from_hostname
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
@@ -140,32 +141,14 @@ def list_desktops(public_only=False):
         return [entry['attributes']['cn'][0] for entry in c.response]
 
 
-def add_ocf(hostname):
-    if not hostname.endswith('.ocf.berkeley.edu'):
-        return hostname + '.ocf.berkeley.edu'
-    return hostname
+def last_used(host, ctx):
+    """Show the last used statistics for a computer."""
 
+    query = 'SELECT * FROM `session` WHERE `host` = %s ORDER BY `start` DESC LIMIT 1'
+    # we can't have another user start before current user ends so here we order by start
 
-def last_used(host):
-    with open('/etc/ocfstats-ro.passwd', 'r') as fin:
-        password = fin.read().strip()
-    with mysql.get_connection(user='ocfstats-ro', password=password, db='ocfstats') as c:
-        # The reason for not using the partial `get_connection` is because of this:
-        # https://github.com/PyCQA/pylint/issues/2271
-
-        query = 'SELECT * FROM `session`'
-        query_args = []
-
-        query_conditions = []
-        query_conditions.append('`host` = %s')
-        query_args.append(add_ocf(host))
-
-        query += ' WHERE ' + ' AND '.join(query_conditions)
-        query += ' ORDER BY `start` DESC LIMIT 1'
-        # we can't have another user start before current user ends so here we order by start
-
-        c.execute(query, query_args)
-        return Session.from_row(c.fetchone())
+    ctx.execute(query, host)
+    return Session.from_row(ctx.fetchone())
 
 
 class UtilizationProfile(namedtuple('UtilizationProfile', [
@@ -201,7 +184,7 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
     @classmethod
     def from_hostnames(cls, hostnames, start, end):
 
-        hostnames = tuple(map(add_ocf, hostnames))
+        hostnames = tuple(map(domain_from_hostname, hostnames))
 
         with get_connection() as c:
             query = """

@@ -40,6 +40,17 @@ def hostname_from_domain(fqdn):
     return fqdn.split('.')[0]
 
 
+def domain_from_hostname(hostname):
+    """Return the canonical domain from a hostname, and if it's already a hostname, just return itself.
+
+    >>> domain_from_hostname('tsunami')
+    'tsunami.ocf.berkeley.edu'
+    """
+    if not hostname.endswith('.ocf.berkeley.edu'):
+        return hostname + '.ocf.berkeley.edu'
+    return hostname
+
+
 def type_of_host(hostname):
     """Returns the type of a host as specified in LDAP.
 
