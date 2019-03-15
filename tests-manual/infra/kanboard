@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+
+from ocflib.infra.kanboard import KanboardTask
+
+
+if __name__ == '__main__':
+    usr = input('usr: ')
+    api_key = input('api key: ')
+    print(KanboardTask.from_number(usr, api_key, 1))
