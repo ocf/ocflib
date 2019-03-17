@@ -1,7 +1,7 @@
 """Print Kanboard task information."""
+import json
 from collections import namedtuple
 
-import json
 import requests
 
 
@@ -15,11 +15,11 @@ def request(usr, api_key, method, params):
     # one simple request.
     payload = json.dumps({'jsonrpc': '2.0', 'method': method, 'id': 1, 'params': params})
     return requests.post(
-               '{}/jsonrpc.php'.format(KANBOARD_ROOT),
-               data=payload,
-               auth=(usr, api_key),
-               timeout=10,
-           )
+        '{}/jsonrpc.php'.format(KANBOARD_ROOT),
+        data=payload,
+        auth=(usr, api_key),
+        timeout=10,
+    )
 
 
 class KanboardError(ValueError):
