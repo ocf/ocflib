@@ -49,9 +49,13 @@ JDNjiYba1ZiNLiqXeLGS2IVYAd88etX+V5gxAvl0bGHzgeHodutxUf46QCg7cmvm
 zwIDAQAB
 -----END PUBLIC KEY-----'''
 
+# Inclusive endpoints
 RESERVED_UID_RANGES = [
-    (61184, 65519),  # systemd dynamic users
-    (65534, 65535),  # nobody and invalid user
+    # 61184-65519 are the systemd dymanic users
+    # 65534 is the nobody user
+    # 65535 is the invalid user
+    # we reserve the gaps between these for extra safety
+    (61184, 65535),
 ]
 
 
@@ -80,15 +84,9 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
 
     assert all(start <= end for start, end in RESERVED_UID_RANGES)
     next_uid = max_uid + 1
-    while True:
-        for start, end in sorted(RESERVED_UID_RANGES):
-            if start <= next_uid <= end:
-                next_uid = end + 1
-                break
-        else:
-            # The else clause is run if we never break out of the loop
-            # (next_uid is not in any reserved ranges)
-            break
+    for start, end in sorted(RESERVED_UID_RANGES):
+        if start <= next_uid <= end:
+            next_uid = end + 1
 
     return next_uid
 
