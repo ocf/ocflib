@@ -102,7 +102,7 @@ class TestFirstAvailableUID:
         assert next_uid == 999201
 
     def test_reserved_uid(self):
-        """Test that we skip over the reserved UID range of 61184-65535
+        """Test that we skip over the reserved UID range of 61184-65535.
         """
 
         connection = mock.Mock(response=[
