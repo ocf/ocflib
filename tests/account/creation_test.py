@@ -102,8 +102,7 @@ class TestFirstAvailableUID:
         assert next_uid == 999201
 
     def test_reserved_uid(self):
-        """Test that we skip over UIDs 61184-65519, the range of systemd
-        dynamic users.
+        """Test that we skip over the reserved UID range of 61184-65535
         """
 
         connection = mock.Mock(response=[
