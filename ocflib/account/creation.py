@@ -49,6 +49,15 @@ JDNjiYba1ZiNLiqXeLGS2IVYAd88etX+V5gxAvl0bGHzgeHodutxUf46QCg7cmvm
 zwIDAQAB
 -----END PUBLIC KEY-----'''
 
+# Inclusive endpoints
+RESERVED_UID_RANGES = [
+    # 61184-65519 are the systemd dymanic users
+    # 65534 is the nobody user
+    # 65535 is the invalid user
+    # we reserve the gaps between these for extra safety
+    (61184, 65535),
+]
+
 
 def _get_first_available_uid(known_uid=_KNOWN_UID):
     """Return the first available UID number.
@@ -72,7 +81,14 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
     else:
         # If cached UID is later deleted, LDAP response will be empty.
         max_uid = known_uid
-    return max_uid + 1
+
+    assert all(start <= end for start, end in RESERVED_UID_RANGES)
+    next_uid = max_uid + 1
+    for start, end in sorted(RESERVED_UID_RANGES):
+        if start <= next_uid <= end:
+            next_uid = end + 1
+
+    return next_uid
 
 
 def create_account(request, creds, report_status, known_uid=_KNOWN_UID):

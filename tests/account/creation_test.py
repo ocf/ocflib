@@ -101,6 +101,24 @@ class TestFirstAvailableUID:
 
         assert next_uid == 999201
 
+    def test_reserved_uid(self):
+        """Test that we skip over the reserved UID range of 61184-65535.
+        """
+
+        connection = mock.Mock(response=[
+            {'attributes': {'uidNumber': 61183}},
+            {'attributes': {'uidNumber': 60000}},
+        ])
+
+        @contextmanager
+        def ldap_ocf():
+            yield connection
+
+        with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
+            next_uid = _get_first_available_uid()
+
+        assert next_uid == 65536
+
     def test_max_uid_constant_not_too_small(self):
         """Test that the _KNOWN_UID constant is sufficiently large.
 
