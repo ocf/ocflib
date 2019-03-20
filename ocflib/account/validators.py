@@ -265,6 +265,7 @@ RESERVED_USERNAMES = frozenset((
     'announce',
     'decal',
     'decal-announce',
+    'extcomm',
     'gm',
     'jenkins',
     'joinstaff',
