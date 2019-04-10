@@ -173,6 +173,7 @@ RESERVED_USERNAMES = frozenset((
     'rtkit',
     'sales',
     'saned',
+    'sdocs',
     'secretary',
     'senate-resolution',
     'servers',
