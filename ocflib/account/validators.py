@@ -1,5 +1,6 @@
 import difflib
 import pwd
+import requests
 import string
 import sys
 
@@ -375,6 +376,11 @@ def username_reserved(username):
         return True
 
     if username in RESERVED_USERNAMES:
+        return True
+
+    # check if there exists a shorturl for ocf.io/$username
+    r = requests.get('https://ocf.io/' + username)
+    if not r.url.startswith('https://ocf.berkeley.edu/~%s' % username):
         return True
 
     # sanity check: make sure no local users share the username
