@@ -444,7 +444,7 @@ def fake_credentials(mock_rsa_key):
 @pytest.yield_fixture
 def mock_valid_calnet_uid():
     with mock.patch(
-        'ocflib.account.search.user_attrs_ucb',
+        'ocflib.account.search.user_attrs_ucb_privileged',
         return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
     ):
         yield
@@ -453,7 +453,7 @@ def mock_valid_calnet_uid():
 @pytest.yield_fixture
 def mock_invalid_calnet_uid():
     with mock.patch(
-        'ocflib.account.search.user_attrs_ucb',
+        'ocflib.account.search.user_attrs_ucb_privileged',
         return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
     ):
         yield

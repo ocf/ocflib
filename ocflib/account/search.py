@@ -56,6 +56,11 @@ def user_attrs_ucb(uid):
                       base=UCB_LDAP_PEOPLE)
 
 
+def user_attrs_ucb_privileged(uid):
+    return user_attrs(uid, connection=ldap.ldap_ucb_privileged,
+                      base=UCB_LDAP_PEOPLE)
+
+
 def user_exists(account):
     """Returns whether username is an OCF account."""
     return bool(user_attrs(account))

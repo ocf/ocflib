@@ -274,7 +274,7 @@ def validate_calnet_uid(uid):
         raise ValidationError(
             'CalNet UID already has account: ' + str(existing_accounts))
 
-    attrs = search.user_attrs_ucb(uid)
+    attrs = search.user_attrs_ucb_privileged(uid)
 
     if not attrs:
         raise ValidationError("CalNet UID can't be found in university LDAP.")
