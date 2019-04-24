@@ -166,6 +166,7 @@ RESERVED_USERNAMES = frozenset((
     'proxy',
     'pulse',
     'rabbitmq',
+    'rachy',
     'redis',
     'register',
     'requesttracker',
