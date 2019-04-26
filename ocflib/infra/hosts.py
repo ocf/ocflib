@@ -1,5 +1,6 @@
 """Methods for working with OCF hosts."""
 import ldap3
+from ldap3.utils.conv import escape_filter_chars
 
 import ocflib.infra.ldap as ldap
 from ocflib.infra.ldap import OCF_LDAP_HOSTS
@@ -59,5 +60,5 @@ def type_of_host(hostname):
     >>> type_of_host('supernova')
     'server'
     """
-    hosts = hosts_by_filter('(cn={})'.format(hostname))
+    hosts = hosts_by_filter('(cn={})'.format(escape_filter_chars(hostname)))
     return hosts[0]['type'] if hosts else None
