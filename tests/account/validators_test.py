@@ -16,6 +16,8 @@ class TestValidateUsername:
         'ocfrocks',
         'www-data',
         'root',
+        # mastodon username
+        'dongkyun',
 
         # bad length
         'a',
@@ -77,7 +79,7 @@ class TestValidatePassword:
 
 class TestUserExists:
 
-    @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks'])
+    @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks', 'dongkyun'])
     def test_not_exists(self, username):
         assert not user_exists(username)
 
