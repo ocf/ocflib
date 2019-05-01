@@ -4,6 +4,7 @@ import string
 import sys
 
 import cracklib
+import requests
 
 import ocflib.misc.mail
 
@@ -320,14 +321,14 @@ def validate_username(username, check_exists=False):
     """Validate a username, raising a descriptive exception if problems are
     encountered."""
 
-    if username_reserved(username):
-        raise ValueError('Username is reserved.')
-
     if not 3 <= len(username) <= 16:
         raise ValueError('Username must be between 3 and 16 characters.')
 
     if not all(c.islower() for c in username):
         raise ValueError('Username must be all lowercase letters.')
+
+    if username_reserved(username):
+        raise ValueError('Username is reserved.')
 
     if check_exists and not user_exists(username):
         raise ValueError('Username does not exist.')
@@ -377,6 +378,25 @@ def username_reserved(username):
 
     if username in RESERVED_USERNAMES:
         return True
+
+    mastodon_url = (
+        'https://mastodon.ocf.berkeley.edu/.well-known/'
+        'webfinger?resource=acct:{}@ocf.berkeley.edu'
+    ).format(username)
+    try:
+        status_code = requests.get(mastodon_url).status_code
+        if status_code == requests.codes.ok:
+            # there's a mastodon account with this name
+            return True
+        if status_code != requests.codes.not_found:
+            # Something weird is up. Mastodon is down?
+            ocflib.misc.mail.send_problem_report(
+                """Unable to check username {username} on Mastodon: status {status}. Is it down?
+Approving the username anyway.""".format(username=username, status=status_code))
+    except requests.RequestException as ex:
+        ocflib.misc.mail.send_problem_report(
+            """Unable to check username {username} on Mastodon: exception {ex}. Is it down?
+Approving the username anyway.""".format(username=username, ex=ex))
 
     # sanity check: make sure no local users share the username
     with open('/etc/passwd') as f:
