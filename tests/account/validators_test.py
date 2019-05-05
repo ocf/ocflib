@@ -107,14 +107,11 @@ class TestUsernameReserved:
         assert not username_reserved(username)
 
     def test_checks_etc_passwd(self):
-        with mock.patch('builtins.open', mock.mock_open()) as mock_open:
-            lines = [
-                'root:x:0:0:root:/root:/bin/bash',
-                'somename:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin',
-            ]
+        lines = 'root:x:0:0:root:/root:/bin/bash' + '\n' + \
+            'somename:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin'
 
-            mock_open.return_value.__iter__.return_value = lines
-
+        with mock.patch('builtins.open',
+                        new=mock.mock_open(read_data=lines)):
             with mock.patch('ocflib.misc.mail.send_problem_report') \
                     as send_report:
                 assert username_reserved('somename')
