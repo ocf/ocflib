@@ -19,8 +19,8 @@ SEMESTERLY_QUOTA = 100
 #     them permanent. If it doesn't, then those changes automatically expire.
 
 HAPPY_HOUR_QUOTA = 20
-HAPPY_HOUR_START = datetime(2018, 12, 3)
-HAPPY_HOUR_END = datetime(2018, 12, 16)
+HAPPY_HOUR_START = datetime(2019, 5, 6)
+HAPPY_HOUR_END = datetime(2019, 5, 17)
 
 
 get_connection = functools.partial(mysql.get_connection,
