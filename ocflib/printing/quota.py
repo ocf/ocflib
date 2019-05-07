@@ -20,7 +20,7 @@ SEMESTERLY_QUOTA = 100
 
 HAPPY_HOUR_QUOTA = 20
 HAPPY_HOUR_START = datetime(2019, 5, 6)
-HAPPY_HOUR_END = datetime(2019, 7, 17)
+HAPPY_HOUR_END = datetime(2019, 5, 17)
 
 
 get_connection = functools.partial(mysql.get_connection,
