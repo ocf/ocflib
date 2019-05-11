@@ -16,8 +16,6 @@ class TestValidateUsername:
         'ocfrocks',
         'www-data',
         'root',
-        # mastodon username
-        'dongkyun',
 
         # bad length
         'a',
@@ -32,7 +30,7 @@ class TestValidateUsername:
     ])
     def test_failure(self, username):
         with pytest.raises(ValueError):
-            validate_username(username)
+            validate_username(username, check_exists=True)
 
     def test_failure_nonexist(self):
         """Test that it fails with a nonexistent username.
@@ -79,7 +77,7 @@ class TestValidatePassword:
 
 class TestUserExists:
 
-    @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks', 'dongkyun'])
+    @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks'])
     def test_not_exists(self, username):
         assert not user_exists(username)
 
