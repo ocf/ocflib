@@ -30,7 +30,7 @@ class TestValidateUsername:
     ])
     def test_failure(self, username):
         with pytest.raises(ValueError):
-            validate_username(username)
+            validate_username(username, check_exists=True)
 
     def test_failure_nonexist(self):
         """Test that it fails with a nonexistent username.
