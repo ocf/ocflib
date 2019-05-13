@@ -1,6 +1,9 @@
+from functools import namedtuple
+
 import mock
 import pytest
 
+from ocflib.account.validators import mastodon_user_exists
 from ocflib.account.validators import user_exists
 from ocflib.account.validators import username_reserved
 from ocflib.account.validators import validate_password
@@ -16,6 +19,8 @@ class TestValidateUsername:
         'ocfrocks',
         'www-data',
         'root',
+        # mastodon username
+        'dongkyun',
 
         # bad length
         'a',
@@ -30,7 +35,7 @@ class TestValidateUsername:
     ])
     def test_failure(self, username):
         with pytest.raises(ValueError):
-            validate_username(username, check_exists=True)
+            validate_username(username)
 
     def test_failure_nonexist(self):
         """Test that it fails with a nonexistent username.
@@ -43,7 +48,12 @@ class TestValidateUsername:
             validate_username('asdf', check_exists=True)
         m.assert_called_once_with('asdf')
 
-    @pytest.mark.parametrize('username', ['ckuehl', 'daradib'])
+    @pytest.mark.parametrize('username', [
+        'ckuehl',
+        'daradib',
+        # abizer has a mastodon account
+        'abizer',
+    ])
     def test_success(fail, username):
         validate_username(username, check_exists=True)
 
@@ -75,9 +85,44 @@ class TestValidatePassword:
         validate_password('ckuehl', password)
 
 
+class TestMastodonUserExists:
+
+    MockResponse = namedtuple('MockResponse', ['status_code'])
+
+    def test_mocked_exists(self):
+        with mock.patch('requests.get', return_value=self.MockResponse(200)):
+            assert mastodon_user_exists('test')
+
+    @pytest.mark.parametrize('username', ['staff', 'cg505', 'abizer'])
+    def test_exists(self, username):
+        assert mastodon_user_exists(username)
+
+    def test_mocked_not_exists(self):
+        with mock.patch('requests.get', return_value=self.MockResponse(404)):
+            assert not mastodon_user_exists('test')
+
+    @pytest.mark.parametrize('username', [
+        # reserved usernames on mastodon
+        'mod',
+        'admin',
+
+        # don't expect these accounts to ever be created, because the
+        # OCF usernames are reserved or invalid
+        'reiser',
+        'd0esn0texi5t',
+    ])
+    def test_not_exists(self, username):
+        assert not mastodon_user_exists(username)
+
+    def test_mastodon_down(self):
+        with mock.patch('requests.get', return_value=self.MockResponse(500)), \
+                mock.patch('ocflib.misc.mail.send_problem_report'):  # don't send mail
+            assert not mastodon_user_exists('test')
+
+
 class TestUserExists:
 
-    @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks'])
+    @pytest.mark.parametrize('username', ['nonexist', 'ocfrocks', 'dongkyun'])
     def test_not_exists(self, username):
         assert not user_exists(username)
 
