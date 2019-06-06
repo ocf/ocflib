@@ -3,7 +3,7 @@ import re
 import requests
 
 from ocflib.account.search import user_attrs
-from ocflib.account.search import user_attrs_ucb
+from ocflib.account.search import user_attrs_ucb_privileged
 
 VHOST_DB_PATH = '/home/s/st/staff/vhost/vhost.conf'
 VHOST_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost.conf'
@@ -86,9 +86,9 @@ def eligible_for_vhost(user):
     if 'callinkOid' in attrs:
         return True
     elif 'calnetUid' in attrs:
-        attrs_ucb = user_attrs_ucb(attrs['calnetUid'])
-        # TODO: Uncomment when we get a privileged LDAP bind.
-        if attrs_ucb:  # and 'EMPLOYEE-TYPE-ACADEMIC' in attrs_ucb['berkeleyEduAffiliations']:
+        attrs_ucb = user_attrs_ucb_privileged(attrs['calnetUid'])
+
+        if attrs_ucb and 'EMPLOYEE-TYPE-ACADEMIC' in attrs_ucb['berkeleyEduAffiliations']:
             return True
 
     return False
