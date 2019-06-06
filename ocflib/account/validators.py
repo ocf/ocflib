@@ -38,6 +38,7 @@ RESERVED_USERNAMES = frozenset((
     'buysheet',
     'cabinet',
     'callinkapi',
+    'ceph',
     'chronos',
     'clamav',
     'colord',
