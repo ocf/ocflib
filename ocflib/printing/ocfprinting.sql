@@ -165,4 +165,4 @@ CREATE VIEW `public_jobs` AS
     ORDER BY `day` DESC
 
 GRANT SELECT ON `ocfprinting`.`printed` TO 'anonymous'@'%';
-GRANT SELECT on `ocfprinting`.`public_jobs` TO 'anonymous'@'%';
+GRANT SELECT ON `ocfprinting`.`public_jobs` TO 'anonymous'@'%';
