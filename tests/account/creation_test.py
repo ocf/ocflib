@@ -596,6 +596,7 @@ class TestCreateAccount:
                     'uidNumber': 42,
                     'homeDirectory': '/home/s/so/someuser',
                     'loginShell': '/bin/bash',
+                    'ocfEmail': 'someuser@ocf.berkeley.edu',
                     'mail': ['some.user@ocf.berkeley.edu'],
                     'userPassword': '{SASL}someuser@OCF.BERKELEY.EDU',
                     'creationTime': datetime.now(timezone.utc).astimezone(),
