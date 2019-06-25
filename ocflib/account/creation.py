@@ -132,6 +132,7 @@ def create_account(request, creds, report_status, known_uid=_KNOWN_UID):
             'gidNumber': getgrnam('ocf').gr_gid,
             'homeDirectory': utils.home_dir(request.user_name),
             'loginShell': '/bin/bash',
+            'ocfEmail': request.user_name + '@ocf.berkeley.edu',
             'mail': [request.email],
             'userPassword': '{SASL}' + request.user_name + '@OCF.BERKELEY.EDU',
             'creationTime': datetime.now(timezone.utc).astimezone(),
