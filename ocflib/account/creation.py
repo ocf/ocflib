@@ -36,7 +36,7 @@ BAD_WORDS = frozenset((
     'labia', 'muff', 'nigger', 'nigga', 'penis', 'piss', 'prick', 'pube', 'pussy', 'queer', 'scrotum',
     'sex', 'shit', 'slut', 'smegma', 'terrorist', 'twat', 'vagina', 'wank', 'whore'
 ))
-RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'cal', 'berkeley', 'university'))
+RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'berkeley', 'university'))
 
 CREATE_PUBLIC_KEY = '''\
 -----BEGIN PUBLIC KEY-----
