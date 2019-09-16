@@ -93,6 +93,8 @@ RESERVED_USERNAMES = frozenset((
     'icinga',
     'info',
     'infra',
+    'internal',
+    'internals',
     'iodine',
     'irc',
     'jabber',
