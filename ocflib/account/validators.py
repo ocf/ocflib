@@ -200,6 +200,7 @@ RESERVED_USERNAMES = frozenset((
     'ssladministrator',
     'sslwebmaster',
     'staffhours',
+    'startertasks',
     'statd',
     'stats',
     'status',
