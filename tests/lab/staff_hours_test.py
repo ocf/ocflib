@@ -15,7 +15,6 @@ staff-hours:
   Monday:
    - time: ['16:10', '17:00']
      staff: ["nickimp", "ckuehl", "lynntsai"]
-     cancelled: false
   Tuesday:
    - time: ['15:10', '16:00']
      staff: ["willh"]
