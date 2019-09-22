@@ -14,7 +14,6 @@ from ocflib.misc.mail import email_for_user
 
 STAFF_HOURS_FILE = '/etc/ocf/staff_hours.yaml'
 
-
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
 
@@ -47,7 +46,9 @@ def get_staff_hours():
             return 'Staff Member'
 
     staff_hour_list = []
-    for day in staff_hours['staff-hours'].keys():
+    # If we try iterating through the keys in staff-hours, it's non-deterministic ordering.
+    # Because of the schema, we are guaranteed that these days are always here.
+    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']:
         if not staff_hours['staff-hours'][day]:
             continue
 
@@ -73,11 +74,11 @@ def get_staff_hours():
 def _parse_hour(hour):
     """
     Converts a 2-element list of hours like ['11:00', '13:00'] to a string
-    in 12-hour time, like '11:00 am - 1:00 pm'.
+    in 12-hour time, like '11:00AM - 1:00PM'.
     Needed for backwards compatibility with the old staff hours file.
     """
-    return '{} - {}'.format(datetime.strptime(hour[0], '%H:%M').strftime('%I:%M%p'),
-                            datetime.strptime(hour[1], '%H:%M').strftime('%I:%M%p'))
+    return '{} - {}'.format(datetime.strptime(hour[0], '%H:%M').strftime('%-I:%M%p'),
+                            datetime.strptime(hour[1], '%H:%M').strftime('%-I:%M%p'))
 
 
 def _remove_middle_names(name):
