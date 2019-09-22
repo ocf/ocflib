@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
 from hashlib import md5
 from urllib.parse import urlencode
@@ -12,6 +13,7 @@ from ocflib.misc.mail import email_for_user
 
 
 STAFF_HOURS_FILE = '/etc/ocf/staff_hours.yaml'
+
 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
@@ -36,27 +38,46 @@ def get_staff_hours():
     staff_hours = _load_staff_hours()
 
     def position(uid):
-        if uid in staff_hours['staff-positions']:
-            return staff_hours['staff-positions'][uid]
+        staff_position_dict = {entry['username']: entry['position'] for entry in staff_hours['staff-positions']}
+        if uid in staff_position_dict.keys():
+            return staff_position_dict[uid]
         elif is_in_group(uid, 'ocfroot'):
             return 'Technical Manager'
         else:
             return 'Staff Member'
 
-    return [
-        Hour(
-            day=hour['day'],
-            time=hour['time'],
-            staff=[
-                Staffer(
-                    user_name=attrs['uid'][0],
-                    real_name=_remove_middle_names(attrs['cn'][0]),
-                    position=position(attrs['uid'][0]),
-                ) for attrs in map(user_attrs, hour['staff'])
-            ],
-            cancelled=hour['cancelled'],
-        ) for hour in staff_hours['staff-hours']
-    ]
+    staff_hour_list = []
+    for day in staff_hours['staff-hours'].keys():
+        if not staff_hours['staff-hours'][day]:
+            continue
+
+        for staff_hour in staff_hours['staff-hours'][day]:
+            staff_hour_list.append(
+                Hour(
+                    day=day,
+                    time=_parse_hour(staff_hour['time']),
+                    staff=[
+                        Staffer(
+                            user_name=attrs['uid'][0],
+                            real_name=_remove_middle_names(attrs['cn'][0]),
+                            position=position(attrs['uid'][0]),
+                        ) for attrs in map(user_attrs, staff_hour['staff'])
+                    ],
+                    cancelled=staff_hour['cancelled'],
+                )
+            )
+
+    return staff_hour_list
+
+
+def _parse_hour(hour):
+    """
+    Converts a 2-element list of hours like ['11:00', '13:00'] to a string
+    in 12-hour time, like '11:00 am - 1:00 pm'.
+    Needed for backwards compatibility with the old staff hours file.
+    """
+    return '{} - {}'.format(datetime.strptime(hour[0], '%H:%M').strftime('%I:%M%p'),
+                            datetime.strptime(hour[1], '%H:%M').strftime('%I:%M%p'))
 
 
 def _remove_middle_names(name):
