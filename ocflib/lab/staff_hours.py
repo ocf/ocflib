@@ -4,7 +4,6 @@ from datetime import timedelta
 from hashlib import md5
 from urllib.parse import urlencode
 
-import requests
 import yaml
 
 from ocflib.account.search import user_attrs
@@ -12,9 +11,7 @@ from ocflib.account.utils import is_in_group
 from ocflib.misc.mail import email_for_user
 
 
-STAFF_HOURS_FILE = '/home/s/st/staff/staff_hours.yaml'
-STAFF_HOURS_URL = 'https://www.ocf.berkeley.edu/~staff/staff_hours.yaml'
-
+STAFF_HOURS_FILE = '/etc/ocf/staff_hours.yaml'
 
 Hour = namedtuple('Hour', ['day', 'time', 'staff', 'cancelled'])
 
@@ -30,13 +27,9 @@ class Staffer(namedtuple('Staffer', ['user_name', 'real_name', 'position'])):
 
 
 def _load_staff_hours():
-    """Load staff hours, either from disk (if available) or HTTP."""
-    try:
-        with open(STAFF_HOURS_FILE) as f:
-            return yaml.safe_load(f)
-    except IOError:
-        # fall back to loading from web
-        return yaml.safe_load(requests.get(STAFF_HOURS_URL, timeout=20).text)
+    """Load staff hours, from the /etc/ocf folder."""
+    with open(STAFF_HOURS_FILE, 'r') as f:
+        return yaml.safe_load(f)
 
 
 def get_staff_hours():
