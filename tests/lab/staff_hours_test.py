@@ -12,20 +12,27 @@ from ocflib.lab.staff_hours import Staffer
 
 TEST_HOURS = """\
 staff-hours:
--   day: Monday
-    time: 4:10-5:00pm
-    staff: [nickimp, ckuehl, lynntsai]
-    cancelled: false
-
--   day: Tuesday
-    time: 3:10pm-4:00pm
-    staff: [willh]
-    cancelled: true
+  Monday:
+   - time: ['16:10', '17:00']
+     staff: ["nickimp", "ckuehl", "lynntsai"]
+     cancelled: false
+  Tuesday:
+   - time: ['15:10', '16:00']
+     staff: ["willh"]
+     cancelled: true
+  Wednesday:
+  Thursday:
+  Friday:
+  Saturday:
+  Sunday:
 
 staff-positions:
-    ckuehl: Site Manager
-    willh: Deputy Manager
-    nickimp: General Manager
+ - username: "ckuehl"
+   position: "Site Manager"
+ - username: "willh"
+   position: "Deputy Manager"
+ - username: "nickimp"
+   position: "General Manager"
 """
 
 
@@ -37,43 +44,17 @@ def mock_disk(tmpdir):
         yield
 
 
-@pytest.yield_fixture
-def mock_web():
-    with mock.patch('requests.get') as m:
-        yield m
-
-
-@pytest.yield_fixture
-def mock_not_on_disk(tmpdir):
-    with mock.patch(
-        'ocflib.lab.staff_hours.STAFF_HOURS_FILE',
-        tmpdir.join('does-not-exist').strpath
-    ):
-        yield
-
-
-@pytest.yield_fixture
-def mock_on_web(mock_web):
-    mock_web.return_value.text = TEST_HOURS
-    yield
-
-
 class TestLoadStaffHours:
 
-    def test_loads_from_file_if_exists(self, mock_web, mock_disk):
+    def test_loads_from_file_if_exists(self, mock_disk):
         assert _load_staff_hours() == yaml.safe_load(TEST_HOURS)
-        assert not mock_web.called
-
-    def test_loads_from_web_otherwise(self, mock_not_on_disk, mock_web, mock_on_web):
-        assert _load_staff_hours() == yaml.safe_load(TEST_HOURS)
-        assert mock_web.called
 
 
 def test_get_staff_hours(mock_disk):
     assert get_staff_hours() == [
         Hour(
             day='Monday',
-            time='4:10-5:00pm',
+            time='4:10PM - 5:00PM',
             staff=[
                 Staffer(
                     user_name='nickimp',
@@ -95,7 +76,7 @@ def test_get_staff_hours(mock_disk):
         ),
         Hour(
             day='Tuesday',
-            time='3:10pm-4:00pm',
+            time='3:10PM - 4:00PM',
             staff=[
                 Staffer(
                     user_name='willh',
