@@ -68,7 +68,7 @@ def test_daily_quota(time, expected):
 def test_quotas_are_sane():
     assert SEMESTERLY_QUOTA > 0
     assert WEEKDAY_QUOTA > 0
-    assert WEEKEND_QUOTA > WEEKDAY_QUOTA
+    assert WEEKEND_QUOTA >= WEEKDAY_QUOTA
     assert WEEKDAY_QUOTA < SEMESTERLY_QUOTA
     assert WEEKEND_QUOTA < SEMESTERLY_QUOTA
 
