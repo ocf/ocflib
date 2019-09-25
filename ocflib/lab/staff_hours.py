@@ -53,10 +53,6 @@ def get_staff_hours():
             continue
 
         for staff_hour in staff_hours['staff-hours'][day]:
-            cancelled = False
-            if 'cancelled' in staff_hour.keys():
-                cancelled = staff_hour['cancelled']
-
             staff_hour_list.append(
                 Hour(
                     day=day,
@@ -68,7 +64,7 @@ def get_staff_hours():
                             position=position(attrs['uid'][0]),
                         ) for attrs in map(user_attrs, staff_hour['staff'])
                     ],
-                    cancelled=cancelled
+                    cancelled=staff_hour.get('cancelled', False)
                 )
             )
 
