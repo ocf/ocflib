@@ -26,8 +26,6 @@ staff-hours:
   Sunday:
 
 staff-positions:
- - username: "ckuehl"
-   position: "Site Manager"
  - username: "willh"
    position: "Deputy Manager"
  - username: "nickimp"
@@ -63,7 +61,7 @@ def test_get_staff_hours(mock_disk):
                 Staffer(
                     user_name='ckuehl',
                     real_name='Chris Kuehl',
-                    position='Site Manager',
+                    position='Technical Manager',
                 ),
                 Staffer(
                     user_name='lynntsai',
