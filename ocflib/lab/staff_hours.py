@@ -38,7 +38,7 @@ def get_staff_hours():
 
     def position(uid):
         staff_position_dict = {entry['username']: entry['position'] for entry in staff_hours['staff-positions']}
-        if uid in staff_position_dict.keys():
+        if uid in staff_position_dict:
             return staff_position_dict[uid]
         elif is_in_group(uid, 'ocfroot'):
             return 'Technical Manager'
