@@ -265,9 +265,10 @@ RESERVED_USERNAMES = frozenset((
     'techtalks',
     'todo',
 
-    # Mailing lists and legacy mailing lists
+    # Mailing lists, aliases, and legacy mailing lists
     'abuse',
     'alums',
+    'alumnus',
     'announce',
     'decal',
     'decal-announce',
@@ -276,6 +277,8 @@ RESERVED_USERNAMES = frozenset((
     'jenkins',
     'joinstaff',
     'mirrors',
+    'manager',
+    'managers',
     'mon',
     'munin',
     'officers',
@@ -288,6 +291,7 @@ RESERVED_USERNAMES = frozenset((
     'root',
     'rt',
     'rt-ops',
+    'sks',
     'sm',
     'staff',
     'wheel',
