@@ -15,6 +15,7 @@ OCF_LDAP = 'ldap.ocf.berkeley.edu'
 OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
 OCF_LDAP_PEOPLE = 'ou=People,dc=OCF,dc=Berkeley,dc=EDU'
 OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
+OCF_LDAP_GROUP = 'ou=Group,dc=OCF,dc=Berkeley,dc=EDU'
 
 
 # university ldap
