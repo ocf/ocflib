@@ -20,7 +20,7 @@ FAKE_HOSTS = [
     'i am not a real host',
     'lashdfkjashgklhsadfsad.com',
     'asdfghjkl.eecs.berkeley.edu',
-    'asdfghjkl.berkeley.edu',
+    'non-existent-domain.berkeley.edu',
     'kljasdlgjlsafdfhsadf.berkeley.edu',
     'jf0194y89v(*#14o1i9XC',
     '@I$)!($U)!#Y%!)#()*(%!#',
