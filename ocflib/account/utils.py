@@ -64,26 +64,6 @@ def public_html_path(user):
     return os.path.join(home_dir(user), 'public_html')
 
 
-def is_staff(user, group='ocfstaff'):
-    """Return whether the user is a staff member.
-
-    DEPRECATED. Use is_in_group instead.
-
-    :param group: UNIX group to use to determine if someone is a staff member.
-    """
-    return user in list_staff(group=group)
-
-
-def list_staff(group='ocfstaff'):
-    """Return a list of staff members.
-
-    DEPRECATED. Use list_group instead,
-
-    :param group: UNIX group to use to determine if someone is a staff member.
-    """
-    return grp.getgrnam(group).gr_mem
-
-
 def is_in_group(user, group):
     """Return whether the user is in a group.
 
