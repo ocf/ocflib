@@ -43,6 +43,7 @@ Job = namedtuple('Job', (
     'printer',
     'doc_name',
     'filesize',
+    'id',
 ))
 
 Refund = namedtuple('Refund', (
