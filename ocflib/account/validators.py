@@ -61,6 +61,7 @@ RESERVED_USERNAMES = frozenset((
     'dns',
     'dnsmasq',
     'docs',
+    'donate',
     'donations',
     'dovecot',
     'dump',
