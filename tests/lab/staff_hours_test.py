@@ -14,7 +14,7 @@ TEST_HOURS = """\
 staff-hours:
   Monday:
    - time: ['16:10', '17:00']
-     staff: ["nickimp", "ckuehl", "lynntsai"]
+     staff: ["nickimp", "cooperc", "lynntsai"]
   Tuesday:
    - time: ['15:10', '16:00']
      staff: ["willh"]
@@ -59,8 +59,8 @@ def test_get_staff_hours(mock_disk):
                     position='General Manager',
                 ),
                 Staffer(
-                    user_name='ckuehl',
-                    real_name='Chris Kuehl',
+                    user_name='cooperc',
+                    real_name='Christopher Cooper',
                     position='Technical Manager',
                 ),
                 Staffer(
