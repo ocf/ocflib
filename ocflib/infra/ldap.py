@@ -1,4 +1,3 @@
-import string
 import subprocess
 from base64 import b64encode
 from contextlib import contextmanager
@@ -75,10 +74,6 @@ def _format_attr(key, values):
     # valued, so we handle both cases.
     if not type(values) in (list, tuple):
         values = (values,)
-
-    # might be possible to have non-ASCII letters in keys, but don't think
-    # it will happen to us. we can fix this if it ever does.
-    assert all(c in string.ascii_letters for c in key), 'key is not ASCII letters'
 
     lines = [
         '{key}:: {value}'.format(
