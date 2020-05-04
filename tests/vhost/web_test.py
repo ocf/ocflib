@@ -55,22 +55,11 @@ def mock_get_vhosts_db():
 
 class TestVirtualHosts:
 
-    def test_reads_file_if_exists(self):
+    def test_reads_file(self):
         with mock.patch('builtins.open', mock.mock_open()) as mock_open:
             text = 'hello\nworld\n'
             mock_open.return_value.read.return_value = text
             assert get_vhost_db() == text.splitlines()
-
-    @mock.patch('builtins.open')
-    @mock.patch('requests.get')
-    def test_reads_web_if_no_file(self, get, mock_open):
-        def raise_error(__):
-            raise IOError()
-
-        mock_open.side_effect = raise_error
-        get.return_value.text = 'hello\nworld'
-
-        assert get_vhost_db() == ['hello', 'world']
 
     def test_proper_parse(self, mock_get_vhosts_db):
         assert get_vhosts() == VHOSTS_EXAMPLE_PARSED

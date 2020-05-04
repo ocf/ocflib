@@ -2,13 +2,11 @@ import crypt
 import functools
 from collections import namedtuple
 
-import requests
 from cached_property import cached_property
 
 from ocflib.infra import mysql
 
-VHOST_MAIL_DB_PATH = '/home/s/st/staff/vhost/vhost-mail.conf'
-VHOST_MAIL_DB_URL = 'https://www.ocf.berkeley.edu/~staff/vhost-mail.conf'
+VHOST_MAIL_DB_PATH = '/etc/ocf/vhost-mail.conf'
 
 get_connection = functools.partial(mysql.get_connection, db='ocfmail')
 
@@ -66,14 +64,9 @@ class MailForwardingAddress(namedtuple('MailForwardingAddress', (
 
 
 def get_mail_vhost_db():
-    """Returns lines from the vhost database. Loaded from the filesystem (if
-    available), or from the web if not."""
-    try:
-        with open(VHOST_MAIL_DB_PATH) as f:
-            return list(map(str.strip, f))
-    except IOError:
-        # fallback to database loaded from web
-        return requests.get(VHOST_MAIL_DB_URL, timeout=20).text.split('\n')
+    """Returns lines from the vhost config file."""
+    with open(VHOST_MAIL_DB_PATH) as f:
+        return list(map(str.strip, f))
 
 
 def get_mail_vhosts():
