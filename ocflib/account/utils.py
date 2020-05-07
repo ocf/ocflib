@@ -2,11 +2,14 @@
 import grp
 import os.path
 import re
+import subprocess
 
 import pexpect
 
 import ocflib.account.validators as validators
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
+
+LDAP_MAIL_ATTR = 'mail'
 
 
 def password_matches(username, password):
@@ -91,3 +94,21 @@ def dn_for_username(username):
         user=username,
         base_people=OCF_LDAP_PEOPLE,
     )
+
+
+def get_email(username):
+    """Returns current email, or None."""
+
+    # Since the mail attribute is private, and we can't get the attribute's
+    # value without authenticating, we have to use ldapsearch here instead of
+    # something like ldap3.
+    output = subprocess.check_output(
+        ('ldapsearch', '-LLL', 'uid={}'.format(username), LDAP_MAIL_ATTR),
+        stderr=subprocess.DEVNULL,
+    ).decode('utf-8').split('\n')
+
+    mail_attr = [attr for attr in output if attr.startswith(LDAP_MAIL_ATTR + ': ')]
+
+    if mail_attr:
+        # Strip the '{LDAP_MAIL_ATTR}: ' from the beginning of the string
+        return mail_attr[0][len(LDAP_MAIL_ATTR) + 2:].strip()
