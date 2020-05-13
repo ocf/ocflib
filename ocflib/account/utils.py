@@ -8,6 +8,7 @@ import pexpect
 
 import ocflib.account.validators as validators
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
+import ocflib.misc.krb5
 
 LDAP_MAIL_ATTR = 'mail'
 
@@ -96,8 +97,15 @@ def dn_for_username(username):
     )
 
 
-def get_email(username):
+def get_email(username, have_ticket=True, operatorname=""):
     """Returns current email, or None."""
+    """Assume a ticket is created already, otherwise this'd require username and help you do that"""
+
+    if not have_ticket:
+        if operatorname == "":
+            # Or do you want this to just automatically be current user?
+            raise ValueError("Operator username must not be empty.")
+        ocflib.misc.krb5.kerberos_init(operatorname)
 
     # Since the mail attribute is private, and we can't get the attribute's
     # value without authenticating, we have to use ldapsearch here instead of
@@ -106,6 +114,9 @@ def get_email(username):
         ('ldapsearch', '-LLL', 'uid={}'.format(username), LDAP_MAIL_ATTR),
         stderr=subprocess.DEVNULL,
     ).decode('utf-8').split('\n')
+
+    if not have_ticket:
+        ocflib.misc.krb5.kerberos_destroy()
 
     mail_attr = [attr for attr in output if attr.startswith(LDAP_MAIL_ATTR + ': ')]
 
