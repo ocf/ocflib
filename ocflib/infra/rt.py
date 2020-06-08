@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 from urllib.parse import urlencode
 
@@ -34,6 +35,36 @@ class RtTicket(namedtuple('RtTicket', ('number', 'owner', 'subject', 'queue', 's
             queue=find('Queue'),
             status=find('Status'),
         )
+
+    @classmethod
+    def create(cls, connection, queue, requestor, subject, text, **kwargs):
+        """Create an RT ticket and returns an instance of the result"""
+        # RT prefixes multiline strings by a blank space
+        text = text.replace('\n', '\n ')
+
+        data = {
+            'id': 'ticket/new',
+            'Queue': queue,
+            'Requestor': requestor,
+            'Subject': subject,
+            'Text': text,
+            **kwargs,
+        }
+
+        body = ''
+        for k, v in data.items():
+            body += '{}: {}\n'.format(k, v)
+
+        # RT will break if the POST body includes the filename parameter
+        resp = connection.post('https://rt.ocf.berkeley.edu/REST/1.0/ticket/new', files={'content': (None, body)})
+        resp.raise_for_status()
+        assert '200 Ok' in resp.text
+
+        match = re.search(r'Ticket ([0-9]+) created.', resp.text)
+        assert match
+
+        ticket_number = int(match.group(1))
+        return cls.from_number(connection, ticket_number)
 
 
 def rt_connection(user, password):
