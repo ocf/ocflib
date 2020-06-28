@@ -29,6 +29,7 @@ setup(
         'ldap3',
         'pexpect',
         'pycryptodome',
+        'pygithub',
         'pymysql',
         'pysnmp',
         'pyyaml',

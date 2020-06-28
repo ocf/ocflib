@@ -1,10 +1,10 @@
 attrs
 coveralls
 freezegun
-ipdb
 mock
 pre-commit
 pyfakefs
+pygithub
 pytest
 pytest-cov
 pytest-xdist
