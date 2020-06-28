@@ -81,3 +81,14 @@ def rt_connection(user, password):
     assert resp.status_code == 200, resp.status_code
     assert '200 Ok' in resp.text
     return s
+
+
+class RtCredentials(namedtuple('RtCredentials', [
+    'username',
+    'password',
+])):
+    """Credentials for programmatically accessing RT.
+
+    :param username: str
+    :param password: str
+    """
