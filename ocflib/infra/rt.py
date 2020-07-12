@@ -51,20 +51,21 @@ class RtTicket(namedtuple('RtTicket', ('number', 'owner', 'subject', 'queue', 's
             **kwargs,
         }
 
+        # RT's incoming data format has the form key: value, but these aren't HTTP Headers
         body = ''
         for k, v in data.items():
             body += '{}: {}\n'.format(k, v)
 
-        # RT will break if the POST body includes the filename parameter
+        # RT requires the POST content to be sent with no filename hence 'content': (None, body)
         resp = connection.post('https://rt.ocf.berkeley.edu/REST/1.0/ticket/new', files={'content': (None, body)})
         resp.raise_for_status()
         assert '200 Ok' in resp.text
 
         match = re.search(r'Ticket ([0-9]+) created.', resp.text)
-        assert match
+        assert match, '200 response but no ticket number found in RT response'
 
         ticket_number = int(match.group(1))
-        return cls.from_number(connection, ticket_number)
+        return ticket_number
 
 
 def rt_connection(user, password):

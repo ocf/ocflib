@@ -6,11 +6,10 @@ from textwrap import dedent
 
 from ocflib.account.search import user_attrs
 from ocflib.account.search import user_attrs_ucb
-from ocflib.infra.github import get_github_file
-from ocflib.infra.github import get_repo
-from ocflib.infra.github import modify_and_branch
+from ocflib.infra.github import GitRepo
 from ocflib.infra.rt import rt_connection
 from ocflib.infra.rt import RtTicket
+from ocflib.misc.mail import send_problem_report
 
 VHOST_DB_PATH = '/etc/ocf/vhost.conf'
 GITHUB_VHOST_REPO = 'ocf/etc'
@@ -21,15 +20,17 @@ def get_vhost_db(remote=False):
     """Returns lines from the vhost config file. If remote is True, fetches it
     from GitHub."""
     if remote:
-        vhosts = get_github_file(GITHUB_VHOST_REPO, GITHUB_VHOST_WEB_PATH)
+        vhosts = GitRepo(GITHUB_VHOST_REPO).get_file(GITHUB_VHOST_WEB_PATH)
         return vhosts.splitlines()
     else:
         with open(VHOST_DB_PATH) as f:
             return f.read().splitlines()
 
 
-def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags=None, rt_ticket=None):
-    'Creates a GitHub pull request on the vhosts file to add a new vhost'
+def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags='', rt_ticket=''):
+    """
+    Creates a GitHub pull request on the vhosts file to add a new vhost
+    """
     if not aliases:
         aliases = '-'
     else:
@@ -38,10 +39,7 @@ def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags=None, 
     if not docroot:
         docroot = '-'
 
-    if not flags:
-        flags = '-'
-
-    repo = get_repo(GITHUB_VHOST_REPO, credentials=credentials)
+    repo = GitRepo(GITHUB_VHOST_REPO, credentials=credentials)
     vhosts_lines = get_vhost_db(remote=True)
 
     # skip the initial comment block
@@ -52,25 +50,32 @@ def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags=None, 
         idx += 1
 
     vhosts_lines.insert(idx, dedent("""
-        # added {date} web rt#{rt_ticket}
+        # added {date} web {rt_ticket}
         {username} {aliases} {docroot} {flags}""").format(
         date=date.today(),
-        rt_ticket=rt_ticket,
+        rt_ticket='rt#{}'.format(rt_ticket) if rt_ticket else '',
         username=username,
         aliases=aliases,
         docroot=docroot,
         flags=flags,
-
     ))
 
     new_vhosts_file = '\n'.join(vhosts_lines) + '\n'  # newline at eof
-    new_branch_name = uuid.uuid4().hex
+    new_branch_name = '{rt_ticket}{id}'.format(
+        rt_ticket='rt#{}-'.format(rt_ticket) if rt_ticket else '',
+        id=uuid.uuid4().hex
+    )
 
-    modify_and_branch(repo, 'master', new_branch_name,
-                      'rt#{rt_ticket}: Add vhost for {username}'.format(
-                          rt_ticket=rt_ticket,
-                          username=username,
-                      ), GITHUB_VHOST_WEB_PATH, new_vhosts_file)
+    repo.modify_and_branch(
+        'master',
+        new_branch_name,
+        'rt#{rt_ticket}: Add vhost for {username}'.format(
+            rt_ticket=rt_ticket,
+            username=username,
+        ),
+        GITHUB_VHOST_WEB_PATH,
+        new_vhosts_file,
+    )
 
     pull_body = dedent("""
         Submitted from ocflib on {date}
@@ -81,6 +86,7 @@ def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags=None, 
         Flags: {flags}
 
         Associated RT Ticket: {rt_ticket}
+        https://ocf.io/rt/{rt_ticket}
         """).format(
         date=date.today(),
         rt_ticket=rt_ticket,
@@ -90,7 +96,7 @@ def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags=None, 
         flags=flags,
     )
 
-    repo.create_pull(
+    repo.github.create_pull(
         title='rt#{rt_ticket}: Add vhost for {username}'.format(
             rt_ticket=rt_ticket,
             username=username,
@@ -182,7 +188,7 @@ def get_tasks(celery_app, credentials=None):
     def create_new_vhost(request):
         try:
             conn = rt_connection(credentials['rt'].username, credentials['rt'].password)
-            ticket = RtTicket.create(
+            ticket_number = RtTicket.create(
                 conn,
                 'hostmaster',
                 request.requestor,
@@ -196,11 +202,11 @@ def get_tasks(celery_app, credentials=None):
                 request.aliases,
                 request.docroot,
                 request.flags,
-                ticket.number,
+                ticket_number,
             )
             return True
-        except Exception:
-            # TODO: Report errors via ocflib
+        except Exception as e:
+            send_problem_report(str(e))
             return False
 
     return _VirtualHostTasks(
