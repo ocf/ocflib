@@ -10,6 +10,7 @@ from ocflib.vhost.web import get_vhosts
 from ocflib.vhost.web import has_vhost
 from ocflib.vhost.web import NewVirtualHostRequest
 from tests.fixtures_test import celery_app  # noqa
+# from ocflib.vhost.web import pr_new_vhost
 
 VHOSTS_EXAMPLE = """
 # added 2017-09-16 kpengboy
@@ -127,8 +128,20 @@ def mock_rtticket_create():
 
 
 @pytest.yield_fixture
+def mock_pr_new_vhost():
+    with mock.patch('ocflib.vhost.web.pr_new_vhost') as m:
+        yield m
+
+
+@pytest.yield_fixture
 def mock_github():
     with mock.patch('ocflib.infra.github.Github') as m:
+        yield m
+
+
+@pytest.yield_fixture
+def mock_gitrepo():
+    with mock.patch('ocflib.vhost.web.GitRepo') as m:
         yield m
 
 
@@ -137,10 +150,42 @@ def test_create_new_vhost_successful(
         mock_rt_connection,
         mock_rtticket_create,
         fake_new_vhost_request,
-        mock_github,
+        mock_pr_new_vhost,
+        fake_credentials,
         tasks):
+
+    mock_rtticket_create.return_value = 3
     resp = tasks.create_new_vhost(fake_new_vhost_request)
     assert resp
-    assert mock_rt_connection.called
-    assert mock_rtticket_create.called
-    assert mock_github.called
+    mock_rt_connection.assert_called_with(
+        'ocf',
+        'password',
+    )
+    mock_rtticket_create.assert_called_with(
+        mock_rt_connection(),
+        'hostmaster',
+        fake_new_vhost_request.requestor,
+        fake_new_vhost_request.subject,
+        fake_new_vhost_request.message,
+    )
+
+    mock_pr_new_vhost.assert_called_with(
+        fake_credentials['github'],
+        fake_new_vhost_request.username,
+        fake_new_vhost_request.aliases,
+        fake_new_vhost_request.docroot,
+        fake_new_vhost_request.flags,
+        3,
+    )
+
+# def test_pr_new_vhost(mock_gitrepo, fake_credentials):
+
+#     mock_vhost = mock.patch("ocflib.vhost.web.get_vhost_db", return_value="")
+
+#     pr_new_vhost(
+#         fake_credentials,
+#         "ocf",
+#         aliases="ocfweb",
+#         docroot="/web",
+#         rt_ticket="1234",
+#     )
