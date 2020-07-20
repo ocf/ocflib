@@ -29,7 +29,7 @@ setup(
         'ldap3',
         'pexpect',
         'pycryptodome',
-        'pymysql',
+        'pymysql<0.10.0',
         'pysnmp',
         'pyyaml',
         'redis',
