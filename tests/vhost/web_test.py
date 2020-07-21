@@ -208,9 +208,12 @@ def test_pr_new_vhost(mock_uuid, mock_vhost_db, mock_gitrepo, fake_credentials):
 
     expected_end_result = dedent("""
     # added {date} web rt#1234
-    ocf ocfweb /web
+    ocf ocfweb /web{space}
 
-    """.format(date=date.today()))
+    """.format(
+        date=date.today(),
+        space=' ')
+    )
 
     expected_branch_name = 'rt#1234-{}'.format(str(mock_uuid.uuid4.return_value.hex))
 
@@ -228,12 +231,13 @@ def test_pr_new_vhost(mock_uuid, mock_vhost_db, mock_gitrepo, fake_credentials):
         Username: ocf
         Aliases: ocfweb
         Document root: /web
-        Flags:
+        Flags:{space}
 
         Associated RT Ticket: rt#1234
         https://ocf.io/rt/1234
         """).format(
         date=date.today(),
+        space=' ',
     )
 
     mock_gitrepo.return_value.github.create_pull.assert_called_with(
