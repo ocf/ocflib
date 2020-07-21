@@ -9,8 +9,8 @@ from ocflib.vhost.web import get_vhost_db
 from ocflib.vhost.web import get_vhosts
 from ocflib.vhost.web import has_vhost
 from ocflib.vhost.web import NewVirtualHostRequest
+from ocflib.vhost.web import pr_new_vhost
 from tests.fixtures_test import celery_app  # noqa
-# from ocflib.vhost.web import pr_new_vhost
 
 VHOSTS_EXAMPLE = """
 # added 2017-09-16 kpengboy
@@ -178,14 +178,15 @@ def test_create_new_vhost_successful(
         3,
     )
 
-# def test_pr_new_vhost(mock_gitrepo, fake_credentials):
 
-#     mock_vhost = mock.patch("ocflib.vhost.web.get_vhost_db", return_value="")
+def test_pr_new_vhost(mock_gitrepo, fake_credentials):
 
-#     pr_new_vhost(
-#         fake_credentials,
-#         "ocf",
-#         aliases="ocfweb",
-#         docroot="/web",
-#         rt_ticket="1234",
-#     )
+    mock.patch('ocflib.vhost.web.get_vhost_db', return_value='')
+
+    pr_new_vhost(
+        fake_credentials,
+        'ocf',
+        aliases='ocfweb',
+        docroot='/web',
+        rt_ticket='1234',
+    )

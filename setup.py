@@ -30,7 +30,7 @@ setup(
         'pexpect',
         'pycryptodome',
         'pygithub',
-        'pymysql',
+        'pymysql<0.10.0',
         'pysnmp',
         'pyyaml',
         'redis',
