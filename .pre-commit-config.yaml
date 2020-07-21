@@ -36,11 +36,6 @@ repos:
     rev: v1.1.7
     hooks:
     -   id: remove-tabs
--   repo: https://github.com/asottile/add-trailing-comma
-    rev: v0.7.1
-    hooks:
-    -   id: add-trailing-comma
-        args: ['--py35-plus']
 -   repo: https://github.com/psf/black
     rev: 19.10b0
     hooks:
