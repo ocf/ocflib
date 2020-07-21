@@ -85,7 +85,7 @@ def pr_new_vhost(credentials, username, aliases=None, docroot=None, flags='', rt
         Document root: {docroot}
         Flags: {flags}
 
-        Associated RT Ticket: {rt_ticket}
+        Associated RT Ticket: rt#{rt_ticket}
         https://ocf.io/rt/{rt_ticket}
         """).format(
         date=date.today(),

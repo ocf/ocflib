@@ -12,6 +12,7 @@ from ocflib.vhost.web import NewVirtualHostRequest
 from ocflib.vhost.web import pr_new_vhost
 from tests.fixtures_test import celery_app  # noqa
 
+
 VHOSTS_EXAMPLE = """
 # added 2017-09-16 kpengboy
 staff ofc - /ofc
@@ -179,14 +180,20 @@ def test_create_new_vhost_successful(
     )
 
 
-def test_pr_new_vhost(mock_gitrepo, fake_credentials):
+@pytest.yield_fixture
+def mock_vhost_db():
+    with mock.patch('ocflib.vhost.web.get_vhost_db') as m:
+        yield m
 
-    mock.patch('ocflib.vhost.web.get_vhost_db', return_value='')
 
+def test_pr_new_vhost(mock_vhost_db, mock_gitrepo, fake_credentials):
     pr_new_vhost(
         fake_credentials,
         'ocf',
-        aliases='ocfweb',
+        aliases=['ocfweb'],
         docroot='/web',
         rt_ticket='1234',
     )
+    mock_vhost_db.return_value.insert.called
+    assert mock_gitrepo.return_value.modify_and_branch.called
+    assert mock_gitrepo.return_value.github.create_pull.called
