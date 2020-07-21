@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import ocflib.misc.whoami as whoami
 
-if __name__ == '__main__':
-    print('Your UID: ' + str(whoami.current_uid()))
-    print('Your username: ' + whoami.current_user())
-    print('Your full name: ' + whoami.current_user_fullname())
-    print('Your email: ' + whoami.current_user_email())
-    print('Your formatted email: ' + whoami.current_user_formatted_email())
+if __name__ == "__main__":
+    print("Your UID: " + str(whoami.current_uid()))
+    print("Your username: " + whoami.current_user())
+    print("Your full name: " + whoami.current_user_fullname())
+    print("Your email: " + whoami.current_user_email())
+    print("Your formatted email: " + whoami.current_user_formatted_email())

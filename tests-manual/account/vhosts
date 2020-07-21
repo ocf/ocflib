@@ -3,9 +3,9 @@ from pprint import pprint
 
 import ocflib.account.utils as utils
 
-if __name__ == '__main__':
-    print('All vhosts:')
+if __name__ == "__main__":
+    print("All vhosts:")
     pprint(utils.get_vhosts())
 
-    for user in ['ckuehl', 'bpreview', 'guser']:
-        print('{} has vhost: {}'.format(user, utils.has_vhost(user)))
+    for user in ["ckuehl", "bpreview", "guser"]:
+        print("{} has vhost: {}".format(user, utils.has_vhost(user)))

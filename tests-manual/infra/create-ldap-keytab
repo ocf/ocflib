@@ -7,19 +7,19 @@ from ocflib.infra.ldap import create_ldap_entry
 
 # Run with:
 #   sudo /path/to/ocflib/venv/bin/python3 create-ldap-keytab
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_ldap_entry(
-        'uid=ggroup2,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
+        "uid=ggroup2,ou=People,dc=OCF,dc=Berkeley,dc=EDU",
         {
-            'objectClass': ['ocfAccount', 'account', 'posixAccount'],
-            'uidNumber': 99999999,
-            'homeDirectory': '/dev/null',
-            'loginShell': '/bin/zsh',
-            'cn': ['Some Test Account That Should Be Deleted'],
-            'calnetUid': 1034192,
-            'gidNumber': 1000,
-            'creationTime': datetime.now(timezone.utc).astimezone(),
+            "objectClass": ["ocfAccount", "account", "posixAccount"],
+            "uidNumber": 99999999,
+            "homeDirectory": "/dev/null",
+            "loginShell": "/bin/zsh",
+            "cn": ["Some Test Account That Should Be Deleted"],
+            "calnetUid": 1034192,
+            "gidNumber": 1000,
+            "creationTime": datetime.now(timezone.utc).astimezone(),
         },
-        keytab='/etc/ocf-create/create.keytab',
-        admin_principal='create/admin',
+        keytab="/etc/ocf-create/create.keytab",
+        admin_principal="create/admin",
     )

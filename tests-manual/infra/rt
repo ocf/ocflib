@@ -5,6 +5,6 @@ from ocflib.infra.rt import rt_connection
 from ocflib.infra.rt import RtTicket
 
 
-if __name__ == '__main__':
-    rt = rt_connection(user=input('username: '), password=getpass())
+if __name__ == "__main__":
+    rt = rt_connection(user=input("username: "), password=getpass())
     print(RtTicket.from_number(rt, 4589))

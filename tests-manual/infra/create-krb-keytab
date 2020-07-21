@@ -4,18 +4,16 @@ from getpass import getpass
 from ocflib.infra.kerberos import create_kerberos_principal_with_keytab
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     random_pass = create_kerberos_principal_with_keytab(
-        input('Account: '),
-        '/home/c/ck/ckuehl/create.keytab',
-        'create/admin',
+        input("Account: "), "/home/c/ck/ckuehl/create.keytab", "create/admin",
     )
-    print('Created account with pass: ' + random_pass)
+    print("Created account with pass: " + random_pass)
 
     create_kerberos_principal_with_keytab(
-        input('Account: '),
-        '/home/c/ck/ckuehl/create.keytab',
-        'create/admin',
-        password=getpass('Password: ')
+        input("Account: "),
+        "/home/c/ck/ckuehl/create.keytab",
+        "create/admin",
+        password=getpass("Password: "),
     )
-    print('Created account with your requested pass.')
+    print("Created account with your requested pass.")

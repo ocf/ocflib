@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import ocflib.account.utils as utils
 
-if __name__ == '__main__':
-    for user in ('ckuehl', 'bpreview', 'staff', 'nonexist'):
-        print('User {} has vhost: {}'.format(user, utils.has_vhost(user)))
+if __name__ == "__main__":
+    for user in ("ckuehl", "bpreview", "staff", "nonexist"):
+        print("User {} has vhost: {}".format(user, utils.has_vhost(user)))

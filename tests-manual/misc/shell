@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 import ocflib.misc.shell as shell
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for bg_color in shell.BG_COLORS.keys():
         for fg_color in shell.FG_COLORS.keys():
-            if bg_color == 'reset' or fg_color == 'reset':
+            if bg_color == "reset" or fg_color == "reset":
                 continue
 
             fg_func = getattr(shell, fg_color)
-            bg_func = getattr(shell, 'bg_{}'.format(bg_color))
+            bg_func = getattr(shell, "bg_{}".format(bg_color))
 
-            print(fg_func(bg_func('This is {fg} text with a {bg} background'.format(
-                fg=fg_color,
-                bg=bg_color,
-            ))))
+            print(
+                fg_func(
+                    bg_func(
+                        "This is {fg} text with a {bg} background".format(
+                            fg=fg_color, bg=bg_color,
+                        ),
+                    ),
+                ),
+            )

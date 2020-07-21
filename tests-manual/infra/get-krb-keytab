@@ -4,27 +4,21 @@ from ocflib.infra.kerberos import get_kerberos_principal_with_keytab
 
 # Run with:
 #   sudo -u create /path/to/ocflib/venv/bin/python3 get-krb-keytab
-if __name__ == '__main__':
+if __name__ == "__main__":
     assert get_kerberos_principal_with_keytab(
-        'mattmcal',
-        '/etc/ocf-create/create.keytab',
-        'create/admin',
+        "mattmcal", "/etc/ocf-create/create.keytab", "create/admin",
     )
-    print('get mattmcal: passed')
+    print("get mattmcal: passed")
     assert not get_kerberos_principal_with_keytab(
-        'nonexist',
-        '/etc/ocf-create/create.keytab',
-        'create/admin',
+        "nonexist", "/etc/ocf-create/create.keytab", "create/admin",
     )
-    print('get nonexist: passed')
+    print("get nonexist: passed")
     raised_error = False
     try:
         get_kerberos_principal_with_keytab(
-            'mattmcal',
-            '/nonexist',
-            'create/admin',
+            "mattmcal", "/nonexist", "create/admin",
         )
     except ValueError:
         raised_error = True
     assert raised_error
-    print('raises error: passed')
+    print("raises error: passed")
