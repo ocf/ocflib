@@ -54,9 +54,9 @@ Base = declarative_base()
 
 def username_pending(session, request):
     """Returns whether the username is currently pending creation."""
-    return session.query(exists().where(
-        StoredNewAccountRequest.user_name == request.user_name
-    )).scalar()
+    return session.query(
+        exists().where(StoredNewAccountRequest.user_name == request.user_name),
+    ).scalar()
 
 
 def user_has_request_pending(session, request):
@@ -68,16 +68,13 @@ def user_has_request_pending(session, request):
         query = StoredNewAccountRequest.callink_oid == request.callink_oid
     elif not request.is_group:
         query = StoredNewAccountRequest.calnet_uid == request.calnet_uid
-    return (
-        query is not None and
-        session.query(exists().where(query)).scalar()
-    )
+    return query is not None and session.query(exists().where(query)).scalar()
 
 
 class StoredNewAccountRequest(Base):
     """SQLAlchemy object for holding account requests."""
 
-    __tablename__ = 'request'
+    __tablename__ = "request"
 
     # TODO: enforce these lengths during submission as errors
     id = Column(Integer, primary_key=True)
@@ -92,8 +89,7 @@ class StoredNewAccountRequest(Base):
 
     def __str__(self):
         return '{self.user_name} ({type}: "{self.real_name}"), because: {self.reason}'.format(
-            self=self,
-            type='group' if self.is_group else 'individual',
+            self=self, type="group" if self.is_group else "individual",
         )
 
     @classmethod
@@ -112,19 +108,19 @@ class StoredNewAccountRequest(Base):
 
     def to_request(self, handle_warnings=NewAccountRequest.WARNINGS_CREATE):
         """Convert this object to a NewAccountRequest."""
-        return NewAccountRequest(**dict(
-            {
-                field: getattr(self, field)
-                for field in NewAccountRequest._fields
-                if field in self.__table__.columns._data.keys()
-            },
-            handle_warnings=handle_warnings,
-        ))
+        return NewAccountRequest(
+            **dict(
+                {
+                    field: getattr(self, field)
+                    for field in NewAccountRequest._fields
+                    if field in self.__table__.columns._data.keys()
+                },
+                handle_warnings=handle_warnings,
+            ),
+        )
 
 
-class NewAccountResponse(namedtuple('NewAccountResponse', [
-    'status', 'errors',
-])):
+class NewAccountResponse(namedtuple("NewAccountResponse", ["status", "errors",])):
     """Response to an account creation request.
 
     :param status: one of CREATED, FLAGGED, PENDING, REJECTED
@@ -138,10 +134,11 @@ class NewAccountResponse(namedtuple('NewAccountResponse', [
                   already taken)
     :param errors: list of errors (or None)
     """
-    CREATED = 'created'
-    FLAGGED = 'flagged'
-    PENDING = 'pending'
-    REJECTED = 'rejected'
+
+    CREATED = "created"
+    FLAGGED = "flagged"
+    PENDING = "pending"
+    REJECTED = "rejected"
 
 
 def get_tasks(celery_app, credentials=None):
@@ -187,15 +184,16 @@ def get_tasks(celery_app, credentials=None):
         if errors:
             # Fatal errors; cannot be bypassed, even with staff approval
             return NewAccountResponse(
-                status=NewAccountResponse.REJECTED,
-                errors=(errors + warnings),
+                status=NewAccountResponse.REJECTED, errors=(errors + warnings),
             )
         elif warnings:
             # Non-fatal errors; the frontend can choose to create the account
             # anyway, submit the account for staff approval, or get a response
             # with a list of warnings for further inspection.
             if request.handle_warnings == NewAccountRequest.WARNINGS_SUBMIT:
-                stored_request = StoredNewAccountRequest.from_request(request, str(warnings))
+                stored_request = StoredNewAccountRequest.from_request(
+                    request, str(warnings),
+                )
 
                 try:
                     with get_session() as session:
@@ -208,18 +206,16 @@ def get_tasks(celery_app, credentials=None):
                     pass
                 else:
                     dispatch_event(
-                        'ocflib.account_submitted',
+                        "ocflib.account_submitted",
                         request=dict(request.to_dict(), reasons=warnings),
                     )
 
                 return NewAccountResponse(
-                    status=NewAccountResponse.PENDING,
-                    errors=warnings,
+                    status=NewAccountResponse.PENDING, errors=warnings,
                 )
             elif request.handle_warnings == NewAccountRequest.WARNINGS_WARN:
                 return NewAccountResponse(
-                    status=NewAccountResponse.FLAGGED,
-                    errors=warnings,
+                    status=NewAccountResponse.FLAGGED, errors=warnings,
                 )
 
         return create_account.delay(request).id
@@ -229,16 +225,15 @@ def get_tasks(celery_app, credentials=None):
         # TODO: docstring
         # lock account creation for up to 5 minutes
         r = redis.from_url(credentials.redis_uri)
-        lock = r.lock('ocflib.account.submission.create_account', timeout=60 * 5)
+        lock = r.lock("ocflib.account.submission.create_account", timeout=60 * 5)
         try:
             if not lock.acquire(blocking=True, blocking_timeout=60 * 5):
-                raise RuntimeError('Couldn\'t lock account creation, abandoning.')
+                raise RuntimeError("Couldn't lock account creation, abandoning.")
 
             # status reporting
             status = []
 
             class report_status:
-
                 def __init__(self, *args):
                     if len(args) == 1:
                         self(*args)
@@ -247,38 +242,35 @@ def get_tasks(celery_app, credentials=None):
 
                 def __call__(self, line):
                     status.append(line)
-                    create_account.update_state(meta={'status': status})
+                    create_account.update_state(meta={"status": status})
 
                 def __enter__(self, *args):
-                    self(self.start + ' ' + self.task)
+                    self(self.start + " " + self.task)
 
                 def __exit__(self, *args):
-                    self(self.stop + ' ' + self.task)
+                    self(self.stop + " " + self.task)
 
-            with report_status('Validating', 'Validated', 'request'), \
-                    get_session() as session:
+            with report_status(
+                "Validating", "Validated", "request",
+            ), get_session() as session:
                 errors, warnings = validate_request(request, credentials, session)
 
             if errors:
                 send_rejected_mail(request, str(errors))
                 return NewAccountResponse(
-                    status=NewAccountResponse.REJECTED,
-                    errors=(errors + warnings),
+                    status=NewAccountResponse.REJECTED, errors=(errors + warnings),
                 )
 
             # actual account creation
             kwargs = {}
-            known_uid = r.get('known_uid')
+            known_uid = r.get("known_uid")
             if known_uid:
-                kwargs['known_uid'] = int(known_uid)
+                kwargs["known_uid"] = int(known_uid)
             new_uid = real_create_account(request, credentials, report_status, **kwargs)
-            r.set('known_uid', new_uid)
+            r.set("known_uid", new_uid)
 
-            dispatch_event('ocflib.account_created', request=request.to_dict())
-            return NewAccountResponse(
-                status=NewAccountResponse.CREATED,
-                errors=[],
-            )
+            dispatch_event("ocflib.account_created", request=request.to_dict())
+            return NewAccountResponse(status=NewAccountResponse.CREATED, errors=[],)
         finally:
             try:
                 lock.release()
@@ -293,9 +285,11 @@ def get_tasks(celery_app, credentials=None):
     def get_remove_row_by_user_name(user_name):
         """Fetch stored request, then remove it."""
         with get_session() as session:
-            request_row = session.query(StoredNewAccountRequest).filter(
-                StoredNewAccountRequest.user_name == user_name
-            ).first()
+            request_row = (
+                session.query(StoredNewAccountRequest)
+                .filter(StoredNewAccountRequest.user_name == user_name)
+                .first()
+            )
             session.delete(request_row)
             session.commit()
             return request_row
@@ -304,14 +298,14 @@ def get_tasks(celery_app, credentials=None):
     def approve_request(user_name):
         request = get_remove_row_by_user_name(user_name).to_request()
         create_account.delay(request)
-        dispatch_event('ocflib.account_approved', request=request.to_dict())
+        dispatch_event("ocflib.account_approved", request=request.to_dict())
 
     @celery_app.task
     def reject_request(user_name):
         stored_request = get_remove_row_by_user_name(user_name)
         request = stored_request.to_request()
         send_rejected_mail(request, stored_request.reason)
-        dispatch_event('ocflib.account_rejected', request=request.to_dict())
+        dispatch_event("ocflib.account_rejected", request=request.to_dict())
 
     @celery_app.task
     def change_password(username, new_password, comment=None):
@@ -336,8 +330,8 @@ def get_tasks(celery_app, credentials=None):
     def status():
         """A testing route."""
         return {
-            'now': datetime.datetime.now().isoformat(),
-            'host': socket.getfqdn(),
+            "now": datetime.datetime.now().isoformat(),
+            "host": socket.getfqdn(),
         }
 
     return _AccountSubmissionTasks(
@@ -351,16 +345,26 @@ def get_tasks(celery_app, credentials=None):
     )
 
 
-_AccountSubmissionTasks = namedtuple('AccountSubmissionTasks', [
-    'validate_then_create_account',
-    'create_account',
-    'get_pending_requests',
-    'approve_request',
-    'reject_request',
-    'change_password',
-    'status',
-])
+_AccountSubmissionTasks = namedtuple(
+    "AccountSubmissionTasks",
+    [
+        "validate_then_create_account",
+        "create_account",
+        "get_pending_requests",
+        "approve_request",
+        "reject_request",
+        "change_password",
+        "status",
+    ],
+)
 
-AccountCreationCredentials = namedtuple('AccountCreationCredentials', [
-    'encryption_key', 'mysql_uri', 'kerberos_keytab', 'kerberos_principal', 'redis_uri',
-])
+AccountCreationCredentials = namedtuple(
+    "AccountCreationCredentials",
+    [
+        "encryption_key",
+        "mysql_uri",
+        "kerberos_keytab",
+        "kerberos_principal",
+        "redis_uri",
+    ],
+)

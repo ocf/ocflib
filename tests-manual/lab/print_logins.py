@@ -12,20 +12,21 @@ from ocflib.lab.stats import UtilizationProfile
 def timeit():
     start = time.time()
     yield
-    print('Time taken: {}'.format(time.time() - start))
+    print("Time taken: {}".format(time.time() - start))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = datetime(2015, 11, 23)
     end = start + timedelta(days=1)
 
-    print('Testing naive time to create profiles.')
+    print("Testing naive time to create profiles.")
     with timeit():
         slow_profiles = {
-            host + '.ocf.berkeley.edu': UtilizationProfile.from_hostname(host, start, end)
+            host
+            + ".ocf.berkeley.edu": UtilizationProfile.from_hostname(host, start, end)
             for host in list_desktops()
         }
 
-    print('Testing optimized time to create profiles.')
+    print("Testing optimized time to create profiles.")
     with timeit():
         fast_profiles = UtilizationProfile.from_hostnames(list_desktops(), start, end)

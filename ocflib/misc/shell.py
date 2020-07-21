@@ -8,7 +8,7 @@ import tempfile
 
 def get_editor():
     """Returns the user's preferred editor, or nano."""
-    return os.environ.get('VISUAL') or os.environ.get('EDITOR') or 'nano'
+    return os.environ.get("VISUAL") or os.environ.get("EDITOR") or "nano"
 
 
 def edit_file(template):
@@ -20,7 +20,7 @@ def edit_file(template):
     :param template: string template of the file
     """
     with tempfile.NamedTemporaryFile() as tmp:
-        with open(tmp.name, 'w') as f:
+        with open(tmp.name, "w") as f:
             f.write(template)
 
         # We need to close the file and reopen it later in case the editor
@@ -31,9 +31,7 @@ def edit_file(template):
 
 
 def prompt_for_new_password(
-    prompt='Enter new password: ',
-    prompt_confirm='Confirm password: ',
-    validator=bool,
+    prompt="Enter new password: ", prompt_confirm="Confirm password: ", validator=bool,
 ):
     """Prompt the user to enter a new password.
 
@@ -43,6 +41,7 @@ def prompt_for_new_password(
                       if something is wrong with it
     :return: the new password
     """
+
     def get_pass(prompt):
         # TODO: echo asterisks as the user types to avoid confusion
         return getpass.getpass(prompt)
@@ -54,15 +53,15 @@ def prompt_for_new_password(
             try:
                 validator(new_password)
             except ValueError as ex:
-                print(red('[ERROR]') + ' Password failed some requirements:')
-                print(' - {error}'.format(error=ex))
+                print(red("[ERROR]") + " Password failed some requirements:")
+                print(" - {error}".format(error=ex))
             else:
                 break
 
-        if new_password == get_pass(green('[OK]') + ' ' + prompt_confirm):
+        if new_password == get_pass(green("[OK]") + " " + prompt_confirm):
             break
         else:
-            print(red('[ERROR]') + " Passwords didn't match, try again?")
+            print(red("[ERROR]") + " Passwords didn't match, try again?")
 
     return new_password
 
@@ -76,6 +75,7 @@ def _wrap_colors(color, reset):
     >>> red('hello')
     '\x1b[31mhello\x1b[39m'
     """
+
     def wrapper(string, tty_only=True):
         """Return colorized string.
 
@@ -85,27 +85,24 @@ def _wrap_colors(color, reset):
         """
         if tty_only and not sys.stdout.isatty():
             return string
-        return '{color}{string}{reset}'.format(
-            color=color,
-            string=string,
-            reset=reset,
-        )
+        return "{color}{string}{reset}".format(color=color, string=string, reset=reset,)
+
     return wrapper
 
 
-COLORS = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white']
+COLORS = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
 
 # Define ANSI color codes
 FG_COLORS = {
-    'black': 30,
-    'red': 31,
-    'green': 32,
-    'yellow': 33,
-    'blue': 34,
-    'magenta': 35,
-    'cyan': 36,
-    'white': 37,
-    'reset': 39
+    "black": 30,
+    "red": 31,
+    "green": 32,
+    "yellow": 33,
+    "blue": 34,
+    "magenta": 35,
+    "cyan": 36,
+    "white": 37,
+    "reset": 39,
 }
 
 BG_COLORS = {k: v + 10 for k, v in FG_COLORS.items()}
@@ -113,35 +110,35 @@ BG_COLORS = {k: v + 10 for k, v in FG_COLORS.items()}
 
 def code_to_chars(code):
     """Convert each numeric code to its corresponding characters"""
-    return '\033[' + str(code) + 'm'
+    return "\033[" + str(code) + "m"
 
 
 FG_CODES = {k: code_to_chars(v) for k, v in FG_COLORS.items()}
 BG_CODES = {k: code_to_chars(v) for k, v in BG_COLORS.items()}
 
 
-black = _wrap_colors(FG_CODES['black'], FG_CODES['reset'])
-bg_black = _wrap_colors(BG_CODES['black'], BG_CODES['reset'])
+black = _wrap_colors(FG_CODES["black"], FG_CODES["reset"])
+bg_black = _wrap_colors(BG_CODES["black"], BG_CODES["reset"])
 
-red = _wrap_colors(FG_CODES['red'], FG_CODES['reset'])
-bg_red = _wrap_colors(BG_CODES['red'], BG_CODES['reset'])
+red = _wrap_colors(FG_CODES["red"], FG_CODES["reset"])
+bg_red = _wrap_colors(BG_CODES["red"], BG_CODES["reset"])
 
-green = _wrap_colors(FG_CODES['green'], FG_CODES['reset'])
-bg_green = _wrap_colors(BG_CODES['green'], BG_CODES['reset'])
+green = _wrap_colors(FG_CODES["green"], FG_CODES["reset"])
+bg_green = _wrap_colors(BG_CODES["green"], BG_CODES["reset"])
 
-yellow = _wrap_colors(FG_CODES['yellow'], FG_CODES['reset'])
-bg_yellow = _wrap_colors(BG_CODES['yellow'], BG_CODES['reset'])
+yellow = _wrap_colors(FG_CODES["yellow"], FG_CODES["reset"])
+bg_yellow = _wrap_colors(BG_CODES["yellow"], BG_CODES["reset"])
 
-blue = _wrap_colors(FG_CODES['blue'], FG_CODES['reset'])
-bg_blue = _wrap_colors(BG_CODES['blue'], BG_CODES['reset'])
+blue = _wrap_colors(FG_CODES["blue"], FG_CODES["reset"])
+bg_blue = _wrap_colors(BG_CODES["blue"], BG_CODES["reset"])
 
-magenta = _wrap_colors(FG_CODES['magenta'], FG_CODES['reset'])
-bg_magenta = _wrap_colors(BG_CODES['magenta'], BG_CODES['reset'])
+magenta = _wrap_colors(FG_CODES["magenta"], FG_CODES["reset"])
+bg_magenta = _wrap_colors(BG_CODES["magenta"], BG_CODES["reset"])
 
-cyan = _wrap_colors(FG_CODES['cyan'], FG_CODES['reset'])
-bg_cyan = _wrap_colors(BG_CODES['cyan'], BG_CODES['reset'])
+cyan = _wrap_colors(FG_CODES["cyan"], FG_CODES["reset"])
+bg_cyan = _wrap_colors(BG_CODES["cyan"], BG_CODES["reset"])
 
-white = _wrap_colors(FG_CODES['white'], FG_CODES['reset'])
-bg_white = _wrap_colors(BG_CODES['white'], BG_CODES['reset'])
+white = _wrap_colors(FG_CODES["white"], FG_CODES["reset"])
+bg_white = _wrap_colors(BG_CODES["white"], BG_CODES["reset"])
 
-bold = _wrap_colors('\033[1m', '\033[22m')
+bold = _wrap_colors("\033[1m", "\033[22m")

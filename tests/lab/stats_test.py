@@ -11,20 +11,20 @@ def test_list_desktops():
     desktops = list_desktops()
     assert 10 < len(desktops) < 50
 
-    assert 'eruption' in desktops
-    assert 'destruction' in desktops
+    assert "eruption" in desktops
+    assert "destruction" in desktops
 
-    assert 'death' not in desktops
+    assert "death" not in desktops
 
 
 def test_list_desktops_staff_only():
     desktops = list_desktops(public_only=True)
     assert 10 < len(desktops) < 50
 
-    assert 'destruction' in desktops
+    assert "destruction" in desktops
 
-    assert 'eruption' not in desktops
-    assert 'death' not in desktops
+    assert "eruption" not in desktops
+    assert "death" not in desktops
 
 
 def test_fast_slow_profiles_same():
@@ -32,7 +32,7 @@ def test_fast_slow_profiles_same():
     end = start + timedelta(days=1)
 
     slow_profiles = {
-        host + '.ocf.berkeley.edu': UtilizationProfile.from_hostname(host, start, end)
+        host + ".ocf.berkeley.edu": UtilizationProfile.from_hostname(host, start, end)
         for host in list_desktops()
     }
     fast_profiles = UtilizationProfile.from_hostnames(list_desktops(), start, end)

@@ -19,21 +19,16 @@ from ocflib.infra.ldap import OCF_LDAP_HOSTS
 # when we started keeping session stats
 SESSIONS_EPOCH = date(2014, 2, 15)
 
-get_connection = functools.partial(mysql.get_connection,
-                                   user='anonymous',
-                                   password=None,
-                                   db='ocfstats')
+get_connection = functools.partial(
+    mysql.get_connection, user="anonymous", password=None, db="ocfstats",
+)
 
 
-class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
-
+class Session(namedtuple("Session", ["user", "host", "start", "end"])):
     @classmethod
     def from_row(cls, row):
         return cls(
-            user=row['user'],
-            host=row['host'],
-            start=row['start'],
-            end=row.get('end'),
+            user=row["user"], host=row["host"], start=row["start"], end=row.get("end"),
         )
 
     @property
@@ -41,20 +36,20 @@ class Session(namedtuple('Session', ['user', 'host', 'start', 'end'])):
         return (self.end or datetime.now()) - self.start
 
 
-UserTime = namedtuple('UserTime', ['user', 'time'])
+UserTime = namedtuple("UserTime", ["user", "time"])
 
 
 def users_in_lab_count():
     """Return number of users in the lab, including staff and pubstaff."""
     with get_connection() as c:
-        c.execute('SELECT * FROM `users_in_lab_count_public`')
-        return int(c.fetchone()['count'])
+        c.execute("SELECT * FROM `users_in_lab_count_public`")
+        return int(c.fetchone()["count"])
 
 
 def staff_in_lab():
     """Return list of Session objects for staff currently in the lab."""
     with get_connection() as c:
-        c.execute('SELECT * FROM `staff_in_lab_public`')
+        c.execute("SELECT * FROM `staff_in_lab_public`")
         return [Session.from_row(r) for r in c]
 
 
@@ -84,11 +79,9 @@ def semester_dates(day=None):
         day = date.today()
     fall_start = _get_fall_start(year=day.year)
     if (day.month, day.day) < (fall_start.month, fall_start.day):
-        return (_get_spring_start(year=day.year),
-                _get_spring_end(year=day.year))
+        return (_get_spring_start(year=day.year), _get_spring_end(year=day.year))
     else:
-        return (_get_fall_start(year=day.year),
-                _get_fall_end(year=day.year))
+        return (_get_fall_start(year=day.year), _get_fall_end(year=day.year))
 
 
 def top_staff(start, end=date(3000, 1, 1)):
@@ -98,7 +91,7 @@ def top_staff(start, end=date(3000, 1, 1)):
     :return: list of UserTime objects.
     """
     with get_connection() as c:
-        query = '''
+        query = """
             SELECT `user`, SUM(TIME_TO_SEC(`duration`)) as `seconds` FROM `staff_session_duration_public`
             WHERE (
                 (`start` BETWEEN %s AND %s OR `end` BETWEEN %s AND %s) AND
@@ -106,11 +99,12 @@ def top_staff(start, end=date(3000, 1, 1)):
             )
             GROUP BY `user`
             ORDER BY `seconds` DESC
-        '''
+        """
         c.execute(query, (start, end, start, end))
         return [
-            UserTime(user=r['user'], time=timedelta(seconds=int(r['seconds'])))
-            for r in c if r['user'] != 'pubstaff'
+            UserTime(user=r["user"], time=timedelta(seconds=int(r["seconds"])))
+            for r in c
+            if r["user"] != "pubstaff"
         ]
 
 
@@ -132,34 +126,34 @@ def top_staff_semester():
 
 def list_desktops(public_only=False):
     if not public_only:
-        filter = '(type=desktop)'
+        filter = "(type=desktop)"
     else:
-        filter = '(&(type=desktop)(!(|(dnsA=frontdesk)(dnsA=staffdesk))))'
+        filter = "(&(type=desktop)(!(|(dnsA=frontdesk)(dnsA=staffdesk))))"
 
     with ldap_ocf() as c:
-        c.search(OCF_LDAP_HOSTS, filter, attributes=['cn'])
-        return [entry['attributes']['cn'][0] for entry in c.response]
+        c.search(OCF_LDAP_HOSTS, filter, attributes=["cn"])
+        return [entry["attributes"]["cn"][0] for entry in c.response]
 
 
 def last_used(host, ctx):
     """Show the last used statistics for a computer."""
 
-    query = 'SELECT * FROM `session` WHERE `host` = %s ORDER BY `start` DESC LIMIT 1'
+    query = "SELECT * FROM `session` WHERE `host` = %s ORDER BY `start` DESC LIMIT 1"
     # we can't have another user start before current user ends so here we order by start
 
     ctx.execute(query, host)
     return Session.from_row(ctx.fetchone())
 
 
-class UtilizationProfile(namedtuple('UtilizationProfile', [
-        'hostname', 'start', 'end', 'sessions'
-])):
+class UtilizationProfile(
+    namedtuple("UtilizationProfile", ["hostname", "start", "end", "sessions"]),
+):
     """Representation of computer usage over a time period."""
 
     @classmethod
     def from_hostname(cls, hostname, start, end):
-        if not hostname.endswith('.ocf.berkeley.edu'):
-            hostname += '.ocf.berkeley.edu'
+        if not hostname.endswith(".ocf.berkeley.edu"):
+            hostname += ".ocf.berkeley.edu"
 
         with get_connection() as c:
             query = """
@@ -178,7 +172,7 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
                 hostname=hostname,
                 start=start,
                 end=end,
-                sessions={(r['start'], r['end']) for r in c},
+                sessions={(r["start"], r["end"]) for r in c},
             )
 
     @classmethod
@@ -195,13 +189,15 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
                         %s BETWEEN `start` AND `end` OR
                         %s BETWEEN `start` AND `end` OR
                         `start` <= %s AND `end` IS NULL )
-            """.format(','.join(['%s'] * len(hostnames)))
+            """.format(
+                ",".join(["%s"] * len(hostnames))
+            )
 
             c.execute(query, hostnames + (start, end, start, end, start, end, start))
 
             sessions = defaultdict(set)
             for r in c:
-                sessions[r['host']].add((r['start'], r['end']))
+                sessions[r["host"]].add((r["start"], r["end"]))
 
             return {
                 hostname: cls(
@@ -245,23 +241,25 @@ class UtilizationProfile(namedtuple('UtilizationProfile', [
 # functions for mirrors statistics
 # ================================
 
+
 def humanize_bytes(n):
     """Convert bytes to human-readable units
 
     Adapted from http://stackoverflow.com/a/1094933/1979001
     """
 
-    for unit in ['', 'KB', 'MB', 'GB', 'TB', 'PB']:
+    for unit in ["", "KB", "MB", "GB", "TB", "PB"]:
         if n < 1024.0:
-            return '{:3.2f} {}'.format(n, unit)
+            return "{:3.2f} {}".format(n, unit)
         n /= 1024.0
 
 
 def bandwidth_by_dist(start):
     with get_connection() as c:
         c.execute(
-            'SELECT `dist`, SUM(`up` + `down`) as `bandwidth` FROM `mirrors_public` WHERE `date` > %s'
-            'GROUP BY `dist` ORDER BY `bandwidth` DESC', start,
+            "SELECT `dist`, SUM(`up` + `down`) as `bandwidth` FROM `mirrors_public` WHERE `date` > %s"
+            "GROUP BY `dist` ORDER BY `bandwidth` DESC",
+            start,
         )
 
-    return [(i['dist'], float(i['bandwidth'])) for i in c]
+    return [(i["dist"], float(i["bandwidth"])) for i in c]

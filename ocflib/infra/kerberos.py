@@ -5,14 +5,11 @@ import subprocess
 
 import pexpect
 
-KADMIN_PATH = '/usr/bin/kadmin'
+KADMIN_PATH = "/usr/bin/kadmin"
 
 
 def create_kerberos_principal_with_keytab(
-    principal,
-    keytab,
-    admin_principal,
-    password=None,
+    principal, keytab, admin_principal, password=None,
 ):
     """Creates a Kerberos principal by shelling out to kadmin.
 
@@ -24,8 +21,9 @@ def create_kerberos_principal_with_keytab(
     :return: the password of the newly-created account
     """
     # try changing using kadmin pexpect
-    cmd = ('{kadmin} -K {keytab} -p {admin} add --use-defaults ' +
-           '{principal}').format(
+    cmd = (
+        "{kadmin} -K {keytab} -p {admin} add --use-defaults " + "{principal}"
+    ).format(
         kadmin=shlex.quote(KADMIN_PATH),
         keytab=shlex.quote(keytab),
         admin=shlex.quote(admin_principal),
@@ -36,23 +34,21 @@ def create_kerberos_principal_with_keytab(
         # XXX: using `--random-password` generates weak passwords, plus spits
         # them to stdout, so we just generate a random one ourselves
         allowed = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(allowed[byte % len(allowed)]
-                           for byte in os.urandom(100))
+        password = "".join(allowed[byte % len(allowed)] for byte in os.urandom(100))
 
     child = pexpect.spawn(cmd, timeout=10)
 
     child.expect("{}@OCF.BERKELEY.EDU's Password:".format(principal))
     child.sendline(password)
-    child.expect("Verify password - {}@OCF.BERKELEY.EDU's Password:"
-                 .format(principal))
+    child.expect("Verify password - {}@OCF.BERKELEY.EDU's Password:".format(principal))
     child.sendline(password)
 
     child.expect(pexpect.EOF)
 
-    output = child.before.decode('utf8')
+    output = child.before.decode("utf8")
     child.close()
     if child.exitstatus:
-        raise ValueError('kadmin error: {}'.format(output))
+        raise ValueError("kadmin error: {}".format(output))
 
     return password
 
@@ -71,17 +67,20 @@ def get_kerberos_principal_with_keytab(principal, keytab, admin_principal):
     """
     cmd = [
         shlex.quote(KADMIN_PATH),
-        '-K', shlex.quote(keytab),
-        '-p', shlex.quote(admin_principal),
-        'get', shlex.quote(principal),
+        "-K",
+        shlex.quote(keytab),
+        "-p",
+        shlex.quote(admin_principal),
+        "get",
+        shlex.quote(principal),
     ]
 
     try:
         subprocess.check_output(cmd, timeout=10, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        if b'Principal does not exist' in e.output:
+        if b"Principal does not exist" in e.output:
             return None
         else:
-            raise ValueError('kadmin error: {}'.format(e.output))
+            raise ValueError("kadmin error: {}".format(e.output))
 
     return True

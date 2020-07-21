@@ -1,14 +1,16 @@
 import pymysql
 
 
-def get_connection(user,
-                   password,
-                   db,
-                   host='mysql.ocf.berkeley.edu',
-                   cursorclass=pymysql.cursors.DictCursor,
-                   charset='utf8mb4',
-                   autocommit=True,
-                   **kwargs):
+def get_connection(
+    user,
+    password,
+    db,
+    host="mysql.ocf.berkeley.edu",
+    cursorclass=pymysql.cursors.DictCursor,
+    charset="utf8mb4",
+    autocommit=True,
+    **kwargs
+):
     """Returns a context-manager aware connection to MariaDB, with sensible defaults.
 
     While this function can be called directly, there are partial function
@@ -22,5 +24,5 @@ def get_connection(user,
         cursorclass=cursorclass,
         charset=charset,
         autocommit=autocommit,
-        **kwargs
+        **kwargs,
     )

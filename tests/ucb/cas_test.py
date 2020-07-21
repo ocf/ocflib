@@ -6,7 +6,7 @@ from ocflib.ucb.cas import verify_ticket
 
 @pytest.yield_fixture
 def mock_get():
-    with mock.patch('requests.get') as mock_get:
+    with mock.patch("requests.get") as mock_get:
         yield mock_get
 
 
@@ -26,32 +26,26 @@ BAD_RESPONSE = """
 
 
 class TestVerifyTicket:
-
     def test_good_ticket(self, mock_get):
         mock_get.return_value.text = GOOD_RESPONSE
-        assert verify_ticket(
-            'some-ticket',
-            'https://accounts.ocf.berkeley.edu/',
-        ) == '1034192'
+        assert (
+            verify_ticket("some-ticket", "https://accounts.ocf.berkeley.edu/",)
+            == "1034192"
+        )
 
         called_url = mock_get.call_args[0][0]
-        start = 'https://auth.berkeley.edu/cas/serviceValidate?'
+        start = "https://auth.berkeley.edu/cas/serviceValidate?"
         assert called_url.startswith(start)
 
-        params = called_url[len(start):].split('&')
+        params = called_url[len(start) :].split("&")
         assert sorted(params) == [
-            'service=https%3A%2F%2Faccounts.ocf.berkeley.edu%2F',
-            'ticket=some-ticket',
+            "service=https%3A%2F%2Faccounts.ocf.berkeley.edu%2F",
+            "ticket=some-ticket",
         ]
 
-    @pytest.mark.parametrize('response', [
-        BAD_RESPONSE,
-        '',
-        'hello world',
-    ])
+    @pytest.mark.parametrize("response", [BAD_RESPONSE, "", "hello world",])
     def test_bad_ticket(self, response, mock_get):
         mock_get.return_value.text = response
-        assert verify_ticket(
-            'some-ticket',
-            'https://accounts.ocf.berkeley.edu/',
-        ) is None
+        assert (
+            verify_ticket("some-ticket", "https://accounts.ocf.berkeley.edu/",) is None
+        )

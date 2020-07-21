@@ -5,15 +5,9 @@ from ldap3.utils.conv import escape_filter_chars
 import ocflib.infra.ldap as ldap
 from ocflib.infra.ldap import OCF_LDAP_HOSTS
 
-HOST_TYPES_WITH_IPV6 = frozenset({
-    'desktop',
-    'dhcp',
-    'server',
-    'staffvm',
-    'switch',
-    'vip',
-    'wifi',
-})
+HOST_TYPES_WITH_IPV6 = frozenset(
+    {"desktop", "dhcp", "server", "staffvm", "switch", "vip", "wifi",},
+)
 
 
 def hosts_by_filter(ldap_filter):
@@ -24,12 +18,10 @@ def hosts_by_filter(ldap_filter):
 
     with ldap.ldap_ocf() as c:
         c.search(
-            OCF_LDAP_HOSTS,
-            ldap_filter,
-            attributes=ldap3.ALL_ATTRIBUTES,
+            OCF_LDAP_HOSTS, ldap_filter, attributes=ldap3.ALL_ATTRIBUTES,
         )
 
-        return [entry['attributes'] for entry in c.response]
+        return [entry["attributes"] for entry in c.response]
 
 
 def hostname_from_domain(fqdn):
@@ -38,7 +30,7 @@ def hostname_from_domain(fqdn):
     >>> hostname_from_domain('death.ocf.berkeley.edu')
     'death'
     """
-    return fqdn.split('.')[0]
+    return fqdn.split(".")[0]
 
 
 def domain_from_hostname(hostname):
@@ -47,8 +39,8 @@ def domain_from_hostname(hostname):
     >>> domain_from_hostname('tsunami')
     'tsunami.ocf.berkeley.edu'
     """
-    if not hostname.endswith('.ocf.berkeley.edu'):
-        return hostname + '.ocf.berkeley.edu'
+    if not hostname.endswith(".ocf.berkeley.edu"):
+        return hostname + ".ocf.berkeley.edu"
     return hostname
 
 
@@ -60,5 +52,5 @@ def type_of_host(hostname):
     >>> type_of_host('supernova')
     'server'
     """
-    hosts = hosts_by_filter('(cn={})'.format(escape_filter_chars(hostname)))
-    return hosts[0]['type'] if hosts else None
+    hosts = hosts_by_filter("(cn={})".format(escape_filter_chars(hostname)))
+    return hosts[0]["type"] if hosts else None

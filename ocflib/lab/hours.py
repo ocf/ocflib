@@ -33,7 +33,7 @@ def _parsetime(t):
     if isinstance(t, time):
         return t
 
-    return datetime.strptime(t, '%H:%M').time()
+    return datetime.strptime(t, "%H:%M").time()
 
 
 def _parse_regular_hours(regular):
@@ -54,7 +54,7 @@ def _parse_regular_hours(regular):
         out[weekday] = _parse_hours_list(hours)
 
     if out.keys() != set(Weekday):
-        raise ValueError('Regular hours must be set for all weekdays')
+        raise ValueError("Regular hours must be set for all weekdays")
 
     return out
 
@@ -86,7 +86,7 @@ def _parse_hours_list(time_ranges):
             hour = Hour(hour[0], hour[1])
 
         if hours and hours[-1].close > hour.open:
-            raise ValueError('Hours must be in order')
+            raise ValueError("Hours must be in order")
 
         hours.append(hour)
 
@@ -101,20 +101,18 @@ def _parse_holiday(holiday):
     if isinstance(holiday, Holiday):
         return holiday
 
-    if isinstance(holiday['date'], list):
-        start, end = holiday['date']
-    elif isinstance(holiday['date'], date):
-        start = end = holiday['date']
+    if isinstance(holiday["date"], list):
+        start, end = holiday["date"]
+    elif isinstance(holiday["date"], date):
+        start = end = holiday["date"]
     else:
-        raise ValueError(
-            'Holiday date is not a [start, end] pair or single datetime'
-        )
+        raise ValueError("Holiday date is not a [start, end] pair or single datetime")
 
     return Holiday(
-        reason=holiday['reason'],
+        reason=holiday["reason"],
         startdate=start,
         enddate=end,
-        hours=holiday.get('hours', []),
+        hours=holiday.get("hours", []),
     )
 
 
@@ -130,7 +128,7 @@ def _parse_holiday_list(holidays):
     for holiday in holidays:
         holiday = _parse_holiday(holiday)
         if out and out[-1].enddate >= holiday.startdate:
-            raise ValueError('Holiday dateranges must not overlap')
+            raise ValueError("Holiday dateranges must not overlap")
 
         out.append(holiday)
 
@@ -151,7 +149,7 @@ class HoursListing:
             when = date.today()
 
         if not isinstance(when, date):
-            raise ValueError('{} must be a datetime instance'.format(when))
+            raise ValueError("{} must be a datetime instance".format(when))
 
         # check if it's a holiday
         for holiday in self.holidays:
@@ -169,12 +167,9 @@ class HoursListing:
             when = datetime.now()
 
         if not isinstance(when, datetime):
-            raise ValueError('{} must be a datetime instance'.format(when))
+            raise ValueError("{} must be a datetime instance".format(when))
 
-        return any(
-            when.time() in hour
-            for hour in self.hours_on_date(when.date())
-        )
+        return any(when.time() in hour for hour in self.hours_on_date(when.date()))
 
     def time_to_open(self, when=None):
         """Return timedelta object representing time until the lab is open from the given datetime.
@@ -187,7 +182,7 @@ class HoursListing:
             when = datetime.now()
 
         if not isinstance(when, datetime):
-            raise ValueError('{} must be a datetime instance'.format(when))
+            raise ValueError("{} must be a datetime instance".format(when))
 
         if self.is_open(when=when):
             return timedelta()
@@ -222,7 +217,7 @@ class HoursListing:
             when = datetime.now()
 
         if not isinstance(when, datetime):
-            raise ValueError('{} must be a datetime instance'.format(when))
+            raise ValueError("{} must be a datetime instance".format(when))
 
         if not self.is_open(when=when):
             return timedelta()
@@ -257,32 +252,28 @@ class Holiday:
     @enddate.validator
     def _valid_enddate(self, attribute, value):
         if value < self.startdate:
-            raise ValueError('Holiday dateranges must be valid')
+            raise ValueError("Holiday dateranges must be valid")
 
 
 @attr.s(frozen=True)
 class Hour:
-    open = attr.ib(
-        validator=[attr.validators.instance_of(time)],
-        converter=_parsetime,
-    )
+    open = attr.ib(validator=[attr.validators.instance_of(time)], converter=_parsetime,)
     close = attr.ib(
-        validator=[attr.validators.instance_of(time)],
-        converter=_parsetime,
+        validator=[attr.validators.instance_of(time)], converter=_parsetime,
     )
 
     def __contains__(self, when):
         if not isinstance(when, time):
-            raise ValueError('{} must be a time instance'.format(when))
+            raise ValueError("{} must be a time instance".format(when))
         return self.open <= when < self.close
 
     @close.validator
     def _valid_closetime(self, attribute, value):
         if value <= self.open:
-            raise ValueError('Hour timerange must be valid')
+            raise ValueError("Hour timerange must be valid")
 
 
 def read_hours_listing():
-    hours_config = yaml.safe_load(open('/etc/ocf/hours.yaml'))
+    hours_config = yaml.safe_load(open("/etc/ocf/hours.yaml"))
 
     return HoursListing(**hours_config)

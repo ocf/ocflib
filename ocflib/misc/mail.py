@@ -10,11 +10,11 @@ from jinja2 import PackageLoader
 
 import ocflib.misc.validators as validators
 
-SENDMAIL_PATH = '/usr/sbin/sendmail'
-MAIL_ROOT = 'root@ocf.berkeley.edu'
+SENDMAIL_PATH = "/usr/sbin/sendmail"
+MAIL_ROOT = "root@ocf.berkeley.edu"
 
-MAIL_ROOT = 'root@ocf.berkeley.edu'
-MAIL_FROM = 'Open Computing Facility <help@ocf.berkeley.edu>'
+MAIL_ROOT = "root@ocf.berkeley.edu"
+MAIL_FROM = "Open Computing Facility <help@ocf.berkeley.edu>"
 MAIL_SIGNATURE = """Thanks for flying OCF,
 The friendly staff of 171 MLK Student Union
 
@@ -35,9 +35,9 @@ Need help connecting to the OCF?
 Need to reset your account password?
     https://ocf.io/password"""
 
-jinja_mail_env = Environment(loader=PackageLoader('ocflib', ''))
+jinja_mail_env = Environment(loader=PackageLoader("ocflib", ""))
 jinja_mail_env.globals = {
-    'mail_signature': MAIL_SIGNATURE,
+    "mail_signature": MAIL_SIGNATURE,
 }
 
 
@@ -49,10 +49,11 @@ def email_for_user(username, check_exists=True):
     """
     if check_exists:
         from ocflib.account.search import user_exists
+
         if not user_exists(username):
             raise ValueError('Account "{}" does not exist.'.format(username))
 
-    return '{}@ocf.berkeley.edu'.format(username)
+    return "{}@ocf.berkeley.edu".format(username)
 
 
 def send_mail_user(user, subject, body, sender=MAIL_FROM):
@@ -66,23 +67,22 @@ def send_mail(to, subject, body, *, cc=None, sender=MAIL_FROM):
     `body` should be a string with newlines, wrapped at about 80 characters."""
 
     if not validators.valid_email(parseaddr(sender)[1]):
-        raise ValueError('Invalid sender address.')
+        raise ValueError("Invalid sender address.")
 
     if not validators.valid_email(parseaddr(to)[1]):
-        raise ValueError('Invalid recipient address.')
+        raise ValueError("Invalid recipient address.")
 
     msg = email.mime.text.MIMEText(body)
 
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = to
-    msg['Cc'] = cc
+    msg["Subject"] = subject
+    msg["From"] = sender
+    msg["To"] = to
+    msg["Cc"] = cc
 
     # we send the message via sendmail because direct traffic to port 25
     # is firewalled off
-    p = subprocess.Popen((SENDMAIL_PATH, '-t', '-oi'),
-                         stdin=subprocess.PIPE)
-    p.communicate(msg.as_string().encode('utf8'))
+    p = subprocess.Popen((SENDMAIL_PATH, "-t", "-oi"), stdin=subprocess.PIPE)
+    p.communicate(msg.as_string().encode("utf8"))
 
 
 def send_problem_report(problem):
@@ -90,11 +90,10 @@ def send_problem_report(problem):
 
     def format_frame(frame):
         _, filename, line, funcname, _, _ = frame
-        return '{}:{} ({})'.format(filename, line, funcname)
+        return "{}:{} ({})".format(filename, line, funcname)
 
-    callstack = '\n        by '.join(map(format_frame, inspect.stack()))
-    body = \
-        """A problem was encountered and reported via ocflib:
+    callstack = "\n        by ".join(map(format_frame, inspect.stack()))
+    body = """A problem was encountered and reported via ocflib:
 
 {problem}
 
@@ -102,11 +101,13 @@ def send_problem_report(problem):
 Hostname: {hostname}
 Callstack:
     at {callstack}
-""".format(problem=problem, hostname=socket.getfqdn(), callstack=callstack)
+""".format(
+        problem=problem, hostname=socket.getfqdn(), callstack=callstack
+    )
 
     send_mail(
         MAIL_ROOT,
-        '[ocflib] Problem report from ' + socket.getfqdn(),
+        "[ocflib] Problem report from " + socket.getfqdn(),
         body,
-        sender='ocflib <root@ocf.berkeley.edu>',
+        sender="ocflib <root@ocf.berkeley.edu>",
     )

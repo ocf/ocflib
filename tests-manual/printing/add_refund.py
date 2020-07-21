@@ -10,19 +10,17 @@ from ocflib.printing.quota import get_connection
 from ocflib.printing.quota import Refund
 
 
-if __name__ == '__main__':
-    user = 'ocfprinting'
-    password = getpass.getpass('{} password: '.format(user))
+if __name__ == "__main__":
+    user = "ocfprinting"
+    password = getpass.getpass("{} password: ".format(user))
     with get_connection(user=user, password=password) as c:
         add_refund(
             c,
             Refund(
-                user=input('user: '),
+                user=input("user: "),
                 time=datetime.now(),
-                pages=int(input('pages: ')),
+                pages=int(input("pages: ")),
                 staffer=getpass.getuser(),
-                reason=''.join(
-                    random.choice(string.ascii_letters) for _ in range(30)
-                ),
+                reason="".join(random.choice(string.ascii_letters) for _ in range(30)),
             ),
         )

@@ -23,35 +23,18 @@ HAPPY_HOUR_START = datetime(2019, 5, 6)
 HAPPY_HOUR_END = datetime(2019, 5, 17)
 
 
-get_connection = functools.partial(mysql.get_connection,
-                                   user='anonymous',
-                                   password=None,
-                                   db='ocfprinting')
+get_connection = functools.partial(
+    mysql.get_connection, user="anonymous", password=None, db="ocfprinting",
+)
 
-UserQuota = namedtuple('UserQuota', (
-    'user',
-    'daily',
-    'semesterly',
-))
+UserQuota = namedtuple("UserQuota", ("user", "daily", "semesterly",))
 
 
-Job = namedtuple('Job', (
-    'user',
-    'time',
-    'pages',
-    'queue',
-    'printer',
-    'doc_name',
-    'filesize',
-))
+Job = namedtuple(
+    "Job", ("user", "time", "pages", "queue", "printer", "doc_name", "filesize",),
+)
 
-Refund = namedtuple('Refund', (
-    'user',
-    'time',
-    'pages',
-    'staffer',
-    'reason',
-))
+Refund = namedtuple("Refund", ("user", "time", "pages", "staffer", "reason",))
 
 
 def daily_quota(day=None):
@@ -72,24 +55,21 @@ def daily_quota(day=None):
 
 def get_quota(c, user):
     """Return a UserQuota representing the user's quota."""
-    if is_in_group(user, 'opstaff'):
+    if is_in_group(user, "opstaff"):
         return UserQuota(user, 500, 500)
 
     if not user_exists(user) or user_is_group(user):
         return UserQuota(user, 0, 0)
 
-    c.execute(
-        'SELECT `today`, `semester` FROM `printed` WHERE `user` = %s',
-        (user,)
-    )
+    c.execute("SELECT `today`, `semester` FROM `printed` WHERE `user` = %s", (user,))
 
     row = c.fetchone()
     if not row:
-        row = {'today': 0, 'semester': 0}
-    semesterly = max(0, SEMESTERLY_QUOTA - int(row['semester']))
+        row = {"today": 0, "semester": 0}
+    semesterly = max(0, SEMESTERLY_QUOTA - int(row["semester"]))
     return UserQuota(
         user=user,
-        daily=max(0, min(semesterly, daily_quota() - int(row['today']))),
+        daily=max(0, min(semesterly, daily_quota() - int(row["today"]))),
         semesterly=semesterly,
     )
 
@@ -105,8 +85,8 @@ def _namedtuple_to_query(query, nt):
     """
     return (
         query.format(
-            ', '.join('`{}`'.format(column) for column in nt._fields),
-            ', '.join('%s' for _ in nt._fields),
+            ", ".join("`{}`".format(column) for column in nt._fields),
+            ", ".join("%s" for _ in nt._fields),
         ),
         tuple(getattr(nt, column) for column in nt._fields),
     )
@@ -114,9 +94,9 @@ def _namedtuple_to_query(query, nt):
 
 def add_job(c, job):
     """Add a new job to the database."""
-    c.execute(*_namedtuple_to_query('INSERT INTO jobs ({}) VALUES ({})', job))
+    c.execute(*_namedtuple_to_query("INSERT INTO jobs ({}) VALUES ({})", job))
 
 
 def add_refund(c, refund):
     """Add a new refund to the database."""
-    c.execute(*_namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
+    c.execute(*_namedtuple_to_query("INSERT INTO refunds ({}) VALUES ({})", refund))

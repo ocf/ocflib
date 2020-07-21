@@ -13,8 +13,7 @@ from ocflib.printing.printers import OID_TONER_MAX
 
 
 class TestSNMP:
-
-    @mock.patch('ocflib.printing.printers.cmdgen')
+    @mock.patch("ocflib.printing.printers.cmdgen")
     def test_snmp(self, cmdgen):
         cmdgen.CommandGenerator.return_value.getCmd.return_value = (
             None,
@@ -23,18 +22,17 @@ class TestSNMP:
             [[OID_TONER_CUR, 500]],
         )
 
-        assert _snmp('pagefault', OID_TONER_CUR) == 500
+        assert _snmp("pagefault", OID_TONER_CUR) == 500
         cmdgen.CommandGenerator.return_value.getCmd.assert_called_with(
-            cmdgen.CommunityData('my-agent', 'public', 0),
-            cmdgen.UdpTransportTarget(('pagefault', 161)),
+            cmdgen.CommunityData("my-agent", "public", 0),
+            cmdgen.UdpTransportTarget(("pagefault", 161)),
             OID_TONER_CUR,
         )
 
-    @mock.patch('ocflib.printing.printers.cmdgen')
-    @pytest.mark.parametrize('err_indication,err_status', [
-        ('it broke', None),
-        (None, 'it broke'),
-    ])
+    @mock.patch("ocflib.printing.printers.cmdgen")
+    @pytest.mark.parametrize(
+        "err_indication,err_status", [("it broke", None), (None, "it broke"),],
+    )
     def test_errors(self, cmdgen, err_indication, err_status):
         cmdgen.CommandGenerator.return_value.getCmd.return_value = (
             err_indication,
@@ -43,12 +41,13 @@ class TestSNMP:
             [[OID_TONER_CUR, 500]],
         )
         with pytest.raises(IOError):
-            _snmp('pagefault', OID_TONER_CUR)
+            _snmp("pagefault", OID_TONER_CUR)
 
 
 @pytest.yield_fixture
 def mock_snmp():
-    with mock.patch('ocflib.printing.printers._snmp') as mock_snmp:
+    with mock.patch("ocflib.printing.printers._snmp") as mock_snmp:
+
         def fake(host, oid):
             return {
                 OID_TONER_MAX: 24000,
@@ -63,12 +62,12 @@ def mock_snmp():
 
 
 def test_get_toner(mock_snmp):
-    assert get_toner('pagefault') == (500, 24000)
+    assert get_toner("pagefault") == (500, 24000)
 
 
 def test_get_maintkit(mock_snmp):
-    assert get_maintkit('pagefault') == (2000, 100000)
+    assert get_maintkit("pagefault") == (2000, 100000)
 
 
 def test_get_lifetime_pages(mock_snmp):
-    assert get_lifetime_pages('pagefault') == 500000
+    assert get_lifetime_pages("pagefault") == 500000

@@ -10,23 +10,23 @@ upe - - -
 """
 
 VHOSTS_EXAMPLE_PARSED = {
-    'api.asuc.ocf.berkeley.edu': {
-        'socket': 'prod',
-        'aliases': ['api.asuc.org'],
-        'username': 'asucapp',
-        'flags': [],
+    "api.asuc.ocf.berkeley.edu": {
+        "socket": "prod",
+        "aliases": ["api.asuc.org"],
+        "username": "asucapp",
+        "flags": [],
     },
-    'dev-app.ocf.berkeley.edu': {
-        'socket': 'ggroup',
-        'aliases': [],
-        'username': 'ggroup',
-        'flags': [],
+    "dev-app.ocf.berkeley.edu": {
+        "socket": "ggroup",
+        "aliases": [],
+        "username": "ggroup",
+        "flags": [],
     },
-    'upe.berkeley.edu': {
-        'socket': 'upe',
-        'aliases': [],
-        'username': 'upe',
-        'flags': [],
+    "upe.berkeley.edu": {
+        "socket": "upe",
+        "aliases": [],
+        "username": "upe",
+        "flags": [],
     },
 }
 
@@ -37,7 +37,7 @@ class TestVirtualHosts:
     # there's not much meaning in making tests slower by testing it.
 
     @mock.patch(
-        'ocflib.vhost.application.get_app_vhost_db',
+        "ocflib.vhost.application.get_app_vhost_db",
         return_value=VHOSTS_EXAMPLE.splitlines(),
     )
     def test_proper_parse(self, mock_get_app_vhost_db):

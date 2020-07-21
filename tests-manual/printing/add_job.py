@@ -11,21 +11,21 @@ from ocflib.printing.quota import get_connection
 from ocflib.printing.quota import Job
 
 
-if __name__ == '__main__':
-    user = 'ocfprinting'
-    password = getpass.getpass('{} password: '.format(user))
+if __name__ == "__main__":
+    user = "ocfprinting"
+    password = getpass.getpass("{} password: ".format(user))
     with get_connection(user=user, password=password) as c:
         add_job(
             c,
             Job(
-                user=input('user: '),
+                user=input("user: "),
                 time=datetime.now(),
-                pages=int(input('pages: ')),
-                queue=random.choice(('single', 'double')),
+                pages=int(input("pages: ")),
+                queue=random.choice(("single", "double")),
                 printer=random.choice(tuple(PRINTERS)),
-                doc_name=''.join(
+                doc_name="".join(
                     random.choice(string.ascii_letters) for _ in range(30)
                 ),
-                filesize=random.randint(0, 2**28),
+                filesize=random.randint(0, 2 ** 28),
             ),
         )

@@ -4,12 +4,12 @@ from ipaddress import ip_network
 from ipaddress import IPv4Address
 from ipaddress import IPv6Address
 
-OCF_DNS_RESOLVER = ip_address('169.229.226.22')
-OCF_GATEWAY_V4 = ip_address('169.229.226.1')
-OCF_GATEWAY_V6 = ip_address('2607:f140:8801::1')
-OCF_SUBNET_V4 = ip_network('169.229.226.0/24')
-OCF_SUBNET_V6 = ip_network('2607:f140:8801::/48')
-OCF_SUBNET_V6_COMPAT = ip_network('2607:f140:8801::1:0/112')
+OCF_DNS_RESOLVER = ip_address("169.229.226.22")
+OCF_GATEWAY_V4 = ip_address("169.229.226.1")
+OCF_GATEWAY_V6 = ip_address("2607:f140:8801::1")
+OCF_SUBNET_V4 = ip_network("169.229.226.0/24")
+OCF_SUBNET_V6 = ip_network("2607:f140:8801::/48")
+OCF_SUBNET_V6_COMPAT = ip_network("2607:f140:8801::1:0/112")
 
 
 def ipv6_to_ipv4(ipv6):
@@ -24,9 +24,9 @@ def ipv6_to_ipv4(ipv6):
     """
     assert isinstance(ipv6, IPv6Address), type(ipv6)
     assert ipv6 in OCF_SUBNET_V6_COMPAT, ipv6
-    last_group = int(ipv6.exploded.split(':')[-1])
+    last_group = int(ipv6.exploded.split(":")[-1])
     return ip_address(
-        int.from_bytes(OCF_SUBNET_V4.network_address.packed, 'big') | last_group
+        int.from_bytes(OCF_SUBNET_V4.network_address.packed, "big") | last_group,
     )
 
 
@@ -37,9 +37,9 @@ def ipv4_to_ipv6(ipv4):
     """
     assert isinstance(ipv4, IPv4Address), type(ipv4)
     assert ipv4 in OCF_SUBNET_V4, ipv4
-    last_group = int(ipv4.exploded.split('.')[-1], 16)
+    last_group = int(ipv4.exploded.split(".")[-1], 16)
     return ip_address(
-        int.from_bytes(OCF_SUBNET_V6_COMPAT.network_address.packed, 'big') | last_group
+        int.from_bytes(OCF_SUBNET_V6_COMPAT.network_address.packed, "big") | last_group,
     )
 
 
@@ -58,4 +58,4 @@ def is_ocf_ip(ip):
     elif isinstance(ip, IPv6Address):
         return ip in OCF_SUBNET_V6
     else:
-        raise AssertionError('You must pass in an IPv4Address or IPv6Address object.')
+        raise AssertionError("You must pass in an IPv4Address or IPv6Address object.")

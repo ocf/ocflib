@@ -5,7 +5,7 @@ from collections import namedtuple
 import requests
 
 
-KANBOARD_ROOT = 'https://kanboard.ocf.berkeley.edu'
+KANBOARD_ROOT = "https://kanboard.ocf.berkeley.edu"
 
 
 def request(usr, api_key, method, params):
@@ -13,9 +13,11 @@ def request(usr, api_key, method, params):
     # The purpose of id is to be able to reorder responses to asynchronous,
     # batched requests. Any valid integer is OK here, since we're just making
     # one simple request.
-    payload = json.dumps({'jsonrpc': '2.0', 'method': method, 'id': 1, 'params': params})
+    payload = json.dumps(
+        {"jsonrpc": "2.0", "method": method, "id": 1, "params": params},
+    )
     return requests.post(
-        '{}/jsonrpc.php'.format(KANBOARD_ROOT),
+        "{}/jsonrpc.php".format(KANBOARD_ROOT),
         data=payload,
         auth=(usr, api_key),
         timeout=10,
@@ -26,14 +28,16 @@ class KanboardError(ValueError):
     pass
 
 
-class KanboardTask(namedtuple('KanboardTask', ('number', 'title', 'creator', 'project'))):
+class KanboardTask(
+    namedtuple("KanboardTask", ("number", "title", "creator", "project")),
+):
     """A namedtuple representing a Kanboard task."""
 
     def __str__(self):
         return (
             'k#{self.number}: "{self.title}" | '
-            '{self.project}, started by {self.creator} | '
-            'https://ocf.io/k/{self.number}'
+            "{self.project}, started by {self.creator} | "
+            "https://ocf.io/k/{self.number}"
         ).format(self=self)
 
     @classmethod
@@ -51,33 +55,33 @@ class KanboardTask(namedtuple('KanboardTask', ('number', 'title', 'creator', 'pr
             application api key (which only admins can see)
         """
 
-        task_resp = request(usr, api_key, 'getTask', {'task_id': num})
+        task_resp = request(usr, api_key, "getTask", {"task_id": num})
         if task_resp.status_code != 200:
-            raise KanboardError(
-                'Task request gave {}'.format(task_resp.status_code)
-            )
+            raise KanboardError("Task request gave {}".format(task_resp.status_code))
 
-        task = task_resp.json()['result']
+        task = task_resp.json()["result"]
 
-        users_resp = request(usr, api_key, 'getProjectUsers', {'project_id': task['project_id']})
+        users_resp = request(
+            usr, api_key, "getProjectUsers", {"project_id": task["project_id"]},
+        )
         if users_resp.status_code != 200:
             raise KanboardError(
-                'Project request gave {}'.format(users_resp.status_code)
+                "Project request gave {}".format(users_resp.status_code),
             )
 
-        users = users_resp.json()['result']
+        users = users_resp.json()["result"]
 
-        proj_resp = request(usr, api_key, 'getProjectById', {'project_id': task['project_id']})
+        proj_resp = request(
+            usr, api_key, "getProjectById", {"project_id": task["project_id"]},
+        )
         if proj_resp.status_code != 200:
-            raise KanboardError(
-                'Project request gave {}'.format(proj_resp.status_code)
-            )
+            raise KanboardError("Project request gave {}".format(proj_resp.status_code))
 
-        proj = proj_resp.json()['result']
+        proj = proj_resp.json()["result"]
 
         return cls(
-            number=task['id'],
-            title=task['title'],
-            creator=users[task['creator_id']],
-            project=proj['name'],
+            number=task["id"],
+            title=task["title"],
+            creator=users[task["creator_id"]],
+            project=proj["name"],
         )

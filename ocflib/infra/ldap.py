@@ -10,17 +10,17 @@ import ldap3
 from ocflib.misc.mail import send_problem_report
 
 # ocf ldap
-OCF_LDAP = 'ldap.ocf.berkeley.edu'
-OCF_LDAP_URL = 'ldaps://' + OCF_LDAP
-OCF_LDAP_PEOPLE = 'ou=People,dc=OCF,dc=Berkeley,dc=EDU'
-OCF_LDAP_HOSTS = 'ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU'
-OCF_LDAP_GROUP = 'ou=Group,dc=OCF,dc=Berkeley,dc=EDU'
+OCF_LDAP = "ldap.ocf.berkeley.edu"
+OCF_LDAP_URL = "ldaps://" + OCF_LDAP
+OCF_LDAP_PEOPLE = "ou=People,dc=OCF,dc=Berkeley,dc=EDU"
+OCF_LDAP_HOSTS = "ou=Hosts,dc=OCF,dc=Berkeley,dc=EDU"
+OCF_LDAP_GROUP = "ou=Group,dc=OCF,dc=Berkeley,dc=EDU"
 
 
 # university ldap
-UCB_LDAP = 'ldap.berkeley.edu'
-UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
-UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
+UCB_LDAP = "ldap.berkeley.edu"
+UCB_LDAP_URL = "ldaps://" + UCB_LDAP
+UCB_LDAP_PEOPLE = "ou=People,dc=Berkeley,dc=EDU"
 
 
 @contextmanager
@@ -76,10 +76,11 @@ def _format_attr(key, values):
         values = (values,)
 
     lines = [
-        '{key}:: {value}'.format(
+        "{key}:: {value}".format(
             key=key,
-            value=b64encode(format_value(value).encode('utf8')).decode('ascii'),
-        ) for value in values
+            value=b64encode(format_value(value).encode("utf8")).decode("ascii"),
+        )
+        for value in values
     ]
 
     return lines
@@ -115,26 +116,30 @@ def _write_ldif(lines, dn, keytab=None, admin_principal=None):
     # authentication has already been done and that a valid kerberos ticket
     # for the current user already exists
     if keytab and admin_principal:
-        command = ('/usr/bin/kinit', '-t', keytab, admin_principal, '/usr/bin/ldapmodify', '-Q')
+        command = (
+            "/usr/bin/kinit",
+            "-t",
+            keytab,
+            admin_principal,
+            "/usr/bin/ldapmodify",
+            "-Q",
+        )
     else:
-        command = ('/usr/bin/ldapmodify', '-Q')
+        command = ("/usr/bin/ldapmodify", "-Q")
 
     try:
         subprocess.check_output(
-            command,
-            input='\n'.join(lines),
-            universal_newlines=True,
-            timeout=10,
+            command, input="\n".join(lines), universal_newlines=True, timeout=10,
         )
     except subprocess.CalledProcessError as e:
         if e.returncode == 32:
-            raise ValueError('Tried to modify nonexistent entry.')
+            raise ValueError("Tried to modify nonexistent entry.")
         elif e.returncode == 68:
-            raise ValueError('Tried to create duplicate entry.')
+            raise ValueError("Tried to create duplicate entry.")
         else:
             send_problem_report(
                 dedent(
-                    '''\
+                    """\
                     Unknown problem occured when trying to write to LDAP; the
                     code should be updated to handle this case.
 
@@ -149,23 +154,21 @@ def _write_ldif(lines, dn, keytab=None, admin_principal=None):
 
                     Lines passed to ldapmodify:
                     {lines}
-                    '''
+                    """
                 ).format(
                     dn=dn,
                     keytab=keytab,
                     principal=admin_principal,
                     returncode=e.returncode,
                     output=e.output,
-                    lines='\n'.join('    ' + line for line in lines)
-                )
+                    lines="\n".join("    " + line for line in lines),
+                ),
             )
-            raise ValueError('Unknown LDAP failure was encountered.')
+            raise ValueError("Unknown LDAP failure was encountered.")
 
 
 def create_ldap_entry(
-    dn,
-    attributes,
-    **kwargs  # TODO: Add a trailing comma here in Python 3.6+
+    dn, attributes, **kwargs  # TODO: Add a trailing comma here in Python 3.6+
 ):
     """Creates an LDAP entry by shelling out to ldapadd.
 
@@ -174,18 +177,16 @@ def create_ldap_entry(
     :param **kwargs: any additional keyword arguments to pass on to _write_ldif
     """
     lines = chain(
-        _format_attr('dn', [dn]),
-        ('changetype: add',),
-        *(_format_attr(key, values) for key, values in sorted(attributes.items()))
+        _format_attr("dn", [dn]),
+        ("changetype: add",),
+        *(_format_attr(key, values) for key, values in sorted(attributes.items())),
     )
 
     _write_ldif(lines, dn, **kwargs)
 
 
 def modify_ldap_entry(
-    dn,
-    attributes,
-    **kwargs  # TODO: Add a trailing comma here in Python 3.6+
+    dn, attributes, **kwargs  # TODO: Add a trailing comma here in Python 3.6+
 ):
     """Modifies the attributes of an existing LDAP entry by shelling out to
     ldapmodify.
@@ -198,15 +199,12 @@ def modify_ldap_entry(
     :param **kwargs: any additional keyword arguments to pass on to _write_ldif
     """
     lines = chain(
-        _format_attr('dn', [dn]),
-        ('changetype: modify',),
+        _format_attr("dn", [dn]),
+        ("changetype: modify",),
         *(
-            chain(
-                ('replace: {}'.format(key),),
-                _format_attr(key, values),
-                ('-',),
-            ) for key, values in sorted(attributes.items())
-        )
+            chain(("replace: {}".format(key),), _format_attr(key, values), ("-",),)
+            for key, values in sorted(attributes.items())
+        ),
     )
 
     _write_ldif(lines, dn, **kwargs)
@@ -220,5 +218,5 @@ def format_timestamp(timestamp):
     :return: A timestamp in the format YYYYMMDDhhmmss-0700 (or -0800 in the winter)
     """
     if timestamp.tzinfo is None or timestamp.tzinfo.utcoffset(timestamp) is None:
-        raise ValueError('Timestamp has no timezone info')
-    return timestamp.strftime('%Y%m%d%H%M%S%z')
+        raise ValueError("Timestamp has no timezone info")
+    return timestamp.strftime("%Y%m%d%H%M%S%z")
