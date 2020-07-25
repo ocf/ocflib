@@ -350,64 +350,11 @@ def validate_username(username, realname):
     except ValueError as ex:
         raise ValidationError(str(ex))
 
-    SIMILARITY_THRESHOLD = 2
-
-    if similarity_heuristic(realname, username) > SIMILARITY_THRESHOLD:
-        raise ValidationWarning(
-            'Username {} not based on real name {}.'.format(username, realname))
-
     if any(word in username for word in BAD_WORDS):
         raise ValidationWarning('Username {} contains bad words.'.format(username))
 
     if any(word in username for word in RESTRICTED_WORDS):
         raise ValidationWarning('Username {} contains restricted words.'.format(username))
-
-
-def similarity_heuristic(realname, username):
-    """
-    Return a count of the edits that turn realname into username.
-
-    Count the number of replacements and insertions (*ignoring* deletions) for
-    the minimum number of edits (*including* deletions) that turn any of the
-    permutations of words orderings or initialisms of realname into username,
-    using the built-in difflib.SequenceMatcher class. SequenceMatcher finds the
-    longest continguous matching subsequence and continues this process
-    recursively.
-
-    This is usually the edit distance with zero deletion cost, but is
-    intentionally greater for longer realnames with short matching
-    subsequences, which are likely coincidental.
-
-    For most usernames based on real names, this number is 0."""
-
-    # The more words in realname, the more permutations. O(n!) is terrible!
-    max_words = 8
-    max_iterations = math.factorial(max_words)
-
-    words = re.findall(r'\w+', realname)
-    initials = [word[0] for word in words]
-
-    if len(words) > max_words:
-        print("Not trying all permutations of '{}' for similarity.".format(
-              realname))
-
-    distances = []
-    for sequence in [words, initials]:
-        for i, permutation in enumerate(itertools.permutations(sequence)):
-            if i > max_iterations:
-                break
-            s = ''.join(permutation).lower()
-            matcher = difflib.SequenceMatcher(None, s, username)
-            edits = matcher.get_opcodes()
-            distance = sum(edit[4] - edit[3]
-                           for edit in edits
-                           if edit[0] in ['replace', 'insert'])
-            if distance == 0:
-                # Edit distance cannot be smaller than 0, so return early.
-                return 0
-            distances.append(distance)
-    return min(distances)
-
 
 def validate_email(email):
     if not valid_email(email):
