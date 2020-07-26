@@ -352,6 +352,7 @@ def validate_username(username, realname):
     if any(word in username for word in RESTRICTED_WORDS):
         raise ValidationWarning('Username {} contains restricted words.'.format(username))
 
+
 def validate_email(email):
     if not valid_email(email):
         raise ValidationError('Invalid email.')
