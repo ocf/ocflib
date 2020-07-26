@@ -264,20 +264,6 @@ class TestUsernameBasedOnRealName:
         with pytest.raises(ValidationError):
             validate_username('ckuehl', 'Chris Kuehl')
 
-    @mock.patch('ocflib.account.validators.validate_username')
-    @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_long_names(self, _, __):
-        """In the past, create has gotten "stuck" trying millions of
-        combinations of real names because we try permutations of the words in
-        the real name."""
-        with pytest.raises(ValidationWarning):
-            # 16! = 2.09227899e13, so if this works, it's definitely not
-            # because we tried all possibilities
-            validate_username(
-                'nomatch',
-                'I Have Sixteen Names A B C D E F G H I J K L',
-            )
-
 
 class TestAccountEligibility:
 
@@ -471,25 +457,6 @@ class TestValidateRequest:
             fake_credentials,
             session,
         ) == ([], [])
-
-    @pytest.mark.parametrize('attrs', [
-        {'user_name': 'someuser', 'real_name': 'asdf hjkl'},
-        {'callink_oid': 46187, 'is_group': True},
-    ])
-    def test_invalid_request_warning(
-        self,
-        fake_new_account_request,
-        fake_credentials,
-        mock_valid_calnet_uid,
-        attrs,
-        session,
-    ):
-        errors, warnings = validate_request(
-            fake_new_account_request._replace(**attrs),
-            fake_credentials,
-            session,
-        )
-        assert warnings
 
     @pytest.mark.parametrize('attrs', [
         {'user_name': 'ckuehl'},
