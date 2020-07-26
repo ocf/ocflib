@@ -26,7 +26,6 @@ from ocflib.account.creation import validate_calnet_uid
 from ocflib.account.creation import validate_email
 from ocflib.account.creation import validate_password
 from ocflib.account.creation import validate_request
-from ocflib.account.creation import validate_username
 from ocflib.account.creation import ValidationError
 from ocflib.account.creation import ValidationWarning
 from ocflib.account.submission import AccountCreationCredentials
