@@ -58,6 +58,7 @@ RESERVED_USERNAMES = frozenset((
     'decalform',
     'deforestation',
     'directors',
+    'discord',
     'dns',
     'dnsmasq',
     'docs',
