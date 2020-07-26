@@ -211,60 +211,6 @@ class TestCreateDirectories:
                 ]),
             ])
 
-
-class TestUsernameBasedOnRealName:
-
-    @pytest.mark.parametrize('username,realname,success', [
-        ['ckuehl', 'Christopher Kuehl', True],
-        ['ckuehl', 'CHRISTOPHER B KUEHL', True],
-        ['kuehl', 'CHRISTOPHER B KUEHL', True],
-        ['cbk', 'CHRISTOPHER B KUEHL', True],
-
-        ['rejectme', 'Christopher Kuehl', False],
-        ['penguin', 'Christopher Kuehl', False],
-        ['daradib', 'Christopher Kuehl', False],
-    ])
-    @mock.patch('ocflib.account.validators.validate_username')
-    @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_some_names(self, _, __, username, realname, success,):
-        """Test some obviously good and bad usernames."""
-        try:
-            validate_username(username, realname)
-        except ValidationWarning as ex:
-            if success:
-                pytest.fail(
-                    'Received unexpected error: {error}'.format(error=ex),
-                )
-
-    @pytest.mark.parametrize('username', [
-        'shitup',
-        'ucbcop',
-        'suxocf',
-    ])
-    @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_warning_names(self, _, __, username):
-        """Ensure that we raise warnings when bad/restricted words appear."""
-        with pytest.raises(ValidationWarning):
-            validate_username(username, username)
-
-    @pytest.mark.parametrize('username', [
-        'wordpress',
-        'systemd',
-        'ocf',
-        'ocfrocks',
-    ])
-    @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_error_names(self, _, __, username):
-        """Ensure that we raise errors when appropriate."""
-        with pytest.raises(ValidationError):
-            validate_username(username, username)
-
-    def test_error_user_exists(self):
-        """Ensure that we raise an error if the username already exists."""
-        with pytest.raises(ValidationError):
-            validate_username('ckuehl', 'Chris Kuehl')
-
-
 class TestAccountEligibility:
 
     @pytest.mark.parametrize('bad_uid', [
