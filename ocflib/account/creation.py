@@ -1,8 +1,4 @@
-import difflib
-import itertools
-import math
 import os
-import re
 import subprocess
 from collections import namedtuple
 from contextlib import contextmanager
