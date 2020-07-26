@@ -210,6 +210,7 @@ class TestCreateDirectories:
                 ]),
             ])
 
+
 class TestAccountEligibility:
 
     @pytest.mark.parametrize('bad_uid', [
