@@ -1,7 +1,6 @@
 attrs
 coveralls
 freezegun
-ipdb
 mock
 pre-commit
 pyfakefs

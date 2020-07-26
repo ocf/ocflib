@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 from urllib.parse import urlencode
 
@@ -35,6 +36,37 @@ class RtTicket(namedtuple('RtTicket', ('number', 'owner', 'subject', 'queue', 's
             status=find('Status'),
         )
 
+    @classmethod
+    def create(cls, connection, queue, requestor, subject, text, **kwargs):
+        """Create an RT ticket and returns an instance of the result"""
+        # RT prefixes multiline strings by a blank space
+        text = text.replace('\n', '\n ')
+
+        data = {
+            'id': 'ticket/new',
+            'Queue': queue,
+            'Requestor': requestor,
+            'Subject': subject,
+            'Text': text,
+            **kwargs,
+        }
+
+        # RT's incoming data format has the form key: value, but these aren't HTTP Headers
+        body = ''
+        for k, v in data.items():
+            body += '{}: {}\n'.format(k, v)
+
+        # RT requires the POST content to be sent with no filename hence 'content': (None, body)
+        resp = connection.post('https://rt.ocf.berkeley.edu/REST/1.0/ticket/new', files={'content': (None, body)})
+        resp.raise_for_status()
+        assert '200 Ok' in resp.text
+
+        match = re.search(r'Ticket ([0-9]+) created.', resp.text)
+        assert match, '200 response but no ticket number found in RT response'
+
+        ticket_number = int(match.group(1))
+        return ticket_number
+
 
 def rt_connection(user, password):
     """Return a requests Session object authenticated against RT.
@@ -50,3 +82,14 @@ def rt_connection(user, password):
     assert resp.status_code == 200, resp.status_code
     assert '200 Ok' in resp.text
     return s
+
+
+class RtCredentials(namedtuple('RtCredentials', [
+    'username',
+    'password',
+])):
+    """Credentials for programmatically accessing RT.
+
+    :param username: str
+    :param password: str
+    """
