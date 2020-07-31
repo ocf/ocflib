@@ -1,6 +1,6 @@
 ocflib
 ======
-[![Build Status](https://jenkins.ocf.berkeley.edu/buildStatus/icon?job=ocflib/master)](https://jenkins.ocf.berkeley.edu/job/ocflib/job/master/)
+[![Build Status](https://jenkins.ocf.berkeley.edu/buildStatus/icon?job=ocf/ocflib/master)](https://jenkins.ocf.berkeley.edu/job/ocf/job/ocflib/job/master/)
 [![Coverage Status](https://coveralls.io/repos/github/ocf/ocflib/badge.svg?branch=master)](https://coveralls.io/github/ocf/ocflib?branch=master)
 [![PyPI version](https://badge.fury.io/py/ocflib.svg)](https://pypi.org/project/ocflib/)
 
