@@ -214,7 +214,6 @@ RESERVED_USERNAMES = frozenset((
     'stretch',
     'support',
     'survey',
-    'synapse',
     'sync',
     'sys',
     'sysadmin',
