@@ -255,6 +255,7 @@ RESERVED_USERNAMES = frozenset((
     'zandronum',
     'znc',
     'zookeeper',
+    'zoom',
 
     # RT queues
     'bod',
