@@ -220,7 +220,7 @@ class TestUsernameCheck:
         'suxocf',
     ])
     @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_warning_names(self, _, __, username):
+    def test_warning_names(self, _, username):
         """Ensure that we raise warnings when bad/restricted words appear."""
         with pytest.raises(ValidationWarning):
             validate_username(username, username)
@@ -232,7 +232,7 @@ class TestUsernameCheck:
         'ocfrocks',
     ])
     @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_error_names(self, _, __, username):
+    def test_error_names(self, _, username):
         """Ensure that we raise errors when appropriate."""
         with pytest.raises(ValidationError):
             validate_username(username, username)
