@@ -211,6 +211,39 @@ class TestCreateDirectories:
             ])
 
 
+class TestUsernameCheck:
+
+    @pytest.mark.parametrize('username', [
+        'shitup',
+        'ucbcop',
+        'suxocf',
+    ])
+    @mock.patch('ocflib.account.search.user_exists', return_value=False)
+    @mock.patch('ocflib.account.creation.similarity_heuristic', return_value=0)
+    def test_warning_names(self, _, __, username):
+        """Ensure that we raise warnings when bad/restricted words appear."""
+        with pytest.raises(ValidationWarning):
+            validate_username(username, username)
+
+    @pytest.mark.parametrize('username', [
+        'wordpress',
+        'systemd',
+        'ocf',
+        'ocfrocks',
+    ])
+    @mock.patch('ocflib.account.search.user_exists', return_value=False)
+    @mock.patch('ocflib.account.creation.similarity_heuristic', return_value=0)
+    def test_error_names(self, _, __, username):
+        """Ensure that we raise errors when appropriate."""
+        with pytest.raises(ValidationError):
+            validate_username(username, username)
+
+    def test_error_user_exists(self):
+        """Ensure that we raise an error if the username already exists."""
+        with pytest.raises(ValidationError):
+            validate_username('ckuehl', 'Chris Kuehl')
+
+
 class TestAccountEligibility:
 
     @pytest.mark.parametrize('bad_uid', [
