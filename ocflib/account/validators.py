@@ -110,6 +110,7 @@ RESERVED_USERNAMES = frozenset((
     'join',
     'joinfamily',
     'keyserver',
+    'kube',
     'lab',
     'lets-encrypt',
     'libuuid',
