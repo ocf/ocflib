@@ -25,6 +25,7 @@ class TestValidateUsername:
         # bad characters
         'Ckuehl',
         'ckuehl!',
+        '123123',
     ])
     def test_failure(self, username):
         with pytest.raises(ValueError):
