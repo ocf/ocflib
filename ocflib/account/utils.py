@@ -40,7 +40,7 @@ def extract_username_from_principal(principal):
     'ckuehl'
     """
 
-    REGEX = '^([a-z][a-z0-9]{2,16})(/[a-z]*)?@OCF\\.BERKELEY\\.EDU$'
+    REGEX = '^([a-z][a-z0-9]{2,15})(/[a-z]*)?@OCF\\.BERKELEY\\.EDU$'
     match = re.match(REGEX, principal)
 
     if not match:
