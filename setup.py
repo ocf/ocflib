@@ -34,7 +34,7 @@ setup(
         'pysnmp',
         'pyyaml',
         'redis',
-        'requests',
+        'requests<2.25',  # temporarily downgraded due to pygithub incompat
         'sqlalchemy',
     ),
     classifiers=[
