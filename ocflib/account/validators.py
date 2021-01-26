@@ -273,6 +273,7 @@ RESERVED_USERNAMES = frozenset((
     'security',
     'techtalks',
     'todo',
+    'welcome',
 
     # Mailing lists, aliases, and legacy mailing lists
     'abuse',
