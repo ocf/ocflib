@@ -245,7 +245,6 @@ RESERVED_USERNAMES = frozenset((
     'webhost',
     'webhosting',
     'webmaster',
-    'welcome',
     'wiki',
     'wordpress',
     'www',
@@ -274,6 +273,7 @@ RESERVED_USERNAMES = frozenset((
     'security',
     'techtalks',
     'todo',
+    'welcome',
 
     # Mailing lists, aliases, and legacy mailing lists
     'abuse',
