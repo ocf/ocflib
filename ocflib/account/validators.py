@@ -142,6 +142,7 @@ RESERVED_USERNAMES = frozenset((
     'nessus',
     'netsplit',
     'news',
+    'newstaff',
     'nginx',
     'nobody',
     'noc',
