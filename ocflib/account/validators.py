@@ -140,6 +140,7 @@ RESERVED_USERNAMES = frozenset((
     'mysql',
     'nagios',
     'nessus',
+    'newstaff',
     'netsplit',
     'news',
     'nginx',
