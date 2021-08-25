@@ -109,4 +109,4 @@ class TestEmailSending:
         assert msg['From'] == 'ocflib <root@ocf.berkeley.edu>'
         assert msg['To'] == MAIL_ROOT
         assert msg['Cc'] == ''
-        assert 'hellllo world' in msg.get_payload()
+        assert 'hellllo world' in msg.get_payload(), msg.get_payload()
