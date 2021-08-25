@@ -58,7 +58,7 @@ def email_for_user(username, check_exists=True):
 
 def send_mail_user(user, subject, body, html_body=None, sender=MAIL_FROM):
     """Send a plan-text mail message to a user."""
-    send_mail(email_for_user(user), subject, body, html_body, sender=sender)
+    send_mail(email_for_user(user), subject, body, html_body=html_body, sender=sender)
 
 
 def send_mail(to, subject, body, *, html_body=None, cc=None, sender=MAIL_FROM):
