@@ -1,6 +1,6 @@
 """Email handling and sending"""
-import email.mime.text
 import email.mime.multipart
+import email.mime.text
 import inspect
 import socket
 import subprocess
@@ -79,7 +79,7 @@ def send_mail(to, subject, body, *, html_body=None, cc=None, sender=MAIL_FROM):
     msg['From'] = sender
     msg['To'] = to
     msg['Cc'] = cc
-    
+
     # the non-html message, for if the client doesn't support html
     plain = email.mime.text.MIMEText(body, 'plain')
     msg.attach(plain)
