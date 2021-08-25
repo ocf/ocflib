@@ -3,7 +3,7 @@ coveralls
 freezegun
 mock
 pre-commit
-pyfakefs
+pyfakefs<4.5.0
 pytest
 pytest-cov
 pytest-xdist
