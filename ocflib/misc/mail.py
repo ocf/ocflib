@@ -81,11 +81,11 @@ def send_mail(to, subject, body, *, html_body=None, cc=None, sender=MAIL_FROM):
     msg['Cc'] = cc
     
     # the non-html message, for if the client doesn't support html
-    plain = MIMEText(body, 'plain')
+    plain = email.mime.text.MIMEText(body, 'plain')
     msg.attach(plain)
     if html_body:
         # the "pretty" message, for when it does support html
-        html = MIMEText(html_body, 'html')
+        html = email.mime.text.MIMEText(html_body, 'html')
         msg.attach(html)
 
     # we send the message via sendmail because direct traffic to port 25
