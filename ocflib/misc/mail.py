@@ -1,4 +1,5 @@
 """Email handling and sending"""
+import email.mime.multipart
 import email.mime.text
 import inspect
 import socket
@@ -55,12 +56,12 @@ def email_for_user(username, check_exists=True):
     return '{}@ocf.berkeley.edu'.format(username)
 
 
-def send_mail_user(user, subject, body, sender=MAIL_FROM):
+def send_mail_user(user, subject, body, html_body=None, sender=MAIL_FROM):
     """Send a plan-text mail message to a user."""
-    send_mail(email_for_user(user), subject, body, sender=sender)
+    send_mail(email_for_user(user), subject, body, html_body=html_body, sender=sender)
 
 
-def send_mail(to, subject, body, *, cc=None, sender=MAIL_FROM):
+def send_mail(to, subject, body, *, html_body=None, cc=None, sender=MAIL_FROM):
     """Send a plain-text mail message.
 
     `body` should be a string with newlines, wrapped at about 80 characters."""
@@ -71,12 +72,21 @@ def send_mail(to, subject, body, *, cc=None, sender=MAIL_FROM):
     if not validators.valid_email(parseaddr(to)[1]):
         raise ValueError('Invalid recipient address.')
 
-    msg = email.mime.text.MIMEText(body)
+    # create a container with content type multipart/alternative
+    msg = email.mime.multipart.MIMEMultipart('alternative')
 
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = to
     msg['Cc'] = cc
+
+    # the non-html message, for if the client doesn't support html
+    plain = email.mime.text.MIMEText(body, 'plain')
+    msg.attach(plain)
+    if html_body:
+        # the "pretty" message, for when it does support html
+        html = email.mime.text.MIMEText(html_body, 'html')
+        msg.attach(html)
 
     # we send the message via sendmail because direct traffic to port 25
     # is firewalled off
