@@ -109,3 +109,11 @@ def _get_current_meeting():
 
     return None
 
+def read_meeting_list():
+    return _get_meeting_hours()
+
+def read_next_meeting():
+    return _get_next_meeting()
+
+def read_current_meeting():
+    return _get_current_meeting()
