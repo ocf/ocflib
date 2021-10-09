@@ -85,3 +85,27 @@ def _time_to_range(hours):
 
     return (start_time, end_time)
     
+def _get_next_meeting():
+    today = date.today()
+    now = time.localtime().tm_hour * 60 + time.localtime().tm_min
+    days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
+
+    meetings = sorted(_get_meeting_hours(), key=lambda meeting: days.index(meeting.day))
+    for meeting in meetings:
+        if _time_to_range(meeting.time)[0] > now:
+            return meeting
+
+    return None
+
+def _get_current_meeting():
+    today = date.today()
+    now = time.localtime().tm_hour * 60 + time.localtime().tm_min
+    days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
+
+    meetings = sorted(_get_meeting_hours(), key=lambda meeting: days.index(meeting.day))
+    for meeting in meetings:
+        if _time_to_range(meeting.time)[0] < now and _time_to_range(meeting.time)[1]:
+            return meeting
+
+    return None
+
