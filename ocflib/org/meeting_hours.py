@@ -43,3 +43,11 @@ def _get_meeting_hours():
 
     return meeting_hour_list
 
+def _parse_hour(hour):
+    """
+    Converts a 2-element list of hours like ['11:00', '13:00'] to a string
+    in 12-hour time, like '11:00AM - 1:00PM'.
+    """
+    return '{} - {}'.format(datetime.strptime(hour[0], '%H:%M').strftime('%-I:%M%p'),
+                            datetime.strptime(hour[1], '%H:%M').strftime('%-I:%M%p'))
+
