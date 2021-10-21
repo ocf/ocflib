@@ -150,7 +150,7 @@ def test_list_group():
     ocfstaff = list_group('ocfstaff')
     assert 'gstaff' in ocfstaff
     assert 'guser' not in ocfstaff
-    assert 5 <= len(ocfstaff) <= 200
+    assert 5 <= len(ocfstaff) <= 250
 
     opstaff = list_group('opstaff')
     assert 'testopstaff' in opstaff
