@@ -31,7 +31,7 @@ def _get_meeting_hours():
 
     meeting_hour_list = []
     for day in DAYS_OF_WEEK:
-        if not meeting_hours['meeting_hours'][day]:
+        if not meeting_hours['meeting-hours'][day]:
             continue
 
         for meeting_hour in meeting_hours['meeting-hours'][day]:
