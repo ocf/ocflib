@@ -24,7 +24,6 @@ def _get_meeting_hours():
     meeting_hours = _load_meeting_hours()
 
     meeting_hour_list = []
-
     for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']:
         if not meeting_hours['meeting_hours'][day]:
             continue
