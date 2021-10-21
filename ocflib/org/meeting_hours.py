@@ -2,12 +2,12 @@
 
 All times are assumed to be OST (OCF Standard Time).
 """
-
 from collections import namedtuple
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from time import localtime
+
 from yaml import safe_load
 
 MEETING_HOURS_FILE = '/etc/ocf/meeting_hours.yaml'
