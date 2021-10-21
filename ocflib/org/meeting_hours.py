@@ -54,36 +54,36 @@ def _time_to_range(hours):
     """
     Converts a time from format '11:00AM - 1:00PM' to (660, 780)
     """
-    first_colon = hours.find(":")
+    first_colon = hours.find(':')
     if first_colon != 1 and first_colon != 2:
         return
 
     first_half = hours[first_colon + 2:first_colon + 4]
-    if first_half != "AM" and first_half != "PM":
+    if first_half != 'AM' and first_half != 'PM':
         return
 
-    hyphen = hours.find("-")
+    hyphen = hours.find('-')
     if hyphen == -1:
         return
 
-    second_colon = hours.find(":", first_colon + 1)
+    second_colon = hours.find(':', first_colon + 1)
     if second_colon != hyphen + 3 and second_colon != hyphen + 4:
         return
 
     second_half = hours[second_colon + 2:second_colon + 4]
-    if second_half != "AM" and second_half != "PM":
+    if second_half != 'AM' and second_half != 'PM':
         return
 
     start_hours = hours[0:first_colon]
     start_minutes = hours[first_colon+1:first_colon+3]
     end_hours = hours[hyphen+2:second_colon]
     end_minutes = hours[second_colon+1:second_colon+3]
-    
-    start_time = (start_hours + (12 if first_half == "PM" else 0)) * 60 + start_minutes
-    end_time = (end_hours + (12 if second_half == "PM" else 0) * 60 + end_minutes)
+
+    start_time = (start_hours + (12 if first_half == 'PM' else 0)) * 60 + start_minutes
+    end_time = (end_hours + (12 if second_half == 'PM' else 0) * 60 + end_minutes)
 
     return (start_time, end_time)
-    
+
 def _get_next_meeting():
     today = date.today()
     now = time.localtime().tm_hour * 60 + time.localtime().tm_min
