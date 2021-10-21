@@ -91,9 +91,9 @@ def _time_to_range(hours):
         return
 
     start_hours = hours[0:first_colon]
-    start_minutes = hours[first_colon+1:first_colon+3]
-    end_hours = hours[hyphen+2:second_colon]
-    end_minutes = hours[second_colon+1:second_colon+3]
+    start_minutes = hours[first_colon + 1:first_colon + 3]
+    end_hours = hours[hyphen + 2:second_colon]
+    end_minutes = hours[second_colon + 1:second_colon + 3]
 
     start_pm_offset = 12 if first_half == 'PM' else 0
     end_pm_offset = 12 if second_half == 'PM' else 0
