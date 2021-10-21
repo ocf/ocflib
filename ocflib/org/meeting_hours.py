@@ -131,8 +131,8 @@ def _get_current_meeting():
         key=lambda meeting: days.index(meeting.day)
     )
 
-    ranged_time = _time_to_range(meeting.time)
     for meeting in meetings:
+        ranged_time = _time_to_range(meeting.time)
         if ranged_time[0] < now and ranged_time[1]:
             return meeting
 
