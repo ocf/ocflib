@@ -35,7 +35,9 @@ publish new versions to [PyPI][pypi], which is useful because it allows easy
 installation into virtualenvs.
 
 
-## Testing changes
+## Installing locally
+
+### For Testing Changes
 
 The easiest way to test changes to ocflib is to create a virtualenv and install
 ocflib in development mode:
@@ -45,7 +47,6 @@ ocflib in development mode:
 
 Now, if you import something from ocflib, you'll be using the version from your
 working copy.
-
 
 ### Testing and linting
 
@@ -69,6 +70,29 @@ once installed, pre-commit will run every time you commit.
 Alternatively, if you'd rather not install any hooks, you can simply use `make
 test` as usual, which will also run the hooks.
 
+### Troubleshooting: Cracklib Error
+
+If you're trying to run make install-hooks on ocfweb (or related repos) and get this error:
+
+```
+./_cracklib.c:40:10: fatal error: 'crack.h' file not found
+  #include <crack.h>
+           ^~~~~~~~~
+  1 error generated.
+```
+
+The issue relates to the cracklib package not finding the necessary header files to install. Make sure cracklib is installed on your machine (https://github.com/cracklib/cracklib, if you're on Mac, `brew install cracklib`).
+
+If you still get this error, there's a good chance it's an issue with the virtual environment, which might be using an old version of pip. Run the following commands:
+
+```
+source venv/bin/activate
+pip install --upgrade pip
+pip install cracklib
+make install-hooks
+```
+
+This will update pip from 18 to 21, install cracklib (hopefully successfully), and then carry on with the build. Note that when you run make install-hooks, the pip version will revert back to 18. This is ok though, since cracklib has already been successfully installed and there should be no other issues.
 
 ## Deploying changes
 
