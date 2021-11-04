@@ -123,9 +123,8 @@ def _iso_weekday_to_str(num):
     return ''
 
 
-def _get_next_meeting():
-    today = date.today()
-    now = localtime().tm_hour * 60 + localtime().tm_min
+def _get_next_meeting(today=date.today(), now=localtime()):
+    now = now.tm_hour * 60 + localtime().tm_min
     days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
 
     meetings = sorted(
@@ -141,9 +140,8 @@ def _get_next_meeting():
     return None
 
 
-def _get_current_meeting():
-    today = date.today()
-    now = localtime().tm_hour * 60 + localtime().tm_min
+def _get_current_meeting(today=date.today(), now=localtime()):
+    now = now.tm_hour * 60 + localtime().tm_min
     days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
 
     meetings = sorted(
