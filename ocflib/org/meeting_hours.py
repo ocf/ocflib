@@ -134,7 +134,8 @@ def _get_next_meeting():
     )
 
     for meeting in meetings:
-        if _time_to_range(meeting.time)[0] > now:
+        ranged_time = _time_to_range(meeting.time)
+        if ranged_time[0] > now or meeting.day != _iso_weekday_to_str(today.isoweekday()):
             return meeting
 
     return None
@@ -152,7 +153,7 @@ def _get_current_meeting():
 
     for meeting in meetings:
         ranged_time = _time_to_range(meeting.time)
-        if ranged_time[0] < now and ranged_time[1] > now:
+        if ranged_time[0] < now and ranged_time[1] > now and meeting.day == _iso_weekday_to_str(today.isoweekday()):
             return meeting
 
     return None
