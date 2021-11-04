@@ -10,7 +10,7 @@ from time import localtime
 
 from yaml import safe_load
 
-MEETING_HOURS_FILE = '/Users/ben/Desktop/Items/Projects/OCF/etc/configs/meeting_hours.yaml'
+MEETING_HOURS_FILE = '/etc/ocf/meeting_hours.yaml'
 DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday',
                 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
