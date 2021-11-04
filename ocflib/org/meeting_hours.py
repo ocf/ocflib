@@ -133,7 +133,7 @@ def _get_current_meeting():
 
     for meeting in meetings:
         ranged_time = _time_to_range(meeting.time)
-        if ranged_time[0] < now and ranged_time[1]:
+        if ranged_time[0] < now and ranged_time[1] > now:
             return meeting
 
     return None
