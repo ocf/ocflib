@@ -104,6 +104,25 @@ def _time_to_range(hours):
     return (start_time, end_time)
 
 
+def _iso_weekday_to_str(num):
+    if(num == 1):
+        return "Monday"
+    elif(num == 2):
+        return "Tuesday"
+    elif(num == 3):
+        return "Wednesday"
+    elif(num == 4):
+        return "Thursday"
+    elif(num == 5):
+        return "Friday"
+    elif(num == 6):
+        return "Saturday"
+    elif(num == 7):
+        return "Sunday"
+
+    return ""
+    
+
 def _get_next_meeting():
     today = date.today()
     now = localtime().tm_hour * 60 + localtime().tm_min
