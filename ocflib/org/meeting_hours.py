@@ -10,7 +10,7 @@ from time import localtime
 
 from yaml import safe_load
 
-MEETING_HOURS_FILE = '/etc/ocf/meeting_hours.yaml'
+MEETING_HOURS_FILE = '/Users/ben/Desktop/Items/Projects/OCF/etc/configs/meeting_hours.yaml'
 DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday',
                 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -74,7 +74,7 @@ def _time_to_range(hours):
     if first_colon != 1 and first_colon != 2:
         return
 
-    first_half = hours[first_colon + 2:first_colon + 4]
+    first_half = hours[first_colon + 3:first_colon + 5]
     if first_half != 'AM' and first_half != 'PM':
         return
 
@@ -98,8 +98,8 @@ def _time_to_range(hours):
     start_pm_offset = 12 if first_half == 'PM' else 0
     end_pm_offset = 12 if second_half == 'PM' else 0
 
-    start_time = start_hours + start_pm_offset * 60 + start_minutes
-    end_time = end_hours + end_pm_offset * 60 + end_minutes
+    start_time = start_hours * 60 + start_pm_offset * 60 + start_minutes
+    end_time = end_hours * 60 + end_pm_offset * 60 + end_minutes
 
     return (start_time, end_time)
 
