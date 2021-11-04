@@ -86,7 +86,7 @@ def _time_to_range(hours):
     if second_colon != hyphen + 3 and second_colon != hyphen + 4:
         return
 
-    second_half = hours[second_colon + 2:second_colon + 4]
+    second_half = hours[second_colon + 3:second_colon + 5]
     if second_half != 'AM' and second_half != 'PM':
         return
 
