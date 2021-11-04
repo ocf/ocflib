@@ -106,21 +106,21 @@ def _time_to_range(hours):
 
 def _iso_weekday_to_str(num):
     if(num == 1):
-        return "Monday"
+        return 'Monday'
     elif(num == 2):
-        return "Tuesday"
+        return 'Tuesday'
     elif(num == 3):
-        return "Wednesday"
+        return 'Wednesday'
     elif(num == 4):
-        return "Thursday"
+        return 'Thursday'
     elif(num == 5):
-        return "Friday"
+        return 'Friday'
     elif(num == 6):
-        return "Saturday"
+        return 'Saturday'
     elif(num == 7):
-        return "Sunday"
+        return 'Sunday'
 
-    return ""
+    return ''
 
 
 def _get_next_meeting():
