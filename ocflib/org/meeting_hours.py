@@ -121,7 +121,7 @@ def _iso_weekday_to_str(num):
         return "Sunday"
 
     return ""
-    
+
 
 def _get_next_meeting():
     today = date.today()
