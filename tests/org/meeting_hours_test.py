@@ -174,3 +174,22 @@ def test_read_meeting_list(mock_disk):
         )
     ]
 
+
+@pytest.mark.parametrize('date,time,expected', [
+    # Sunday, October 31, 2021 8:30:00 PM GMT-7
+    (date.fromisoformat("2021-10-31"), time.localtime(1633318200), None),
+    # Monday, November 1, 2021 1:45:00 PM GMT-7
+    (date.fromisoformat("2021-11-1"), time.localtime(1635799500), None),
+    # Monday, November 1, 2021 2:00:01 PM GMT-7
+    (date.fromisoformat("2021-11-1"), time.localtime(1635800401), INTERNAL_MEETING_TEST),
+    # Monday, November 1, 2021 2:59:59 PM GMT-7
+    (date.fromisoformat("2021-11-1"), time.localtime(1635803999), INTERNAL_MEETING_TEST),
+    # Monday, November 1, 2021 3:00:01 PM GMT-7
+    (date.fromisoformat("2021-11-1"), time.localtime(1635804001), None),
+])
+def test_read_current_meeting(mock_disk, date, time, expected):
+    if(expected is None):
+        assert read_current_meeting(today=date, now=time) is None
+    else:
+        assert read_current_meeting(today=date, now=time) == expected
+
