@@ -169,7 +169,7 @@ def test_read_next_meeting(mock_disk, date, time, expected):
 
 
 @pytest.mark.parametrize('expected', [
-    (MEETING_LIST_TEST,)
+    (MEETING_LIST_TEST,),
 ])
 def test_read_meeting_list(mock_disk, expected):
     if(expected is None):
