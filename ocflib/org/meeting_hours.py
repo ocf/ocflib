@@ -157,13 +157,13 @@ def _get_current_meeting(today=date.today(), now=localtime()):
     return None
 
 
-def read_meeting_list():
-    return _get_meeting_hours()
+def read_meeting_list(**kwargs):
+    return _get_meeting_hours(**kwargs)
 
 
-def read_next_meeting():
-    return _get_next_meeting()
+def read_next_meeting(**kwargs):
+    return _get_next_meeting(**kwargs)
 
 
-def read_current_meeting():
-    return _get_current_meeting()
+def read_current_meeting(**kwargs):
+    return _get_current_meeting(**kwargs)
