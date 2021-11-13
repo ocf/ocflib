@@ -130,51 +130,6 @@ class TestLoadMeetingHours:
         assert _load_meeting_hours() == yaml.safe_load(TEST_HOURS)
 
 
-def test_read_meeting_list(mock_disk):
-    assert read_meeting_list() == [
-        Meeting(
-            day='Monday',
-            time='2:00PM - 3:00PM',
-            subject='Internal Meeting',
-            short='internal',
-            irl=True,
-            virtual=False
-        ),
-        Meeting(
-            day='Wednesday',
-            time='8:00PM - 9:00PM',
-            subject='Staff Meeting',
-            short='staff',
-            irl=True,
-            virtual=True
-        ),
-        Meeting(
-            day='Friday',
-            time='5:00PM - 4:00PM',
-            subject='Web Team Meeting',
-            short='web',
-            irl=True,
-            virtual=False
-        ),
-        Meeting(
-            day='Saturday',
-            time='2:00PM - 3:00PM',
-            subject='Kubernetes Interest Group Meeting',
-            short='kubernetes',
-            irl=True,
-            virtual=False
-        ),
-        Meeting(
-            day='Saturday',
-            time='3:00PM - 4:00PM',
-            subject='Linux/Infra Meeting',
-            short='linux/infra',
-            irl=True,
-            virtual=False
-        )
-    ]
-
-
 @pytest.mark.parametrize('date,time,expected', [
     # Sunday, October 31, 2021 8:30:00 PM GMT-7
     (date.fromisoformat("2021-10-31"), time.localtime(1633318200), None),
@@ -193,3 +148,11 @@ def test_read_current_meeting(mock_disk, date, time, expected):
     else:
         assert read_current_meeting(today=date, now=time) == expected
 
+@pytest.mark.parametrize('expected', [
+    (MEETING_LIST_TEST,)
+])
+def test_read_meeting_list(mock_disk, expected):
+    if(expected is None):
+        assert read_meeting_list() is None
+    else:
+        assert read_meeting_list() == expected
