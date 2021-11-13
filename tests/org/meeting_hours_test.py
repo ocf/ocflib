@@ -115,3 +115,17 @@ STAFF_MEETING_TEST = Meeting(
     virtual=True
 )
 
+
+@pytest.yield_fixture
+def mock_disk(tmpdir):
+    f = tmpdir.join('meeting_hours.yaml')
+    f.write(TEST_HOURS)
+    with mock.patch('ocflib.org.meeting_hours.STAFF_HOURS_FILE', f.strpath):
+        yield
+
+
+class TestLoadMeetingHours:
+
+    def test_loads_from_file_if_exists(self, mock_disk):
+        assert _load_meeting_hours() == yaml.safe_load(TEST_HOURS)
+
