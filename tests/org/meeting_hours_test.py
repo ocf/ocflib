@@ -120,7 +120,7 @@ STAFF_MEETING_TEST = Meeting(
 def mock_disk(tmpdir):
     f = tmpdir.join('meeting_hours.yaml')
     f.write(TEST_HOURS)
-    with mock.patch('ocflib.org.meeting_hours.STAFF_HOURS_FILE', f.strpath):
+    with mock.patch('ocflib.org.meeting_hours.MEETING_HOURS_FILE', f.strpath):
         yield
 
 
