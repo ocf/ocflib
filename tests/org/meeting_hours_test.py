@@ -4,6 +4,7 @@ from datetime import date
 import mock
 import pytest
 import yaml
+
 from ocflib.org.meeting_hours import _load_meeting_hours
 from ocflib.org.meeting_hours import Meeting
 from ocflib.org.meeting_hours import read_current_meeting
