@@ -168,10 +168,13 @@ def test_read_next_meeting(mock_disk, date, time, expected):
         assert read_next_meeting(today=date, now=time) == expected
 
 
-@pytest.mark.parametrize('expected', [
-    (MEETING_LIST_TEST,),
+@pytest.mark.parametrize('date,expected', [
+    (None, MEETING_LIST_TEST),
 ])
-def test_read_meeting_list(mock_disk, expected):
+def test_read_meeting_list(mock_disk, date, expected):
+    if not (date is None):
+        assert False
+
     if(expected is None):
         assert read_meeting_list() is None
     else:
