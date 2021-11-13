@@ -20,6 +20,11 @@ meeting-hours:
       virtual: false
   Tuesday:
   Wednesday:
+    - time: ['19:00', '20:00']
+      subject: "Board of Directors Meeting"
+      short: "bod"
+      irl: true
+      virtual: true
     - time: ['20:00', '21:00']
       subject: "Staff Meeting"
       short: "staff"
@@ -27,7 +32,7 @@ meeting-hours:
       virtual: true
   Thursday:
   Friday:
-    - time: ['17:00', '16:00']
+    - time: ['17:00', '18:00']
       subject: "Web Team Meeting"
       short: "web"
       irl: true
@@ -106,11 +111,11 @@ INTERNAL_MEETING_TEST = Meeting(
     virtual=False
 )
 
-STAFF_MEETING_TEST = Meeting(
+BOD_MEETING_TEST = Meeting(
     day='Wednesday',
-    time='8:00PM - 9:00PM',
-    subject='Staff Meeting',
-    short='staff',
+    time='7:00PM - 8:00PM',
+    subject='Board of Directors Meeting',
+    short='bod',
     irl=True,
     virtual=True
 )
@@ -155,11 +160,11 @@ def test_read_current_meeting(mock_disk, date, time, expected):
     # Monday, November 1, 2021 1:45:00 PM GMT-7
     (date(2021, 11, 1), time.localtime(1635799500), INTERNAL_MEETING_TEST),
     # Monday, November 1, 2021 2:00:01 PM GMT-7
-    (date(2021, 11, 1), time.localtime(1635800401), STAFF_MEETING_TEST),
+    (date(2021, 11, 1), time.localtime(1635800401), BOD_MEETING_TEST),
     # Monday, November 1, 2021 2:59:59 PM GMT-7
-    (date(2021, 11, 1), time.localtime(1635803999), STAFF_MEETING_TEST),
+    (date(2021, 11, 1), time.localtime(1635803999), BOD_MEETING_TEST),
     # Monday, November 1, 2021 3:00:01 PM GMT-7
-    (date(2021, 11, 1), time.localtime(1635804001), STAFF_MEETING_TEST),
+    (date(2021, 11, 1), time.localtime(1635804001), BOD_MEETING_TEST),
 ])
 def test_read_next_meeting(mock_disk, date, time, expected):
     if(expected is None):
