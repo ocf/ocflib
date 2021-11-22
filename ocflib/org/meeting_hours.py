@@ -105,19 +105,19 @@ def _time_to_range(hours):
 
 
 def _iso_weekday_to_str(num):
-    if(num == 1):
+    if num == 1:
         return 'Monday'
-    elif(num == 2):
+    elif num == 2:
         return 'Tuesday'
-    elif(num == 3):
+    elif num == 3:
         return 'Wednesday'
-    elif(num == 4):
+    elif num == 4:
         return 'Thursday'
-    elif(num == 5):
+    elif num == 5:
         return 'Friday'
-    elif(num == 6):
+    elif num == 6:
         return 'Saturday'
-    elif(num == 7):
+    elif num == 7:
         return 'Sunday'
 
     return ''
