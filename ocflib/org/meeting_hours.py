@@ -74,7 +74,7 @@ def _time_to_range(hours):
     if first_colon != 1 and first_colon != 2:
         return
 
-    first_half = hours[first_colon + 2:first_colon + 4]
+    first_half = hours[first_colon + 3:first_colon + 5]
     if first_half != 'AM' and first_half != 'PM':
         return
 
@@ -86,44 +86,45 @@ def _time_to_range(hours):
     if second_colon != hyphen + 3 and second_colon != hyphen + 4:
         return
 
-    second_half = hours[second_colon + 2:second_colon + 4]
+    second_half = hours[second_colon + 3:second_colon + 5]
     if second_half != 'AM' and second_half != 'PM':
         return
 
-    start_hours = hours[0:first_colon]
-    start_minutes = hours[first_colon + 1:first_colon + 3]
-    end_hours = hours[hyphen + 2:second_colon]
-    end_minutes = hours[second_colon + 1:second_colon + 3]
+    start_hours = int(hours[0:first_colon])
+    start_minutes = int(hours[first_colon + 1:first_colon + 3])
+    end_hours = int(hours[hyphen + 2:second_colon])
+    end_minutes = int(hours[second_colon + 1:second_colon + 3])
 
     start_pm_offset = 12 if first_half == 'PM' else 0
     end_pm_offset = 12 if second_half == 'PM' else 0
 
-    start_time = start_hours + start_pm_offset * 60 + start_minutes
-    end_time = end_hours + end_pm_offset * 60 + end_minutes
+    start_time = start_hours * 60 + start_pm_offset * 60 + start_minutes
+    end_time = end_hours * 60 + end_pm_offset * 60 + end_minutes
 
     return (start_time, end_time)
 
 
-def _get_next_meeting():
-    today = date.today()
-    now = localtime().tm_hour * 60 + localtime().tm_min
-    days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
+def _iso_weekday_to_str(num):
+    if num == 1:
+        return 'Monday'
+    elif num == 2:
+        return 'Tuesday'
+    elif num == 3:
+        return 'Wednesday'
+    elif num == 4:
+        return 'Thursday'
+    elif num == 5:
+        return 'Friday'
+    elif num == 6:
+        return 'Saturday'
+    elif num == 7:
+        return 'Sunday'
 
-    meetings = sorted(
-        _get_meeting_hours(),
-        key=lambda meeting: days.index(meeting.day)
-    )
-
-    for meeting in meetings:
-        if _time_to_range(meeting.time)[0] > now:
-            return meeting
-
-    return None
+    return ''
 
 
-def _get_current_meeting():
-    today = date.today()
-    now = localtime().tm_hour * 60 + localtime().tm_min
+def _get_next_meeting(today=date.today(), now=localtime()):
+    now = now.tm_hour * 60 + localtime().tm_min
     days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
 
     meetings = sorted(
@@ -133,19 +134,36 @@ def _get_current_meeting():
 
     for meeting in meetings:
         ranged_time = _time_to_range(meeting.time)
-        if ranged_time[0] < now and ranged_time[1]:
+        if ranged_time[0] > now or meeting.day != _iso_weekday_to_str(today.isoweekday()):
             return meeting
 
     return None
 
 
-def read_meeting_list():
-    return _get_meeting_hours()
+def _get_current_meeting(today=date.today(), now=localtime()):
+    now = now.tm_hour * 60 + localtime().tm_min
+    days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
+
+    meetings = sorted(
+        _get_meeting_hours(),
+        key=lambda meeting: days.index(meeting.day)
+    )
+
+    for meeting in meetings:
+        ranged_time = _time_to_range(meeting.time)
+        if ranged_time[0] < now and ranged_time[1] > now and meeting.day == _iso_weekday_to_str(today.isoweekday()):
+            return meeting
+
+    return None
 
 
-def read_next_meeting():
-    return _get_next_meeting()
+def read_meeting_list(**kwargs):
+    return _get_meeting_hours(**kwargs)
 
 
-def read_current_meeting():
-    return _get_current_meeting()
+def read_next_meeting(**kwargs):
+    return _get_next_meeting(**kwargs)
+
+
+def read_current_meeting(**kwargs):
+    return _get_current_meeting(**kwargs)
