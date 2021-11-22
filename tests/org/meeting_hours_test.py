@@ -149,7 +149,7 @@ class TestLoadMeetingHours:
     (date(2021, 11, 1), time.localtime(1635804001), None),
 ])
 def test_read_current_meeting(mock_disk, date, time, expected):
-    if(expected is None):
+    if expected is None:
         assert read_current_meeting(today=date, now=time) is None
     else:
         assert read_current_meeting(today=date, now=time) == expected
@@ -168,7 +168,7 @@ def test_read_current_meeting(mock_disk, date, time, expected):
     (date(2021, 11, 1), time.localtime(1635804001), BOD_MEETING_TEST),
 ])
 def test_read_next_meeting(mock_disk, date, time, expected):
-    if(expected is None):
+    if expected is None:
         assert read_next_meeting(today=date, now=time) is None
     else:
         assert read_next_meeting(today=date, now=time) == expected
@@ -181,7 +181,7 @@ def test_read_meeting_list(mock_disk, date, expected):
     if not (date is None):
         assert False
 
-    if(expected is None):
+    if expected is None:
         assert read_meeting_list() is None
     else:
         assert read_meeting_list() == expected
