@@ -54,6 +54,11 @@ RESERVED_UID_RANGES = [
     (61184, 65535),
 ]
 
+IGNORED_UID_RANGES = [
+    # Incident with OCF CTF resulted in users being created in this range
+    (13371337, 13371800),
+]
+
 
 def _get_first_available_uid(known_uid=_KNOWN_UID):
     """Return the first available UID number.
@@ -65,6 +70,8 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
     entries greater than that for performance. This value can then be cached
     and passed back in to make subsequent calls faster.
     """
+    assert all(start <= end for start, end in IGNORED_UID_RANGES)
+
     with ldap_ocf() as c:
         c.search(
             OCF_LDAP_PEOPLE,
@@ -72,6 +79,15 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
             attributes=['uidNumber'],
         )
         uids = [int(entry['attributes']['uidNumber']) for entry in c.response]
+
+    def is_ignored_uid(uid):
+        for start, end in sorted(IGNORED_UID_RANGES):
+            if start <= uid <= end:
+                return True
+        return False
+
+    uids = [uid for uid in uids if not is_ignored_uid(uid)]
+
     if uids:
         max_uid = max(uids)
     else:
@@ -80,7 +96,7 @@ def _get_first_available_uid(known_uid=_KNOWN_UID):
 
     assert all(start <= end for start, end in RESERVED_UID_RANGES)
     next_uid = max_uid + 1
-    for start, end in sorted(RESERVED_UID_RANGES):
+    for start, end in sorted(RESERVED_UID_RANGES + IGNORED_UID_RANGES):
         if start <= next_uid <= end:
             next_uid = end + 1
 
