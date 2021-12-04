@@ -55,7 +55,7 @@ RESERVED_UID_RANGES = [
 ]
 
 IGNORED_UID_RANGES = [
-    # Incidient with OCF CTF resulted in users being created in this range
+    # Incident with OCF CTF resulted in users being created in this range
     (13371337, 13371800),
 ]
 
