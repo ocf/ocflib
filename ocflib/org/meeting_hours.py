@@ -123,7 +123,7 @@ def _iso_weekday_to_str(num):
     return ''
 
 
-def _get_next_meeting(today=date.today(), now=localtime()):
+def _get_next_meetings(today=date.today(), now=localtime()):
     now = now.tm_hour * 60 + localtime().tm_min
     days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
 
@@ -131,16 +131,18 @@ def _get_next_meeting(today=date.today(), now=localtime()):
         _get_meeting_hours(),
         key=lambda meeting: days.index(meeting.day)
     )
+    
+    out = []
 
     for meeting in meetings:
         ranged_time = _time_to_range(meeting.time)
         if ranged_time[0] > now or meeting.day != _iso_weekday_to_str(today.isoweekday()):
-            return meeting
+            out.append(meeting)
 
-    return None
+    return out or None
 
 
-def _get_current_meeting(today=date.today(), now=localtime()):
+def _get_current_meetings(today=date.today(), now=localtime()):
     now = now.tm_hour * 60 + localtime().tm_min
     days = [(today + timedelta(days=i)).strftime('%A') for i in range(7)]
 
@@ -149,21 +151,23 @@ def _get_current_meeting(today=date.today(), now=localtime()):
         key=lambda meeting: days.index(meeting.day)
     )
 
+    out = []
+
     for meeting in meetings:
         ranged_time = _time_to_range(meeting.time)
         if ranged_time[0] < now and ranged_time[1] > now and meeting.day == _iso_weekday_to_str(today.isoweekday()):
-            return meeting
+            out.append(meeting)
 
-    return None
+    return out or None
 
 
 def read_meeting_list(**kwargs):
     return _get_meeting_hours(**kwargs)
 
 
-def read_next_meeting(**kwargs):
-    return _get_next_meeting(**kwargs)
+def read_next_meetings(**kwargs):
+    return _get_next_meetings(**kwargs)
 
 
-def read_current_meeting(**kwargs):
-    return _get_current_meeting(**kwargs)
+def read_current_meetings(**kwargs):
+    return _get_current_meetings(**kwargs)
