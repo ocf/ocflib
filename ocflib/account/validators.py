@@ -127,6 +127,7 @@ RESERVED_USERNAMES = frozenset((
     'marketing',
     'mastodon',
     'matrix',
+    'membership',
     'memcache',
     'mesos',
     'messagebus',
