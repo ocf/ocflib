@@ -359,7 +359,7 @@ def validate_password(username, password, strength_check=True):
 
     if strength_check:
         if len(password) < 12:
-            raise ValueError('Password must be at least 8 characters.')
+            raise ValueError('Password must be at least 12 characters.')
 
         s = difflib.SequenceMatcher()
         s.set_seqs(password, username)
