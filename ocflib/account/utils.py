@@ -24,7 +24,19 @@ def password_matches(username, password):
     child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
     child.sendline(password)
 
-    child.expect(pexpect.EOF)
+    try:
+        child.expect(pexpect.EOF)
+    catch pexpect.exceptions.TIMEOUT:
+        child = pexpect.spawn(cmd, timeout=10)
+        child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
+        child.sendline(password)
+        child.expect((
+                     "expired\r\nYour password will expire at ... ... .. .."
+                     ":..:.. ....\r\n\r\nChanging password\r\nNew password:"
+        ))
+        child.close()
+        raise AttributeError("User's password has expired")
+
     child.close()
 
     return child.exitstatus == 0
