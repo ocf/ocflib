@@ -31,9 +31,9 @@ def password_matches(username, password):
         child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
         child.sendline(password)
         child.expect((
-                     "expired\r\nYour password will expire at ... ... .. .."
-                     ":..:.. ....\r\n\r\nChanging password\r\nNew password:"
-        ))
+                     'expired\r\nYour password will expire at ... ... .. ..'
+                     ':..:.. ....\r\n\r\nChanging password\r\nNew password:'
+                     ))
         child.close()
         raise AttributeError("User's password has expired")
 
