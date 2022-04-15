@@ -140,7 +140,7 @@ class TestFirstAvailableUID:
             )
             num_uids = len(c.response)
 
-        if num_uids > 2500:
+        if num_uids > 3500:
             raise AssertionError((
                 'Found {} accounts with UID >= {}, you should bump the constant for speed.'
             ).format(num_uids, _KNOWN_UID))
