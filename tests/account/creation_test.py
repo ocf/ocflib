@@ -70,7 +70,7 @@ def fake_new_account_request(mock_rsa_key):
         calnet_uid=123456,
         callink_oid=None,
         email='some.user@ocf.berkeley.edu',
-        encrypted_password=encrypt_password('hunter2000', RSA.importKey(WEAK_KEY)),
+        encrypted_password=encrypt_password('hunter20000000', RSA.importKey(WEAK_KEY)),
         handle_warnings=NewAccountRequest.WARNINGS_WARN,
     )
 
