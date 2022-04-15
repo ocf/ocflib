@@ -70,7 +70,7 @@ def fake_new_account_request(mock_rsa_key):
         calnet_uid=123456,
         callink_oid=None,
         email='some.user@ocf.berkeley.edu',
-        encrypted_password=encrypt_password('hunter2000', RSA.importKey(WEAK_KEY)),
+        encrypted_password=encrypt_password('hunter20000000', RSA.importKey(WEAK_KEY)),
         handle_warnings=NewAccountRequest.WARNINGS_WARN,
     )
 
@@ -140,7 +140,7 @@ class TestFirstAvailableUID:
             )
             num_uids = len(c.response)
 
-        if num_uids > 2500:
+        if num_uids > 3500:
             raise AssertionError((
                 'Found {} accounts with UID >= {}, you should bump the constant for speed.'
             ).format(num_uids, _KNOWN_UID))
@@ -376,7 +376,7 @@ class TestValidatePassword:
     @pytest.mark.parametrize('password', [
         'correct horse battery staple',
         'pogjpaioshfoasdfnlka;sdfi;sagj',
-        'p@ssw0rd',
+        'ixChytH2GJYBcTZd',
     ])
     def test_valid_password(self, password):
         validate_password('ckuehl', password)
@@ -384,6 +384,7 @@ class TestValidatePassword:
     @pytest.mark.parametrize('password', [
         '',
         'simple',
+        'p@ssw0rd',
         'correct horse\nbattery staple',
         'correct horse battery staple é',
     ])
@@ -528,7 +529,7 @@ class TestCreateAccount:
                 fake_new_account_request.user_name,
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,
-                password='hunter2000',
+                password='hunter20000000',
             )
             ldap.assert_called_once_with(
                 'uid=someuser,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
