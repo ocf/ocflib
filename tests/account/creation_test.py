@@ -529,7 +529,7 @@ class TestCreateAccount:
                 fake_new_account_request.user_name,
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,
-                password='hunter2000',
+                password='hunter20000000',
             )
             ldap.assert_called_once_with(
                 'uid=someuser,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
