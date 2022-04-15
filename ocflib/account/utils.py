@@ -26,7 +26,7 @@ def password_matches(username, password):
 
     try:
         child.expect(pexpect.EOF)
-    catch pexpect.exceptions.TIMEOUT:
+    except pexpect.exceptions.TIMEOUT:
         child = pexpect.spawn(cmd, timeout=10)
         child.expect("{}@OCF.BERKELEY.EDU's Password:".format(username))
         child.sendline(password)
