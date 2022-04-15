@@ -376,7 +376,7 @@ class TestValidatePassword:
     @pytest.mark.parametrize('password', [
         'correct horse battery staple',
         'pogjpaioshfoasdfnlka;sdfi;sagj',
-        'p@ssw0rd',
+        'ixChytH2GJYBcTZd',
     ])
     def test_valid_password(self, password):
         validate_password('ckuehl', password)
@@ -384,6 +384,7 @@ class TestValidatePassword:
     @pytest.mark.parametrize('password', [
         '',
         'simple',
+        'p@ssw0rd',
         'correct horse\nbattery staple',
         'correct horse battery staple é',
     ])

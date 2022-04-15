@@ -70,7 +70,7 @@ class TestValidatePassword:
         with pytest.raises(ValueError):
             validate_password('ckuehl', password)
 
-    @pytest.mark.parametrize('password', ['a strong password', '53y4kZ1hKq'])
+    @pytest.mark.parametrize('password', ['a strong password', 'oyYvIiInyCgw6VV7u'])
     def test_success(self, password):
         validate_password('ckuehl', password)
 
