@@ -81,6 +81,9 @@ def _parse_hours_list(time_ranges):
     """
     hours = []
 
+    if time_ranges is None:
+        return hours
+
     for hour in time_ranges:
         if not isinstance(hour, Hour):
             hour = Hour(hour[0], hour[1])
