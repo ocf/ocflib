@@ -147,7 +147,7 @@ def _get_osl(query, service, parser):
 
     url = '{}/{}?{}'.format(_API['BASE'], service, urlencode(query))
 
-    r = requests.get(url, timeout=20)
+    r = requests.get(url, timeout=40)
     return _parse_osl(ElementTree.fromstring(r.text), parser)
 
 
