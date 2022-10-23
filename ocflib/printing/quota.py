@@ -119,5 +119,5 @@ def add_job(c, job):
 
 
 def add_adjustment(c, payload):
-    """Add a new refund to the database."""
+    """Add a new adjustment to the database (either refund or forward)."""
     c.execute(*_namedtuple_to_query('INSERT INTO adjustments ({}) VALUES ({})', payload))

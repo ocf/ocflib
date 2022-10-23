@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `adjustments` (
     `id` int NOT NULL AUTO_INCREMENT,
     `user` varchar(255) NOT NULL,
     `time` datetime NOT NULL,
-    `action` varchar(255) NOT NULL,
+    `action` enum('refund', 'forward'),
     `pages` int NOT NULL,
     `staffer` varchar(255) NOT NULL,
     `reason` varchar(510) NOT NULL,
