@@ -7,8 +7,10 @@ from ipaddress import IPv6Address
 OCF_DNS_RESOLVER = ip_address('169.229.226.22')
 OCF_GATEWAY_V4 = ip_address('169.229.226.1')
 OCF_GATEWAY_V6 = ip_address('2607:f140:8801::1')
-OCF_SUBNET_V4 = [ip_network('169.229.226.0/24'), ip_network('169.229.200.64/28')]
-OCF_SUBNET_V6 = [ip_network('2607:f140:8801::/48'), ip_network('2607:f140:0:32::/64')]
+OCF_SUBNET_V4 = ip_network('169.229.226.0/24')
+OCF_EWDC_SUBNET_V4 = ip_network('169.229.200.64/28')
+OCF_SUBNET_V6 = ip_network('2607:f140:8801::/48')
+OCF_EWDC_SUBNET_V6 = ip_network('2607:f140:0:32::/64')]
 OCF_SUBNET_V6_COMPAT = ip_network('2607:f140:8801::1:0/112')
 
 
@@ -54,8 +56,8 @@ def is_ocf_ip(ip):
     True
     """
     if isinstance(ip, IPv4Address):
-        return ip in OCF_SUBNET_V4
+        return (ip in OCF_SUBNET_V4) or (ip in OCF_EWDC_SUBNET_V4)
     elif isinstance(ip, IPv6Address):
-        return ip in OCF_SUBNET_V6
+        return (ip in OCF_SUBNET_V6) or (ip in OCF_EWDC_SUBNET_V6)
     else:
         raise AssertionError('You must pass in an IPv4Address or IPv6Address object.')
