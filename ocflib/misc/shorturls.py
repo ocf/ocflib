@@ -64,3 +64,11 @@ def replace_shorturl(ctx, slug, new_target):
 
     query = 'UPDATE `shorturls` SET `target` = %s WHERE `slug` = %s'
     ctx.execute(query, (new_target, slug))
+
+
+def list_shorturls(ctx):
+    """List all shorturls."""
+
+    query = 'SELECT `slug`, `target` FROM `shorturls_public`'
+    ctx.execute(query)
+    return ctx.fetchall()
