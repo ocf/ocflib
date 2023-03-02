@@ -218,6 +218,7 @@ RESERVED_USERNAMES = frozenset((
     'stf-cost-breakdown',
     'stretch',
     'support',
+    'subdomains',
     'survey',
     'sync',
     'sys',
