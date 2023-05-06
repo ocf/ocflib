@@ -1,11 +1,10 @@
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
 
 try:
     with open('.version') as f:
         VERSION = f.readline().strip()
 except IOError:
-    VERSION = 'unknown'
+    VERSION = '0.1a'
 
 setup(
     name='ocflib',
@@ -21,7 +20,6 @@ setup(
         'ocflib.vhost': ['ocfmail.schema'],
     },
     install_requires=(
-        'attrs',
         'cached_property',
         'dnspython',
         'jinja2',
