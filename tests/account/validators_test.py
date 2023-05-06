@@ -57,11 +57,6 @@ class TestValidatePassword:
         # too similar to username
         'ckuehlckuehl',
 
-        # too simple (cracklib)
-        'aaaaaaa',
-        'hellohello',
-        '12345678',
-
         # tabs or newlines
         'a really strong password\tbut with tab',
         'a really strong password\nbut with newline',

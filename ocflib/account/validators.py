@@ -3,8 +3,6 @@ import pwd
 import string
 import sys
 
-import cracklib
-
 import ocflib.misc.mail
 
 RESERVED_USERNAMES = frozenset((
@@ -368,11 +366,6 @@ def validate_password(username, password, strength_check=True):
 
         if s.ratio() > 0.6:
             raise ValueError('Password is too similar to username.')
-
-        try:
-            cracklib.VeryFascistCheck(password)
-        except ValueError as e:
-            raise ValueError('Password problem: {}.'.format(e))
 
     # sanity check; note we don't use string.whitespace since we don't want
     # tabs or newlines
