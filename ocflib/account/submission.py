@@ -116,7 +116,7 @@ class StoredNewAccountRequest(Base):
             {
                 field: getattr(self, field)
                 for field in NewAccountRequest._fields
-                if field in self.__table__.columns._data.keys()
+                if field in self.__table__.c.keys()
             },
             handle_warnings=handle_warnings,
         ))
