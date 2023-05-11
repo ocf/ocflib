@@ -34,6 +34,7 @@ def mysqld_socket(tmpdir_factory):
     check_call((
         os.path.join('/usr', 'bin', 'mysql_install_db'),
         '--no-defaults',
+        '--auth-root-authentication-method=normal',
         '--basedir=/usr',
         '--datadir=' + data_dir.strpath,
     ))
