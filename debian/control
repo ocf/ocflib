@@ -2,8 +2,8 @@ Source: python-ocflib
 Section: python
 Priority: optional
 Maintainer: Open Computing Facility <help@ocf.berkeley.edu>
-Build-Depends: debhelper (>= 9~), dh-python, python-all (>= 2.6.6-3~),
- python-setuptools, python3-all, python3-setuptools
+Build-Depends: debhelper (>= 9~), dh-python, python3-all,
+ python3-setuptools
 Standards-Version: 3.9.6
 Homepage: https://github.com/ocf/ocflib
 Vcs-Git: git://github.com/ocf/ocflib.git
