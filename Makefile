@@ -13,7 +13,7 @@ install-hooks: venv
 test:
 	tox
 ifneq ($(strip $(COVERALLS_REPO_TOKEN)),)
-	.tox/py35/bin/coveralls
+	.tox/py37/bin/coveralls
 endif
 
 .PHONY: release-pypi
