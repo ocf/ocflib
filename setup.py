@@ -5,7 +5,7 @@ try:
     with open('.version') as f:
         VERSION = f.readline().strip()
 except IOError:
-    VERSION = 'unknown'
+    VERSION = '2023.05.11'
 
 setup(
     name='ocflib',
