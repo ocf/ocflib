@@ -61,7 +61,7 @@ def test_get_staff_hours(mock_disk):
                 Staffer(
                     user_name='cooperc',
                     real_name='Christopher Cooper',
-                    position='Technical Manager',
+                    position='Staff Member',
                 ),
                 Staffer(
                     user_name='lynntsai',
