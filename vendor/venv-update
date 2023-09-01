@@ -76,8 +76,8 @@ DEFAULT_VIRTUALENV_PATH = 'venv'
 DEFAULT_OPTION_VALUES = {
     'venv=': (DEFAULT_VIRTUALENV_PATH,),
     'install=': ('-r', 'requirements.txt',),
-    'pip-command=': ('pip-faster', 'install', '--upgrade', '--prune'),
-    'bootstrap-deps=': ('venv-update==' + __version__,),
+    'pip-command=': ('pip', 'install', '--upgrade',),
+    'bootstrap-deps=': ('git+https://github.com/ocf/venv-update.git',),
 }
 __doc__ = __doc__.format(
     **{key: ' '.join(val) for key, val in DEFAULT_OPTION_VALUES.items()}
