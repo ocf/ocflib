@@ -27,12 +27,14 @@ def list_groups(name='', oid='', status='', type='', category=''):
         46187: {
             'accounts': ['decal', 'linux', 'ggroup', 'group'],
             'email': 'devnull@ocf.berkeley.edu',
+            'inactive': False,
             'name': 'Open Computing Facility',
             'primary_contact': {
                 'email': 'ckuehl@berkeley.edu',
                 'name': 'Chris Kuehl',
             },
             'short_name': 'OCF',
+            'type': 'ASUC Government Program',
             'website': 'https://www.ocf.berkeley.edu/',
         },
     }
@@ -40,6 +42,7 @@ def list_groups(name='', oid='', status='', type='', category=''):
     def parser(root):
         def parse(group):
             oid = int(group.findtext('OrganizationId'))
+            group_type = group.findtext('TypeName')
             return oid, {
                 'name': group.findtext('Name'),
                 'accounts':
@@ -50,7 +53,9 @@ def list_groups(name='', oid='', status='', type='', category=''):
                 'primary_contact': {
                     'name': group.findtext('PrimaryContactName'),
                     'email': group.findtext('PrimaryContactCampusEmail'),
-                }
+                },
+                'type': group_type,
+                'inactive': any(s in group_type.upper() for s in ['FROZEN GROUP', 'NEW ORG PENDING'])
             }
 
         xml_groups = root.findall('Items/Organization')
@@ -72,12 +77,14 @@ def group_by_oid(oid):
     {
         'accounts': ['decal', 'linux', 'ggroup', 'group'],
         'email': 'devnull@ocf.berkeley.edu',
+        'inactive': False,
         'name': 'Open Computing Facility',
         'primary_contact': {
             'email': 'ckuehl@berkeley.edu',
             'name': 'Chris Kuehl',
         },
         'short_name': 'OCF',
+        'type': 'ASUC Government Program',
         'website': 'https://www.ocf.berkeley.edu/',
     }
     """

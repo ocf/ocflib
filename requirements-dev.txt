@@ -1,6 +1,9 @@
 attrs
 coveralls
+dnspython
 freezegun
+jinja2
+ldap3
 mock
 pre-commit
 pyfakefs<4.5.0

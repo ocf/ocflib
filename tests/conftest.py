@@ -16,8 +16,8 @@ import pytest
 # CalNet UID. Alumni eventually get kicked out of the university's
 # "People" OU, so these constants have to be updated every few years
 # after the aforementioned party has graduated.
-TEST_PERSON_CALNET_UID = 1538112
-TEST_PERSON_NAME = 'Frank Dai'
+TEST_PERSON_CALNET_UID = 1816936
+TEST_PERSON_NAME = 'Aditya Mangalampalli'
 
 
 MYSQL_TIMEOUT = 10
