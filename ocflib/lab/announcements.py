@@ -37,9 +37,13 @@ def get_announcement(id: str) -> str:
     return posts.text
 
 
-def get_metadata(id: str) -> Metadata:
+def get_id(post: str) -> str:
+    """Get announcement id"""
+    return post["name"][:-3]
+
+
+def get_metadata(post: str) -> Metadata:
     """Get the metadata from one announcement"""
-    post = get_announcement(id)
     meta_dict = safe_load(post.split("---")[1])
 
     metadata = Metadata(
@@ -52,19 +56,16 @@ def get_metadata(id: str) -> Metadata:
     return metadata
 
 
-def get_all_ids():
-    """Get all announcement ids"""
+def get_announcements(num: int) -> list[str]:
+    """Get the last num announcements"""
     posts = get_all_announcements()
-    return [post["name"][:-3] for post in posts]
 
-
-def get_ids(num: int):
-    """Get the last num announcement ids"""
-    posts = get_all_announcements()
-    return [post["name"][:-3] for post in posts[:num]]
+    # get the last num posts in reverse order
+    return [get_announcement(get_id(post)) for post in posts[-1 : -num - 1 : -1]]
 
 
 # print(get_all_announcements())
 # print(get_announcement("2002-01-01-00"))
-# print(get_metadata("2002-01-01-00"))
+# print(get_metadata(get_announcement("2002-01-01-00")))
 # print(get_all_ids())
+# print(get_announcements(2))
