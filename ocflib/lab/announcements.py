@@ -39,6 +39,7 @@ def get_announcement(id: str) -> str:
 
 def get_id(post: str) -> str:
     """Get announcement id"""
+    # Since the id is the filename, remove the .md extension
     return post["name"][:-3]
 
 
@@ -62,10 +63,3 @@ def get_announcements(num: int) -> list[str]:
 
     # get the last num posts in reverse order
     return [get_announcement(get_id(post)) for post in posts[-1 : -num - 1 : -1]]
-
-
-# print(get_all_announcements())
-# print(get_announcement("2002-01-01-00"))
-# print(get_metadata(get_announcement("2002-01-01-00")))
-# print(get_all_ids())
-# print(get_announcements(2))
