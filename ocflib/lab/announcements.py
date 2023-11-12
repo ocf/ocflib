@@ -1,45 +1,55 @@
 """Announcements handling"""
-from collections import namedtuple
-from requests import get
-from datetime import datetime
-from yaml import safe_load
 from collections import deque
+from collections import namedtuple
+from datetime import datetime
+
+from requests import get
+from yaml import safe_load
 
 # The default branch is main
 ANNOUNCEMENTS_URL = (
-    "https://api.github.com/repos/ocf/announcements/contents/announcements/{id}"
+    'https://api.github.com/repos/ocf/announcements/contents/{folder}/{id}'
 )
 CACHE_LEN = 10
 
 # post_cache is a dict of id: post
 post_cache = {}
 id_cache = deque(maxlen=CACHE_LEN)
+Metadata = namedtuple('Metadata', ['title', 'date', 'author', 'tags', 'summary'])
 
 
-Metadata = namedtuple("Metadata", ["title", "date", "author", "tags", "summary"])
+def _check_id(id: str) -> bool:
+    """Check if the id is a valid date"""
+
+    try:
+        datetime.strptime(id, '%Y-%m-%d-%H')  # TODO: if this %H is right
+    except ValueError:
+        raise ValueError('Invalid id')
 
 
-def get_all_announcements() -> list[dict]:
+def get_all_announcements(folder='announcements') -> [dict]:
     """Get announcements from the announcements repo"""
 
     posts = get(
-        url=ANNOUNCEMENTS_URL.format(id=""),
-        headers={"Accept": "application/vnd.github+json"},
+        url=ANNOUNCEMENTS_URL.format(folder=folder, id=''),
+        headers={'Accept': 'application/vnd.github+json'},
     )
     posts.raise_for_status()
 
     return posts.json()
 
 
-def get_announcement(id: str) -> str:
+def get_announcement(id: str, folder='announcements') -> dict:
     """Get one particular announcement from the announcements repo"""
+
+    _check_id(id)
 
     if id in post_cache:
         return post_cache[id]
 
     posts = get(
-        url=ANNOUNCEMENTS_URL.format(id=id + ".md"),
-        headers={"Accept": "application/vnd.github.raw"},
+        url=ANNOUNCEMENTS_URL.format(folder=folder, id=id + '.md'),
+        headers={'Accept': 'application/vnd.github.raw'},
     )
     posts.raise_for_status()
 
@@ -49,7 +59,7 @@ def get_announcement(id: str) -> str:
     if id not in id_cache:
         id_cache.appendleft(id)
 
-    return posts.text
+    return posts.json()
 
 
 def get_id(post: dict) -> str:
@@ -57,15 +67,11 @@ def get_id(post: dict) -> str:
 
     # Since the id is the filename, remove the .md extension
     try:
-        id = post["name"][:-3]
+        id = post['name'][:-3]
     except KeyError:
-        raise KeyError("Missing id in announcement")
+        raise KeyError('Missing id in announcement')
 
-    # Check if the id is a valid date
-    try:
-        datetime.strptime(id, "%Y-%m-%d")
-    except ValueError:
-        raise ValueError("Invalid announcement id")
+    _check_id(id)
 
     return id
 
@@ -74,25 +80,25 @@ def get_metadata(post: str) -> Metadata:
     """Get the metadata from one announcement"""
 
     try:
-        meta_dict = safe_load(post.split("---")[1])
+        meta_dict = safe_load(post.split('---')[1])
     except IndexError:
-        raise IndexError("Missing metadata in announcement")
+        raise IndexError('Missing metadata in announcement')
 
     try:
         metadata = Metadata(
-            title=meta_dict["title"],
-            date=meta_dict["date"],
-            author=meta_dict["author"],
-            tags=meta_dict["tags"],
-            summary=meta_dict["summary"],
+            title=meta_dict['title'],
+            date=meta_dict['date'],
+            author=meta_dict['author'],
+            tags=meta_dict['tags'],
+            summary=meta_dict['summary'],
         )
     except KeyError:
-        raise KeyError("Missing metadata in announcement")
+        raise KeyError('Missing metadata in announcement')
 
     return metadata
 
 
-def get_last_n_announcements(n: int) -> list[str]:
+def get_last_n_announcements(n: int) -> [str]:
     """Get the last n announcements"""
 
     result = []
@@ -109,7 +115,7 @@ def get_last_n_announcements(n: int) -> list[str]:
         # The posts returned are in reverse chronological order
         # So we first need to grab the last CACHE_LEN + 1 posts to avoid duplicates
         # Then we need to reverse the order and grab the first needed posts
-        for post in posts[-CACHE_LEN - 1 :: -1][:needed]:
+        for post in posts[-CACHE_LEN - 1:: -1][:needed]:
             result.append(get_announcement(get_id(post)))
 
     return result
