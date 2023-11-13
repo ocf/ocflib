@@ -2,6 +2,7 @@
 from collections import deque
 from collections import namedtuple
 from datetime import datetime
+from typing import Dict
 
 from requests import get
 from yaml import safe_load
@@ -12,8 +13,8 @@ ANNOUNCEMENTS_URL = (
 )
 CACHE_LEN = 10
 
-# post_cache is a dict of id: post
-post_cache = {}
+# post_cache is a dict of {id: post content}
+post_cache: Dict[str, str] = {}
 id_cache = deque(maxlen=CACHE_LEN)
 Metadata = namedtuple('Metadata', ['title', 'date', 'author', 'tags', 'summary'])
 
@@ -22,7 +23,7 @@ def _check_id(id: str) -> bool:
     """Check if the id is a valid date"""
 
     try:
-        datetime.strptime(id, '%Y-%m-%d-%H')  # TODO: if this %H is right
+        datetime.strptime(id, '%Y-%m-%d-%M')  # TODO: if this %M (minute) is sufficient
     except ValueError:
         raise ValueError('Invalid id')
 
@@ -39,7 +40,7 @@ def get_all_announcements(folder='announcements') -> [dict]:
     return posts.json()
 
 
-def get_announcement(id: str, folder='announcements') -> dict:
+def get_announcement(id: str, folder='announcements') -> str:
     """Get one particular announcement from the announcements repo"""
 
     _check_id(id)
@@ -47,27 +48,27 @@ def get_announcement(id: str, folder='announcements') -> dict:
     if id in post_cache:
         return post_cache[id]
 
-    posts = get(
+    post = get(
         url=ANNOUNCEMENTS_URL.format(folder=folder, id=id + '.md'),
         headers={'Accept': 'application/vnd.github.raw'},
     )
-    posts.raise_for_status()
+    post.raise_for_status()
 
-    post_cache[id] = posts.text
+    post_cache[id] = post.text
 
     # add the most recent id to the left of the deque
     if id not in id_cache:
         id_cache.appendleft(id)
 
-    return posts.json()
+    return post.text
 
 
-def get_id(post: dict) -> str:
+def get_id(post_json: dict) -> str:
     """Get announcement id based on the json response"""
 
     # Since the id is the filename, remove the .md extension
     try:
-        id = post['name'][:-3]
+        id = post_json['name'][:-3]
     except KeyError:
         raise KeyError('Missing id in announcement')
 
@@ -76,11 +77,11 @@ def get_id(post: dict) -> str:
     return id
 
 
-def get_metadata(post: str) -> Metadata:
+def get_metadata(post_text: str) -> Metadata:
     """Get the metadata from one announcement"""
 
     try:
-        meta_dict = safe_load(post.split('---')[1])
+        meta_dict = safe_load(post_text.split('---')[1])
     except IndexError:
         raise IndexError('Missing metadata in announcement')
 
@@ -98,8 +99,10 @@ def get_metadata(post: str) -> Metadata:
     return metadata
 
 
-def get_last_n_announcements(n: int) -> [str]:
-    """Get the last n announcements"""
+def get_last_n_announcements_text(n: int) -> [str]:
+    """Get the text of last n announcements"""
+
+    assert n > 0, 'n must be positive'
 
     result = []
 
