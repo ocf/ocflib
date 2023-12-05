@@ -1,5 +1,4 @@
 """Announcements handling"""
-from collections import namedtuple
 from datetime import datetime
 
 from requests import get
@@ -11,7 +10,15 @@ ANNOUNCEMENTS_URL = (
 )
 # 1 day in seconds
 TIME_TO_LIVE = 60 * 60 * 24
-Metadata = namedtuple('Metadata', ['title', 'date', 'author', 'tags', 'summary'])
+
+
+class Metadata:
+    def __init__(self, title, date, author, tags, summary):
+        self.title = title
+        self.date = date
+        self.author = author
+        self.tags = tags
+        self.summary = summary
 
 
 class _AnnouncementCache:
