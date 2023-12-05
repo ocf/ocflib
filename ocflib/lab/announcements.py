@@ -11,12 +11,24 @@ ANNOUNCEMENTS_URL = (
 )
 # 1 day in seconds
 TIME_TO_LIVE = 60 * 60 * 24
-
-# post_cache is a dict of {id: post content}
-post_cache = {}
-last_updated = datetime.now()
-
 Metadata = namedtuple('Metadata', ['title', 'date', 'author', 'tags', 'summary'])
+
+
+class _AnnouncementCache:
+    def __init__(self) -> None:
+        # post_cache is a dict of {id: post content}
+        self.cache = {}
+        self.last_updated = datetime.now()
+
+    def clear_cache(self) -> None:
+        """Clear the cache if it's too old"""
+
+        if (datetime.now() - self.last_updated).total_seconds() > TIME_TO_LIVE:
+            self.cache.clear()
+            self.last_updated = datetime.now()
+
+
+_announcement_cache_instance = _AnnouncementCache()
 
 
 def _check_id(id: str) -> bool:
@@ -26,15 +38,6 @@ def _check_id(id: str) -> bool:
         datetime.strptime(id, '%Y-%m-%d-%M')
     except ValueError:
         raise ValueError('Invalid id')
-
-
-def _clear_cache() -> None:
-    """Clear the cache if it's too old"""
-
-    global last_updated
-    if (datetime.now() - last_updated).total_seconds() > TIME_TO_LIVE:
-        post_cache.clear()
-        last_updated = datetime.now()
 
 
 def get_all_announcements(folder='announcements') -> [dict]:
@@ -59,11 +62,11 @@ def get_announcement(id: str, folder='announcements') -> str:
     """
 
     _check_id(id)
-    # if the cache is too old, clear it
-    _clear_cache()
+    # check if the cache is too old
+    _announcement_cache_instance.clear_cache()
 
-    if id in post_cache:
-        return post_cache[id]
+    if id in _announcement_cache_instance.cache:
+        return _announcement_cache_instance.cache[id]
 
     post = get(
         url=ANNOUNCEMENTS_URL.format(folder=folder, id=id + '.md'),
@@ -71,7 +74,7 @@ def get_announcement(id: str, folder='announcements') -> str:
     )
     post.raise_for_status()
 
-    post_cache[id] = post.text
+    _announcement_cache_instance.cache[id] = post.text
 
     return post.text
 
