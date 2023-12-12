@@ -11,10 +11,11 @@ install-hooks: venv
 # after running tests
 .PHONY: test
 test:
-	tox
+	tox -e py37 -- $(TEST_FILE)
 ifneq ($(strip $(COVERALLS_REPO_TOKEN)),)
-	.tox/py37/bin/coveralls
+    .tox/py37/bin/coveralls
 endif
+
 
 .PHONY: release-pypi
 release-pypi: clean autoversion
