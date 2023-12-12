@@ -23,15 +23,18 @@ class Metadata:
 
 class _AnnouncementCache:
     def __init__(self) -> None:
-        # post_cache is a dict of {id: post content}
-        self.cache = {}
+        # text_cache is a dict of {id: post content}
+        self.text_cache = {}
+        # id_cache is a list of ids, ordered by latest to oldest
+        self.id_cache = []
         self.last_updated = datetime.now()
 
     def clear_cache(self) -> None:
         """Clear the cache if it's too old"""
 
         if (datetime.now() - self.last_updated).total_seconds() > TIME_TO_LIVE:
-            self.cache.clear()
+            self.text_cache.clear()
+            self.id_cache.clear()
             self.last_updated = datetime.now()
 
 
@@ -47,10 +50,10 @@ def _check_id(id: str) -> bool:
         raise ValueError('Invalid id')
 
 
-def get_all_announcements(folder='announcements') -> [dict]:
+def get_all_announcements(folder='announcements') -> [str]:
     """
     Get announcements from the announcements repo
-    The result is a list of post metadatas
+    The result is a list of IDs from latest to oldest
     """
 
     posts = get(
@@ -59,7 +62,17 @@ def get_all_announcements(folder='announcements') -> [dict]:
     )
     posts.raise_for_status()
 
-    return posts.json()
+    res = []
+
+    for post in posts.json():
+        res.append(get_id(post))
+
+    # Reverse the list so that the order is latest to oldest
+    res = res[::-1]
+
+    _announcement_cache_instance.id_cache = res
+
+    return res
 
 
 def get_announcement(id: str, folder='announcements') -> str:
@@ -69,11 +82,9 @@ def get_announcement(id: str, folder='announcements') -> str:
     """
 
     _check_id(id)
-    # check if the cache is too old
-    _announcement_cache_instance.clear_cache()
 
-    if id in _announcement_cache_instance.cache:
-        return _announcement_cache_instance.cache[id]
+    if id in _announcement_cache_instance.text_cache:
+        return _announcement_cache_instance.text_cache[id]
 
     post = get(
         url=ANNOUNCEMENTS_URL.format(folder=folder, id=id + '.md'),
@@ -81,7 +92,7 @@ def get_announcement(id: str, folder='announcements') -> str:
     )
     post.raise_for_status()
 
-    _announcement_cache_instance.cache[id] = post.text
+    _announcement_cache_instance.text_cache[id] = post.text
 
     return post.text
 
@@ -119,18 +130,36 @@ def get_metadata(post_text: str) -> Metadata:
     return data
 
 
+def get_last_n_announcements(n: int) -> [dict]:
+    """Get the IDs of last n announcements"""
+
+    assert n > 0, 'n must be positive'
+
+    # check if the cache is too old
+    _announcement_cache_instance.clear_cache()
+
+    if _announcement_cache_instance.id_cache:
+        return _announcement_cache_instance.id_cache[:n]
+
+    return get_all_announcements()[:n]
+
+
 def get_last_n_announcements_text(n: int) -> [str]:
     """Get the text of last n announcements"""
 
     assert n > 0, 'n must be positive'
 
+    # check if the cache is too old
+    _announcement_cache_instance.clear_cache()
+
     result = []
 
-    # the res returned are in reverse chronological order
-    # so we need to reverse it first then take the first n
-    res = get_all_announcements()[::-1][:n]
+    if _announcement_cache_instance.id_cache:
+        res = _announcement_cache_instance.id_cache[:n]
+    else:
+        res = get_all_announcements()[:n]
 
-    for item in res:
-        result.append(get_announcement(get_id(item)))
+    for id in res:
+        result.append(get_announcement(id))
 
     return result

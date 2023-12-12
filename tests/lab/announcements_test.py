@@ -3,7 +3,6 @@ from requests.exceptions import HTTPError
 
 from ocflib.lab.announcements import get_all_announcements
 from ocflib.lab.announcements import get_announcement
-from ocflib.lab.announcements import get_id
 from ocflib.lab.announcements import get_metadata
 
 TEST_FOLDER = 'tests'
@@ -19,7 +18,7 @@ TEST_IDS = [
 
 # scope = module means that the fixture is only run once per module
 @pytest.fixture(scope='module')
-def get_all() -> [dict]:
+def get_all() -> [str]:
     return get_all_announcements(folder=TEST_FOLDER)
 
 
@@ -74,7 +73,7 @@ def test_get_announcement_fail(id):
 def test_get_id_pass(id, get_all):
     found = False
     for post in get_all:
-        if id == get_id(post):
+        if id == post:
             found = True
             break
     assert found, f'ID {id} not found in announcements'
@@ -91,7 +90,7 @@ def test_get_id_pass(id, get_all):
 )
 def test_get_id_fail(id, get_all):
     for post in get_all:
-        assert id != get_id(post), f'Unexpected ID {id} found in announcements'
+        assert id != post, f'Unexpected ID {id} found in announcements'
 
 
 @pytest.mark.parametrize('id', TEST_IDS)
@@ -107,7 +106,7 @@ def test_get_metadata_missing_metadata():
     date: 2020-01-01
     ---
     """
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         get_metadata(content)
 
 
@@ -116,15 +115,5 @@ def test_get_metadata_bad_format():
     title: test
     date: 2020-01-01
     """
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError):
         get_metadata(content)
-
-
-# @pytest.mark.parametrize()
-# def test_get_last_n_announcements_text_pass(content):
-#     pass
-
-
-# @pytest.mark.parametrize()
-# def test_get_last_n_announcements_text_bad_n(content):
-#     pass
