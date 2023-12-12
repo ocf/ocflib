@@ -57,6 +57,10 @@ The `tests` directory contains automated tests which you're encouraged to add
 to (and not break). The `tests-manual` directory contains scripts intended for
 testing.
 
+To run the a specific test file, run `make tests TEST_FILE=<folder>/<test.py>`.
+
+For example, to run the `announcements_test.py` file in the `lab` folder, run `make tests TEST_FILE=lab/announcements_test.py`
+
 
 #### Using pre-commit
 
