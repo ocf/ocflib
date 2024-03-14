@@ -3,6 +3,7 @@ import random
 import string
 import time
 from collections import namedtuple
+from contextlib import contextmanager
 from subprocess import check_call
 from subprocess import PIPE
 from subprocess import Popen
@@ -120,8 +121,9 @@ def mysql_database(mysqld_socket):
         yield d
 
 
+@contextmanager
 def get_connection(unix_socket, **kwargs):
-    return pymysql.connect(
+    conn = pymysql.connect(
         unix_socket=unix_socket.strpath,
         user='root',
         password='',
@@ -130,3 +132,9 @@ def get_connection(unix_socket, **kwargs):
         charset='utf8mb4',
         **kwargs
     )
+
+    try:
+        yield conn.cursor()
+    finally:
+        conn.commit()
+        conn.close()
