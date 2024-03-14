@@ -1,6 +1,8 @@
 import pymysql
+from contextlib import contextmanager
 
 
+@contextmanager
 def get_connection(user,
                    password,
                    db,
@@ -14,7 +16,7 @@ def get_connection(user,
     While this function can be called directly, there are partial function
     in some ocflib modules that may be better suited for particular tasks."""
 
-    return pymysql.connect(
+    conn = pymysql.connect(
         user=user,
         password=password,
         db=db,
@@ -24,3 +26,9 @@ def get_connection(user,
         autocommit=autocommit,
         **kwargs
     )
+
+    try:
+        yield conn.cursor()
+    finally:
+        conn.commit()
+        conn.close()
