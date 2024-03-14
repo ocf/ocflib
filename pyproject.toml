@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "ocflib"
+version = "2024.03.14"
+description = "libraries for account and server management"
+authors = ["Open Computing Facility <help@ocf.berkeley.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.6,<3.12"
+attrs = "^22.2.0"
+cached-property = "^1.5.2"
+cracklib = "^2.9.6"
+dnspython = "^2.1.0"
+jinja2 = "^3.0.3"
+ldap3 = "^2.9.1"
+pexpect = "^4.9.0"
+pycryptodome = "^3.20.0"
+pygithub = "^1.56"
+pymysql = "^0.9.3"
+pysnmp = "^4.4.12"
+pyyaml = "^6.0.1"
+redis = "^4.3.6"
+requests = "^2.26.1"
+sqlalchemy = "^1.4.52"
+
+[tool.poetry.group.dev.dependencies]
+coveralls = "^3.3.1"
+freezegun = "^1.2.2"
+mock = "^5.1.0"
+pre-commit = "^2.1.1"
+pyfakefs = "^4.4.0"
+pytest = "^7.0.1"
+pytest-cov = "^4.0.0"
+pytest-xdist = "^3.0.2"
+twine = "^3.8.0"
+tox = "^3.25.1"
+setuptools = "^59.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
