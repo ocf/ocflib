@@ -1,24 +1,21 @@
-venv: setup.py requirements-dev.txt
-	vendor/venv-update \
-		venv= $@ -ppython3 \
-		install= -r requirements-dev.txt -e .
+venv: poetry install
 
 .PHONY: install-hooks
 install-hooks: venv
-	venv/bin/pre-commit install
+	poetry run pre-commit install
 
 # set COVERALLS_REPO_TOKEN=<repo token> environment variable to report coverage
 # after running tests
 .PHONY: test
 test:
-	tox
+	poetry run pytest --cov=ocflib --cov-report=term-missing
 ifneq ($(strip $(COVERALLS_REPO_TOKEN)),)
-	.tox/py37/bin/coveralls
+	poetry run coveralls
 endif
 
 .PHONY: release-pypi
 release-pypi: clean autoversion
-	python3 setup.py sdist bdist_wheel
+	poetry build
 	twine upload dist/*
 
 .PHONY: builddeb
@@ -26,7 +23,7 @@ builddeb: autoversion
 	dpkg-buildpackage -us -uc
 
 .PHONY: package
-package: package_stretch
+package: package_bookworm
 
 .PHONY: package_%
 package_%:
@@ -34,7 +31,6 @@ package_%:
 
 .PHONY: clean
 clean:
-	python3 setup.py clean
 	rm -rf dist deb_dist dist_*
 
 # PEP440 sets terrible restrictions on public version schemes which prohibit:
