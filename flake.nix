@@ -1,10 +1,6 @@
 {
   description = "libraries for account and server management";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  };
-
   outputs = { self }:
     let
       pythons = [ "python37" "python38" "python39" "python310" "python311" ];
