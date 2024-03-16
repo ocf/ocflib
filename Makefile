@@ -1,4 +1,5 @@
-venv: poetry install
+venv:
+	poetry install
 
 .PHONY: install-hooks
 install-hooks: venv
