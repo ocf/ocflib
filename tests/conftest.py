@@ -47,7 +47,8 @@ def mysqld_socket(tmpdir_factory):
         '--datadir', data_dir.strpath,
         '--socket', socket.strpath,
     ))
-
+    # explicitly forcing a delay here
+    time.sleep(5)
     elapsed = 0
     step = 0.1
     while elapsed < MYSQL_TIMEOUT and not _mysql_ready(socket):
