@@ -47,9 +47,10 @@ def mysqld_socket(tmpdir_factory):
         '--datadir', data_dir.strpath,
         '--socket', socket.strpath,
     ))
-
+    print("launched mysqld!")
+    
     elapsed = 0
-    step = 0.1
+    step = 5
     while elapsed < MYSQL_TIMEOUT and not _mysql_ready(socket):
         elapsed += step
         time.sleep(step)
