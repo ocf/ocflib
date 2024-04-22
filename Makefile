@@ -9,6 +9,7 @@ install-hooks: venv
 # after running tests
 .PHONY: test
 test:
+	poetry install
 	poetry run pytest --cov=ocflib --cov-report=term-missing
 ifneq ($(strip $(COVERALLS_REPO_TOKEN)),)
 	poetry run coveralls
