@@ -8,9 +8,10 @@ OCF_DNS_RESOLVER = ip_address('169.229.226.22')
 OCF_GATEWAY_V4 = ip_address('169.229.226.1')
 OCF_GATEWAY_V6 = ip_address('2607:f140:8801::1')
 OCF_SUBNET_V4 = ip_network('169.229.226.0/24')
+OCF_SUBNET_V4_SECONDARY = ip_network('128.32.128.0/24')
 OCF_SUBNET_V6 = ip_network('2607:f140:8801::/48')
 OCF_SUBNET_V6_COMPAT = ip_network('2607:f140:8801::1:0/112')
-OCF_SECONDARY_SUBNET_V4 = ip_network('128.32.128.0/24')
+OCF_SUBNET_V6_SECONDARY_COMPAT = ip_network('2607:f140:8801::2:0/112')
 
 
 def ipv6_to_ipv4(ipv6):
@@ -27,7 +28,8 @@ def ipv6_to_ipv4(ipv6):
     assert ipv6 in OCF_SUBNET_V6_COMPAT, ipv6
     last_group = int(ipv6.exploded.split(':')[-1])
     return ip_address(
-        int.from_bytes(OCF_SUBNET_V4.network_address.packed, 'big') | last_group
+        int.from_bytes(OCF_SUBNET_V4.network_address.packed,
+                       'big') | last_group
     )
 
 
@@ -37,10 +39,17 @@ def ipv4_to_ipv6(ipv4):
     For a description of the compability IPv6 subnet, see `ipv6_to_ipv4`.
     """
     assert isinstance(ipv4, IPv4Address), type(ipv4)
-    assert ipv4 in OCF_SUBNET_V4, ipv4
+    assert is_ocf_ip(ipv4)
     last_group = int(ipv4.exploded.split('.')[-1], 16)
+    if ipv4 in OCF_SUBNET_V4_SECONDARY:
+        return ip_address(
+            int.from_bytes(
+                OCF_SUBNET_V6_SECONDARY_COMPAT.network_address.packed, 'big'
+            ) | last_group
+        )
     return ip_address(
-        int.from_bytes(OCF_SUBNET_V6_COMPAT.network_address.packed, 'big') | last_group
+        int.from_bytes(
+            OCF_SUBNET_V6_COMPAT.network_address.packed, 'big') | last_group
     )
 
 
@@ -55,8 +64,9 @@ def is_ocf_ip(ip):
     True
     """
     if isinstance(ip, IPv4Address):
-        return ip in OCF_SUBNET_V4 or ip in OCF_SECONDARY_SUBNET_V4
+        return ip in OCF_SUBNET_V4 or ip in OCF_SUBNET_V4_SECONDARY
     elif isinstance(ip, IPv6Address):
         return ip in OCF_SUBNET_V6
     else:
-        raise AssertionError('You must pass in an IPv4Address or IPv6Address object.')
+        raise AssertionError(
+            'You must pass in an IPv4Address or IPv6Address object.')
