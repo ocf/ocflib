@@ -40,7 +40,7 @@ in
 
 buildPythonPackage {
   pname = "ocflib";
-  version = "2024-03-14";
+  version = "2024-04-23";
   format = "pyproject";
   disabled = pythonOlder "3.7";
   src = ./.;
