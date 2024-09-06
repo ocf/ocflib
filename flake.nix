@@ -3,7 +3,7 @@
 
   outputs = { self }:
     let
-      pythons = [ "python37" "python38" "python39" "python310" "python311" ];
+      pythons = [ "python37" "python38" "python39" "python310" "python311" "python312" ];
 
       packageOverrides = python-final: python-prev: {
         ocflib = python-final.callPackage ./default.nix { };
