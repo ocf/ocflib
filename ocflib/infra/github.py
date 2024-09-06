@@ -1,6 +1,4 @@
 from github import Github
-from github import InputGitTreeElement
-
 
 class GithubCredentials():
     """Basic class to store Github credentials and verify input"""
@@ -47,16 +45,17 @@ class GitRepo():
         Note that GitHub's API only supports files up to 1MB in size."""
         return self._github.get_contents(filename).decoded_content.decode('utf-8')
 
-    def modify_and_branch(self, base_branch, new_branch_name, commit_message, filename, file_content):
+    def modify_and_branch(self, base_branch, new_branch_name, commit_message, file_path, file_contents):
         """Create a new branch from base_branch, makes changes to a file, and
         commits it to the new branch."""
+        
+        base_sha = self._github.get_branch(base_branch).commit.sha
+        self._github.create_git_ref('refs/heads/{}'.format(new_branch_name), base_sha)
+        current_contents = self._github.get_contents(file_path, ref=new_branch_name)
+        self._github.update_file(file_path,
+                                 commit_message,
+                                 file_contents,
+                                 current_contents.sha,
+                                 branch=new_branch_name)
 
-        base_sha = self._github.get_git_ref('heads/{}'.format(base_branch)).object.sha
-        base_tree = self._github.get_git_tree(base_sha)
-        element = InputGitTreeElement(filename, '100644', 'blob', file_content)
-        tree = self._github.create_git_tree([element], base_tree)
-
-        parent = self._github.get_git_commit(base_sha)
-        commit = self._github.create_git_commit(commit_message, tree, [parent])
-
-        self._github.create_git_ref('refs/heads/{}'.format(new_branch_name), commit.sha)
+        
