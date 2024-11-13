@@ -36,17 +36,27 @@ let
     };
     propagatedBuildInputs = [ cracklib ];
   };
+  pysnmp-pypi = buildPythonPackage rec {
+    pname = "pysnmp";
+    version = "4.4.12";
+    src = fetchPypi {
+      inherit pname version;
+      hash = "sha256-DD2+8vlYysqWBx/lwZ3kPpwbBISrAqDPCLGQvO52i6k=";
+    };
+    propagatedBuildInputs = [ pysnmp ];
+  };
 in
 
 buildPythonPackage {
   pname = "ocflib";
-  version = "2024-04-23";
+  version = "2024-11-13";
   format = "pyproject";
   disabled = pythonOlder "3.7";
   src = ./.;
 
   buildInputs = [
     cracklib # cracklib system library
+    pysnmp # pysnmp system library
   ];
 
   propagatedBuildInputs = [
@@ -60,7 +70,7 @@ buildPythonPackage {
     pycryptodome
     pygithub
     pymysql
-    pysnmp
+    pysnmp-pypi
     pyyaml
     redis
     requests
