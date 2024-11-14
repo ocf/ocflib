@@ -19,7 +19,6 @@
 , pycryptodome
 , pygithub
 , pymysql
-, pysnmp
 , pyyaml
 , redis
 , requests
@@ -43,7 +42,8 @@ let
       inherit pname version;
       hash = "sha256-DD2+8vlYysqWBx/lwZ3kPpwbBISrAqDPCLGQvO52i6k=";
     };
-    propagatedBuildInputs = [ pysnmp ];
+    # https://github.com/NixOS/nixpkgs/blob/689fed12a013f56d4c4d3f612489634267d86529/pkgs/development/python-modules/pysnmp/default.nix#L20C3-L20C67
+    patches = [ ./patches/setup.py-Fix-the-setuptools-version-check.patch ];
   };
 in
 
@@ -56,7 +56,6 @@ buildPythonPackage {
 
   buildInputs = [
     cracklib # cracklib system library
-    pysnmp # pysnmp system library
   ];
 
   propagatedBuildInputs = [
