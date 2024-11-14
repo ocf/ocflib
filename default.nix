@@ -34,6 +34,8 @@ let
       hash = "sha256-o/S6jNIOrppRbridviJJghx3EIsERyMFW0W/eTYVABI=";
     };
     propagatedBuildInputs = [ cracklib ];
+    # cracklib uses unittest assertEquals which is removed in Python 3.12
+    doCheck = false;
   };
   pysnmp-pypi = buildPythonPackage rec {
     pname = "pysnmp";
@@ -44,6 +46,7 @@ let
     };
     # https://github.com/NixOS/nixpkgs/blob/689fed12a013f56d4c4d3f612489634267d86529/pkgs/development/python-modules/pysnmp/default.nix#L20C3-L20C67
     patches = [ ./patches/setup.py-Fix-the-setuptools-version-check.patch ];
+    doCheck = false;
   };
 in
 
