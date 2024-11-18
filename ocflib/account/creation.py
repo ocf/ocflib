@@ -362,11 +362,13 @@ def validate_username(username, realname):
     except ValueError as ex:
         raise ValidationError(str(ex))
 
-    if any(word in username for word in BAD_WORDS):
-        raise ValidationWarning('Username {} contains bad words.'.format(username))
+    for word in BAD_WORDS:
+        if word in username:
+            raise ValidationWarning('Username {} contains bad word: {}'.format(username, word))
 
-    if any(word in username for word in RESTRICTED_WORDS):
-        raise ValidationWarning('Username {} contains restricted words.'.format(username))
+    for word in RESTRICTED_WORDS:
+        if word in username:
+            raise ValidationWarning('Username {} contains restricted word: {}'.format(username, word))
 
 
 def validate_email(email):
