@@ -11,7 +11,6 @@
 
 # python dependencies
 , attrs
-, cached-property
 , dnspython
 , jinja2
 , ldap3
@@ -48,6 +47,15 @@ let
     patches = [ ./patches/setup.py-Fix-the-setuptools-version-check.patch ];
     doCheck = false;
   };
+  cached-property-pypi = buildPythonPackage rec {
+    pname = "cached-property";
+    version = "1.5.2";
+    src = fetchPypi {
+      inherit pname version;
+      hash = "sha256-n6V1WDjuy7LSNMOqOQvYD706xraGkQm/wbSZ972JoTA=";
+    };
+    doCheck = false;
+  };
 in
 
 buildPythonPackage {
@@ -63,7 +71,7 @@ buildPythonPackage {
 
   propagatedBuildInputs = [
     attrs
-    cached-property
+    cached-property-pypi
     cracklib-pypi # cracklib python package
     dnspython
     jinja2
