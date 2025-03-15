@@ -86,10 +86,10 @@ def get_quota(c, user):
     row = c.fetchone()
     if not row:
         row = {'today': 0, 'semester': 0}
-    semesterly = max(0, SEMESTERLY_QUOTA - int(row['semester']))
+    semesterly = SEMESTERLY_QUOTA - int(row['semester'])
     return UserQuota(
         user=user,
-        daily=max(0, min(semesterly, daily_quota() - int(row['today']))),
+        daily=min(semesterly, daily_quota() - int(row['today'])),
         semesterly=semesterly,
     )
 
