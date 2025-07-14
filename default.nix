@@ -28,6 +28,7 @@ let
   cracklib-pypi = buildPythonPackage rec {
     pname = "cracklib";
     version = "2.9.6";
+    format = "setuptools";
     src = fetchPypi {
       inherit pname version;
       hash = "sha256-o/S6jNIOrppRbridviJJghx3EIsERyMFW0W/eTYVABI=";
@@ -39,6 +40,7 @@ let
   pysnmp-pypi = buildPythonPackage rec {
     pname = "pysnmp";
     version = "4.4.12";
+    format = "setuptools";
     src = fetchPypi {
       inherit pname version;
       hash = "sha256-DD2+8vlYysqWBx/lwZ3kPpwbBISrAqDPCLGQvO52i6k=";
@@ -50,6 +52,7 @@ let
   cached-property-pypi = buildPythonPackage rec {
     pname = "cached-property";
     version = "1.5.2";
+    format = "setuptools";
     src = fetchPypi {
       inherit pname version;
       hash = "sha256-n6V1WDjuy7LSNMOqOQvYD706xraGkQm/wbSZ972JoTA=";
