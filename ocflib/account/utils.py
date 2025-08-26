@@ -6,6 +6,7 @@ import re
 import pexpect
 
 import ocflib.account.validators as validators
+import ocflib.account.search as search
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 
 
@@ -15,7 +16,7 @@ def password_matches(username, password):
     validators.validate_username(username)
     validators.validate_password(username, password, strength_check=False)
 
-    if not validators.user_exists(username):
+    if not search.user_exists(username):
         raise ValueError("User doesn't exist")
 
     cmd = 'kinit --no-forwardable -l0 {}@OCF.BERKELEY.EDU'.format(username)
