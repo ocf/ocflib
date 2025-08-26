@@ -35,12 +35,12 @@ class TestPasswordMatches:
         with pytest.raises(ValueError):
             password_matches('ckuehl', password)
 
-    @mock.patch('ocflib.account.validators.user_exists', return_value=False)
+    @mock.patch('ocflib.account.search.user_exists', return_value=False)
     def test_fails_if_user_does_not_exist(self, __):
         with pytest.raises(ValueError):
             password_matches('ckuehl', 'hunter2')
 
-    @mock.patch('ocflib.account.validators.user_exists', return_value=True)
+    @mock.patch('ocflib.account.search.user_exists', return_value=True)
     @mock.patch('pexpect.spawn')
     def test_calls_pexpect_correctly(self, spawn, __):
         password_matches('ckuehl', 'hunter2')
@@ -58,7 +58,7 @@ class TestPasswordMatches:
         child.sendline.assert_called_with('hunter2')
         assert child.close.called
 
-    @mock.patch('ocflib.account.validators.user_exists', return_value=True)
+    @mock.patch('ocflib.account.search.user_exists', return_value=True)
     @mock.patch('pexpect.spawn')
     @pytest.mark.parametrize('exitstatus,success', [
         (0, True),
