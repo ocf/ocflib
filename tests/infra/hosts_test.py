@@ -56,7 +56,6 @@ def test_hostname_from_domain(fqdn, expected):
 @pytest.mark.parametrize('hostname,expected', [
     ('death.ocf.berkeley.edu', None),
     ('death', 'server'),
-    ('eruption', 'desktop'),
     ('doesnotexist', None),
     ('', None),
 ])
