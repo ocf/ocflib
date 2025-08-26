@@ -6,7 +6,6 @@ import sys
 import cracklib
 
 import ocflib.misc.mail
-import ocflib.account.search as search
 
 RESERVED_USERNAMES = frozenset((
     # Misc
@@ -386,7 +385,12 @@ def validate_password(username, password, strength_check=True):
 # TODO: we have two implementations of this (one here, one in search).
 # one should be removed.
 def user_exists(username):
-    return(search.user_exists(username))
+    try:
+        pwd.getpwnam(username)
+    except KeyError:
+        return False
+    else:
+        return True
 
 
 def username_reserved(username):
