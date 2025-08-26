@@ -6,6 +6,7 @@ import sys
 import cracklib
 
 import ocflib.misc.mail
+import ocflib.account.search as search
 
 RESERVED_USERNAMES = frozenset((
     # Misc
@@ -351,7 +352,7 @@ def validate_username(username, check_exists=False):
     if not all(c.islower() for c in username):
         raise ValueError('Username must be all lowercase letters.')
 
-    if check_exists and not user_exists(username):
+    if check_exists and not search.user_exists(username):
         raise ValueError('Username does not exist.')
 
 
