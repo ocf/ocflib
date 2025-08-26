@@ -24,7 +24,7 @@ from ocflib.misc.validators import valid_email
 from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 
-_KNOWN_UID = 92649
+_KNOWN_UID = 99345
 BAD_WORDS = frozenset((
     'anal', 'anus', 'arse', 'ass', 'bastard', 'bitch', 'biatch', 'bloody', 'blowjob', 'bollock',
     'bollok', 'boner', 'chink', 'clit', 'cock', 'coon', 'cunt', 'damn', 'dick', 'dildo', 'douche',
