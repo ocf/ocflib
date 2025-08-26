@@ -38,7 +38,7 @@ class TestValidateUsername:
         We can't just use "nonexist" since this is also a reserved username. We
         need mocking to avoid flakiness if somebody registers that account.
         """
-        with mock.patch('ocflib.account.validators.user_exists', return_value=False) as m, \
+        with mock.patch('ocflib.account.search.user_exists', return_value=False) as m, \
                 pytest.raises(ValueError):
             validate_username('asdf', check_exists=True)
         m.assert_called_once_with('asdf')
