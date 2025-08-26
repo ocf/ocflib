@@ -89,7 +89,7 @@ in
 
 buildPythonPackage {
   pname = "ocflib";
-  version = "2024-11-13";
+  version = "2025-08-26";
   format = "pyproject";
   disabled = pythonOlder "3.7";
   src = ./.;
