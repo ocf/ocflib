@@ -272,6 +272,7 @@ RESERVED_USERNAMES = frozenset((
     'help',
     'hostmaster',
     'lending',
+    'merch',
     'operations',
     'projects',
     'security',
