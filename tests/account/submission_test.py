@@ -94,6 +94,17 @@ def test_approve_request(celery_app, fake_new_account_request, session_with_requ
     ]
 
 
+def test_approve_request_invalid(celery_app, fake_new_account_request, session_with_requests, tasks):
+    assert len(session_with_requests.query(StoredNewAccountRequest).all()) == 2
+    with pytest.raises(ValueError):
+        tasks.approve_request('keur')
+
+    # invalid request, nothing changed
+    assert len(session_with_requests.query(StoredNewAccountRequest).all()) == 2
+    tasks.create_account.delay.assert_not_called()
+    assert celery_app._sent_messages == []
+
+
 @mock.patch('ocflib.account.submission.send_rejected_mail')
 def test_reject_request(send_rejected_mail, celery_app, fake_new_account_request, session_with_requests, tasks):
     tasks.reject_request(fake_new_account_request.user_name)
@@ -108,6 +119,19 @@ def test_reject_request(send_rejected_mail, celery_app, fake_new_account_request
 
     # TODO: assert real reason
     send_rejected_mail.assert_called_once_with(request, mock.ANY)
+
+
+@mock.patch('ocflib.account.submission.send_rejected_mail')
+def test_reject_request_invalid(send_rejected_mail, celery_app, fake_new_account_request,
+                                session_with_requests, tasks):
+    assert len(session_with_requests.query(StoredNewAccountRequest).all()) == 2
+    with pytest.raises(ValueError):
+        tasks.reject_request('keur')
+
+    # invalid request, nothing changed
+    assert len(session_with_requests.query(StoredNewAccountRequest).all()) == 2
+    assert celery_app._sent_messages == []
+    send_rejected_mail.assert_not_called()
 
 
 def test_get_pending_requests(session_with_requests, tasks, fake_new_account_request):
