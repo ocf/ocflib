@@ -27,9 +27,9 @@ jobs:
         uses: actions/cache@v4.2.4
         with:
           key: dependencies-${{ hashFiles('**/poetry.lock') }}
-          path: ${{ github.workspace }}/venv
+          path: ${{ github.workspace }}/.venv
       - name: Install dependencies
-        if: steps.cache.cache-hit != 'true'
+        if: steps.cache_dep.cache-hit != 'true'
         run: |
           python -m pip install -U pip poetry
           poetry --version
