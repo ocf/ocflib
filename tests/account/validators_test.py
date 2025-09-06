@@ -51,16 +51,26 @@ class TestValidateUsername:
 class TestValidatePassword:
 
     @pytest.mark.parametrize('password', [
-        # too short
+        # too short (<12)
         'hunter2',
+        'dqlwqw',
 
-        # too similar to username
-        'ckuehlckuehl',
-
-        # too simple (cracklib)
-        'aaaaaaa',
-        'hellohello',
-        '12345678',
+        # repeated patterns
+        'aaaaaaaaaaaaaa',
+        'hellohellohellohello',
+        # simple patterns
+        '123456789101112',
+        'abcdefghijk',
+        # Common password
+        'ihatepassword',
+        'letmein12345',
+        # Weak
+        '200520102814',
+        '//__//__/1234',
+        # Similar to username
+        'letwaddlesin',
+        'waddlesiswaddling',
+        'waddlesispenguin'
 
         # tabs or newlines
         'a really strong password\tbut with tab',
@@ -68,9 +78,9 @@ class TestValidatePassword:
     ])
     def test_failure(self, password):
         with pytest.raises(ValueError):
-            validate_password('ckuehl', password)
+            validate_password('waddles', password)
 
-    @pytest.mark.parametrize('password', ['a strong password', 'oyYvIiInyCgw6VV7u'])
+    @pytest.mark.parametrize('password', ['a strong password', 'oyYvIiInyCgw6VV7u', 'companytreecarland'])
     def test_success(self, password):
         validate_password('ckuehl', password)
 

@@ -3,7 +3,7 @@ import pwd
 import string
 import sys
 
-import cracklib
+from zxcvbn import zxcvbn
 
 import ocflib.misc.mail
 import ocflib.account.search as search
@@ -364,16 +364,9 @@ def validate_password(username, password, strength_check=True):
         if len(password) < 12:
             raise ValueError('Password must be at least 12 characters.')
 
-        s = difflib.SequenceMatcher()
-        s.set_seqs(password, username)
-
-        if s.ratio() > 0.6:
-            raise ValueError('Password is too similar to username.')
-
-        try:
-            cracklib.VeryFascistCheck(password)
-        except ValueError as e:
-            raise ValueError('Password problem: {}.'.format(e))
+        result = zxcvbn(password, user_inputs=[username])
+        if result['score'] < 4:
+            raise ValueError('Password is too weak: {}'.format(result['feedback']['warning']))
 
     # sanity check; note we don't use string.whitespace since we don't want
     # tabs or newlines
