@@ -35,6 +35,7 @@ TEST_JOB = Job(
     printer='pagefault',
     doc_name='asdf',
     filesize=12,
+    id=1,
 )
 TEST_REFUND = Refund(
     user='mattmcal',
