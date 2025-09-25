@@ -8,7 +8,6 @@
 , poetry-core
 
 # system dependencies
-, cracklib
 
 # python dependencies
 , attrs
@@ -27,18 +26,6 @@
 }:
 
 let
-  cracklib-pypi = buildPythonPackage rec {
-    pname = "cracklib";
-    version = "2.9.6";
-    format = "setuptools";
-    src = fetchPypi {
-      inherit pname version;
-      hash = "sha256-o/S6jNIOrppRbridviJJghx3EIsERyMFW0W/eTYVABI=";
-    };
-    propagatedBuildInputs = [ cracklib ];
-    # cracklib uses unittest assertEquals which is removed in Python 3.12
-    doCheck = false;
-  };
   pysnmp-pypi = buildPythonPackage rec {
     pname = "pysnmp";
     version = "4.4.12";
@@ -95,13 +82,11 @@ buildPythonPackage {
   src = ./.;
 
   buildInputs = [
-    cracklib # cracklib system library
   ];
 
   propagatedBuildInputs = [
     attrs
     cached-property-pypi
-    cracklib-pypi # cracklib python package
     dnspython
     jinja2
     ldap3

@@ -76,23 +76,6 @@ installed, pre-commit will run every time you commit.
 Alternatively, if you'd rather not install any hooks, you can simply use
 `make test` as usual, which will also run the hooks.
 
-### Troubleshooting: Cracklib Error
-
-If you're trying to run make install-hooks on ocfweb (or related repos) and get
-this error:
-
-```
-./_cracklib.c:40:10: fatal error: 'crack.h' file not found
-  #include <crack.h>
-           ^~~~~~~~~
-  1 error generated.
-```
-
-The issue relates to the cracklib package not finding the necessary header files
-to install. Make sure cracklib is installed on your machine
-(https://github.com/cracklib/cracklib, if you're on Mac,
-`brew install cracklib`).
-
 ## Deploying changes
 
 Deploying changes involves:

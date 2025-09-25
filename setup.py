@@ -23,7 +23,7 @@ setup(
     install_requires=(
         'attrs',
         'cached_property',
-        'cracklib',
+        'zxcvbn',
         'dnspython',
         'jinja2',
         'ldap3',
