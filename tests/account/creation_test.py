@@ -34,6 +34,8 @@ from ocflib.account.submission import Base
 from ocflib.infra.ldap import ldap_ocf
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 
+from .ldap_test_server import ldap_test_server
+
 WEAK_KEY = dedent(
     """\
     -----BEGIN RSA PRIVATE KEY-----
@@ -83,20 +85,23 @@ def mock_rsa_key(tmpdir):
     test_key.remove()
 
 
+@pytest.fixture(scope='session', autouse=True)
+def setup_ldap_server():
+    """Set up LDAP test server for all tests."""
+    ldap_test_server.start()
+    yield
+    ldap_test_server.stop()
+
+
 class TestFirstAvailableUID:
 
     def test_first_uid(self):
-        connection = mock.Mock(response=[
-            {'attributes': {'uidNumber': 999000}},
-            {'attributes': {'uidNumber': 999200}},
-            {'attributes': {'uidNumber': 999100}},
-        ])
-
+        # Mock ldap_ocf to return our test server connection
         @contextmanager
-        def ldap_ocf():
-            yield connection
+        def mock_ldap_ocf():
+            yield ldap_test_server.connection
 
-        with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
+        with mock.patch('ocflib.account.creation.ldap_ocf', mock_ldap_ocf):
             next_uid = _get_first_available_uid()
 
         assert next_uid == 999201
@@ -104,17 +109,11 @@ class TestFirstAvailableUID:
     def test_reserved_uid(self):
         """Test that we skip over the reserved UID range of 61184-65535.
         """
-
-        connection = mock.Mock(response=[
-            {'attributes': {'uidNumber': 61183}},
-            {'attributes': {'uidNumber': 60000}},
-        ])
-
         @contextmanager
-        def ldap_ocf():
-            yield connection
+        def mock_ldap_ocf():
+            yield ldap_test_server.connection
 
-        with mock.patch('ocflib.account.creation.ldap_ocf', ldap_ocf):
+        with mock.patch('ocflib.account.creation.ldap_ocf', mock_ldap_ocf):
             next_uid = _get_first_available_uid()
 
         assert next_uid == 65536
@@ -132,13 +131,18 @@ class TestFirstAvailableUID:
         faster the first time a query is made. The result can be cached to make
         subsequent attempts even faster.
         """
-        with ldap_ocf() as c:
-            c.search(
-                OCF_LDAP_PEOPLE,
-                '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=_KNOWN_UID),
-                attributes=['uidNumber'],
-            )
-            num_uids = len(c.response)
+        @contextmanager
+        def mock_ldap_ocf():
+            yield ldap_test_server.connection
+
+        with mock.patch('ocflib.account.creation.ldap_ocf', mock_ldap_ocf):
+            with mock_ldap_ocf() as c:
+                c.search(
+                    OCF_LDAP_PEOPLE,
+                    '(uidNumber>={KNOWN_MIN})'.format(KNOWN_MIN=_KNOWN_UID),
+                    attributes=['uidNumber'],
+                )
+                num_uids = len(c.response)
 
         if num_uids > 3500:
             raise AssertionError((
@@ -219,11 +223,14 @@ class TestUsernameCheck:
         'ucbcop',
         'suxocf',
     ])
-    @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_warning_names(self, _, username):
+    def test_warning_names(self, username):
         """Ensure that we raise warnings when bad/restricted words appear."""
-        with pytest.raises(ValidationWarning):
-            validate_username(username, username)
+        # Use real LDAP server for user_exists check
+        with mock.patch('ocflib.account.search.ldap_ocf') as mock_ldap:
+            mock_ldap.return_value.__enter__.return_value = ldap_test_server.connection
+            with mock.patch('ocflib.account.search.user_exists', return_value=False):
+                with pytest.raises(ValidationWarning):
+                    validate_username(username, username)
 
     @pytest.mark.parametrize('username', [
         'wordpress',
@@ -231,16 +238,21 @@ class TestUsernameCheck:
         'ocf',
         'ocfrocks',
     ])
-    @mock.patch('ocflib.account.search.user_exists', return_value=False)
-    def test_error_names(self, _, username):
+    def test_error_names(self, username):
         """Ensure that we raise errors when appropriate."""
-        with pytest.raises(ValidationError):
-            validate_username(username, username)
+        with mock.patch('ocflib.account.search.ldap_ocf') as mock_ldap:
+            mock_ldap.return_value.__enter__.return_value = ldap_test_server.connection
+            with mock.patch('ocflib.account.search.user_exists', return_value=False):
+                with pytest.raises(ValidationError):
+                    validate_username(username, username)
 
     def test_error_user_exists(self):
         """Ensure that we raise an error if the username already exists."""
-        with pytest.raises(ValidationError):
-            validate_username('ckuehl', 'Chris Kuehl')
+        # ckuehl exists in our test LDAP server
+        with mock.patch('ocflib.account.search.ldap_ocf') as mock_ldap:
+            mock_ldap.return_value.__enter__.return_value = ldap_test_server.connection
+            with pytest.raises(ValidationError):
+                validate_username('ckuehl', 'Chris Kuehl')
 
 
 class TestAccountEligibility:
@@ -406,6 +418,7 @@ def fake_credentials(mock_rsa_key):
 
 @pytest.yield_fixture
 def mock_valid_calnet_uid():
+    # Keep the external CalNet UID validation mocked since we don't want to test against real CalNet
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-TYPE-REGISTERED']}
@@ -413,8 +426,9 @@ def mock_valid_calnet_uid():
         yield
 
 
-@pytest.yield_fixture
+@pytest.yield_fixture  
 def mock_invalid_calnet_uid():
+    # Keep the external CalNet UID validation mocked since we don't want to test against real CalNet
     with mock.patch(
         'ocflib.account.search.user_attrs_ucb',
         return_value={'berkeleyEduAffiliations': ['STUDENT-STATUS-EXPIRED']},
