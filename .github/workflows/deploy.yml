@@ -31,6 +31,8 @@ jobs:
       - name: Install dependencies
         if: steps.cache_dep.cache-hit != 'true'
         run: |
+          sudo apt install mariadb-server
+
           python -m pip install -U pip poetry
           poetry --version
           poetry check --no-interaction
