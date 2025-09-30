@@ -12,7 +12,7 @@ defaults:
 jobs:
   deploy:
     name: Publish
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout branch
         uses: actions/checkout@v5.0.0
