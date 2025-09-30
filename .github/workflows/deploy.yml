@@ -19,8 +19,8 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install dependencies
-        if: steps.cache_dep.cache-hit != 'true'
         run: |
+          python3 -m venv venv
           python3 -m pip install -U pip poetry
           poetry --version
           poetry check --no-interaction
