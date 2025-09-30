@@ -18,16 +18,10 @@ jobs:
         uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
-      - name: Cache dependencies
-        id: cache_dep
-        uses: actions/cache@v4.2.4
-        with:
-          key: dependencies-${{ hashFiles('**/poetry.lock') }}
-          path: ${{ github.workspace }}/.venv
       - name: Install dependencies
         if: steps.cache_dep.cache-hit != 'true'
         run: |
-          python -m pip install -U pip poetry
+          python3 -m pip install -U pip poetry
           poetry --version
           poetry check --no-interaction
           poetry config virtualenvs.in-project true
