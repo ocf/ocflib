@@ -34,16 +34,16 @@ class TestChangePasswordWithStaffer:
     def _chpass(self, mock_spawn):
         change_password_with_staffer(
             'ggroup',
-            'strong_hunter2',
+            'strong_hunter2837162',
             'ckuehl/admin',
-            'super_hunter2',
+            'super_hunter2837162',
         )
         mock_spawn.assert_called_with(
             '/usr/bin/kadmin -p ckuehl/admin cpw ggroup',
             timeout=10,
         )
         mock_spawn.return_value.sendline.assert_has_calls(
-            [mock.call('strong_hunter2'), mock.call('strong_hunter2')],
+            [mock.call('strong_hunter2837162'), mock.call('strong_hunter2837162')],
         )
 
     def test_success(self, mock_spawn, mock_notify_password_change):
@@ -71,7 +71,7 @@ class TestChangePasswordWithKeytab:
     def _chpass(self, mock_spawn):
         change_password_with_keytab(
             'ggroup',
-            'strong_hunter2',
+            'strong_hunter2837162',
             '/some/keytab',
             'create/admin',
         )
@@ -80,7 +80,7 @@ class TestChangePasswordWithKeytab:
             timeout=10,
         )
         mock_spawn.return_value.sendline.assert_has_calls(
-            [mock.call('strong_hunter2'), mock.call('strong_hunter2')],
+            [mock.call('strong_hunter2837162'), mock.call('strong_hunter2837162')],
         )
 
     def test_success(self, mock_spawn, mock_notify_password_change):
