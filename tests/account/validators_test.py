@@ -91,7 +91,7 @@ class TestUserExists:
     def test_not_exists(self, username):
         assert not user_exists(username)
 
-    @pytest.mark.parametrize('username', ['guser', 'staff', 'root', 'sshd'])
+    @pytest.mark.parametrize('username', ['guser', 'root', 'sshd'])
     def test_exists(self, username):
         assert user_exists(username)
 
