@@ -23,6 +23,7 @@
 , sqlalchemy_1_4
 , dos2unix
 , pyasn1
+, zxcvbn
 }:
 
 let
@@ -100,6 +101,7 @@ buildPythonPackage {
     requests
     sqlalchemy_1_4
     poetry-core
+    zxcvbn
   ];
 
   meta = with lib; {
