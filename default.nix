@@ -8,7 +8,6 @@
 , poetry-core
 
 # system dependencies
-, cracklib
 
 # python dependencies
 , attrs
@@ -24,21 +23,10 @@
 , sqlalchemy_1_4
 , dos2unix
 , pyasn1
+, zxcvbn
 }:
 
 let
-  cracklib-pypi = buildPythonPackage rec {
-    pname = "cracklib";
-    version = "2.9.6";
-    format = "setuptools";
-    src = fetchPypi {
-      inherit pname version;
-      hash = "sha256-o/S6jNIOrppRbridviJJghx3EIsERyMFW0W/eTYVABI=";
-    };
-    propagatedBuildInputs = [ cracklib ];
-    # cracklib uses unittest assertEquals which is removed in Python 3.12
-    doCheck = false;
-  };
   pysnmp-pypi = buildPythonPackage rec {
     pname = "pysnmp";
     version = "4.4.12";
@@ -89,19 +77,17 @@ in
 
 buildPythonPackage {
   pname = "ocflib";
-  version = "2025-08-27";
+  version = "2025-08-28";
   format = "pyproject";
   disabled = pythonOlder "3.7";
   src = ./.;
 
   buildInputs = [
-    cracklib # cracklib system library
   ];
 
   propagatedBuildInputs = [
     attrs
     cached-property-pypi
-    cracklib-pypi # cracklib python package
     dnspython
     jinja2
     ldap3
@@ -115,6 +101,7 @@ buildPythonPackage {
     requests
     sqlalchemy_1_4
     poetry-core
+    zxcvbn
   ];
 
   meta = with lib; {

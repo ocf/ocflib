@@ -5,7 +5,7 @@ try:
     with open('.version') as f:
         VERSION = f.readline().strip()
 except IOError:
-    VERSION = '2025.8.27'
+    VERSION = '2025.8.28'
 
 setup(
     name='ocflib',
@@ -23,7 +23,7 @@ setup(
     install_requires=(
         'attrs',
         'cached_property',
-        'cracklib',
+        'zxcvbn',
         'dnspython',
         'jinja2',
         'ldap3',

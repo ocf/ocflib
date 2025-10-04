@@ -70,7 +70,7 @@ def fake_new_account_request(mock_rsa_key):
         calnet_uid=123456,
         callink_oid=None,
         email='some.user@ocf.berkeley.edu',
-        encrypted_password=encrypt_password('hunter20000000', RSA.importKey(WEAK_KEY)),
+        encrypted_password=encrypt_password('hunter2719283732', RSA.importKey(WEAK_KEY)),
         handle_warnings=NewAccountRequest.WARNINGS_WARN,
     )
 
@@ -529,7 +529,7 @@ class TestCreateAccount:
                 fake_new_account_request.user_name,
                 fake_credentials.kerberos_keytab,
                 fake_credentials.kerberos_principal,
-                password='hunter20000000',
+                password='hunter2719283732',
             )
             ldap.assert_called_once_with(
                 'uid=someuser,ou=People,dc=OCF,dc=Berkeley,dc=EDU',
