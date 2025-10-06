@@ -11,6 +11,7 @@ defaults:
 
 jobs:
   deploy:
+    if: github.repository == 'ocf/ocblib'
     name: Publish
     runs-on: self-hosted
     steps:
