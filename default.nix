@@ -77,7 +77,7 @@ in
 
 buildPythonPackage {
   pname = "ocflib";
-  version = "2025-08-28";
+  version = "2025-10-16";
   format = "pyproject";
   disabled = pythonOlder "3.7";
   src = ./.;

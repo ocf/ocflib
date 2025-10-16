@@ -7,8 +7,8 @@ from ocflib.account.search import user_is_group
 from ocflib.account.utils import is_in_group
 from ocflib.infra import mysql
 
-WEEKDAY_QUOTA = 20
-WEEKEND_QUOTA = 20
+WEEKDAY_QUOTA = 30
+WEEKEND_QUOTA = 30
 SEMESTERLY_QUOTA = 200
 
 # Per BoD decision of 2017-04-24, the rules for making changes to the printing
