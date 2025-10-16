@@ -29,7 +29,7 @@ package: package_bookworm
 
 .PHONY: package_%
 package_%:
-	docker run -e "DIST_UID=$(shell id -u)" -e "DIST_GID=$(shell id -g)" -v $(CURDIR):/mnt:rw "docker.ocf.berkeley.edu/theocf/debian:$*" /mnt/build-in-docker "$*"
+	docker run -e "DIST_UID=$(shell id -u)" -e "DIST_GID=$(shell id -g)" -v $(CURDIR):/mnt:rw "theocf/debian:$*" /mnt/build-in-docker "$*"
 
 .PHONY: clean
 clean:
