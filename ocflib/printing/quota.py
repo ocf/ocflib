@@ -39,6 +39,7 @@ Job = namedtuple('Job', (
     'user',
     'time',
     'pages',
+    'page_size',
     'queue',
     'printer',
     'doc_name',
