@@ -39,12 +39,12 @@ Job = namedtuple('Job', (
     'user',
     'time',
     'pages',
-    'page_size',
     'queue',
     'printer',
     'doc_name',
     'filesize',
-))
+    'page_size',
+), defaults=[""])
 
 Refund = namedtuple('Refund', (
     'user',
