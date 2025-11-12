@@ -82,7 +82,7 @@ def get_quota(c, user):
         return UserQuota(user, 0, 0, 0)
 
     c.execute(
-        'SELECT `today`, `semester` FROM `printed` WHERE `user` = %s',
+        'SELECT `today`, `semester`, `color` FROM `printed` WHERE `user` = %s',
         (user,)
     )
 

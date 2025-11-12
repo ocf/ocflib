@@ -43,7 +43,7 @@ TEST_REFUND = Refund(
     pages=3,
     staffer='ckuehl',
     reason='just because',
-    color=0
+    color=0,
 )
 
 
