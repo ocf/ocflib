@@ -18,6 +18,7 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 from ocflib.printing.quota import UserQuota
 from ocflib.printing.quota import WEEKDAY_QUOTA
 from ocflib.printing.quota import WEEKEND_QUOTA
+from ocflib.printing.quota import COLOR_QUOTA
 
 
 FAKE_DAILY_QUOTA = 1000
@@ -86,7 +87,7 @@ def assert_quota(c, user, diff_daily, diff_semesterly):
             mock.patch('ocflib.printing.quota.SEMESTERLY_QUOTA', start[1]):
         assert (
             get_quota(c, user) ==
-            UserQuota(user, FAKE_DAILY_QUOTA + diff_daily, FAKE_SEMESTERLY_QUOTA + diff_semesterly, FAKE_COLOR_QUOTA)
+            UserQuota(user, FAKE_DAILY_QUOTA + diff_daily, FAKE_SEMESTERLY_QUOTA + diff_semesterly, COLOR_QUOTA)
         )
 
 
