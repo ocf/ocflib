@@ -88,7 +88,7 @@ def get_quota(c, user):
 
     row = c.fetchone()
     if not row:
-        row = {'today': 0, 'semester': 0}
+        row = {'today': 0, 'semester': 0, 'color': 0}
     semesterly = SEMESTERLY_QUOTA - int(row['semester'])
     return UserQuota(
         user=user,
