@@ -10,6 +10,7 @@ from ocflib.infra import mysql
 WEEKDAY_QUOTA = 30
 WEEKEND_QUOTA = 30
 SEMESTERLY_QUOTA = 200
+COLOR_QUOTA = 10
 
 # Per BoD decision of 2017-04-24, the rules for making changes to the printing
 # quota, (non-normatively) summarized, are:
@@ -32,6 +33,7 @@ UserQuota = namedtuple('UserQuota', (
     'user',
     'daily',
     'semesterly',
+    'color',
 ))
 
 
@@ -51,6 +53,7 @@ Refund = namedtuple('Refund', (
     'pages',
     'staffer',
     'reason',
+    'color',
 ))
 
 
@@ -73,24 +76,25 @@ def daily_quota(day=None):
 def get_quota(c, user):
     """Return a UserQuota representing the user's quota."""
     if is_in_group(user, 'opstaff'):
-        return UserQuota(user, 500, 500)
+        return UserQuota(user, 500, 500, 500)
 
     if not user_exists(user) or user_is_group(user):
-        return UserQuota(user, 0, 0)
+        return UserQuota(user, 0, 0, 0)
 
     c.execute(
-        'SELECT `today`, `semester` FROM `printed` WHERE `user` = %s',
+        'SELECT `today`, `semester`, `color` FROM `printed` WHERE `user` = %s',
         (user,)
     )
 
     row = c.fetchone()
     if not row:
-        row = {'today': 0, 'semester': 0}
+        row = {'today': 0, 'semester': 0, 'color': 0}
     semesterly = SEMESTERLY_QUOTA - int(row['semester'])
     return UserQuota(
         user=user,
         daily=min(semesterly, daily_quota() - int(row['today'])),
         semesterly=semesterly,
+        color=min(semesterly, COLOR_QUOTA - int(row['color'])),
     )
 
 

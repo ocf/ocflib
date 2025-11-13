@@ -18,10 +18,12 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 from ocflib.printing.quota import UserQuota
 from ocflib.printing.quota import WEEKDAY_QUOTA
 from ocflib.printing.quota import WEEKEND_QUOTA
+from ocflib.printing.quota import COLOR_QUOTA
 
 
 FAKE_DAILY_QUOTA = 1000
 FAKE_SEMESTERLY_QUOTA = 10000
+FAKE_COLOR_QUOTA = 1000
 
 TODAY = datetime.today()
 YESTERDAY = TODAY - timedelta(days=1)
@@ -42,6 +44,7 @@ TEST_REFUND = Refund(
     pages=3,
     staffer='ckuehl',
     reason='just because',
+    color=0,
 )
 
 
@@ -84,7 +87,7 @@ def assert_quota(c, user, diff_daily, diff_semesterly):
             mock.patch('ocflib.printing.quota.SEMESTERLY_QUOTA', start[1]):
         assert (
             get_quota(c, user) ==
-            UserQuota(user, FAKE_DAILY_QUOTA + diff_daily, FAKE_SEMESTERLY_QUOTA + diff_semesterly)
+            UserQuota(user, FAKE_DAILY_QUOTA + diff_daily, FAKE_SEMESTERLY_QUOTA + diff_semesterly, min(COLOR_QUOTA, FAKE_SEMESTERLY_QUOTA + diff_semesterly))
         )
 
 
@@ -96,21 +99,21 @@ def test_quota_user_not_in_db(user, mysql_connection):
 def test_desk_staff_have_infinite_quota(mysql_connection):
     assert (
         get_quota(mysql_connection, 'testopstaff') ==
-        UserQuota('testopstaff', 500, 500)
+        UserQuota('testopstaff', 500, 500, 500)
     )
 
 
 def test_groups_have_zero_quota(mysql_connection):
     assert (
         get_quota(mysql_connection, 'ggroup') ==
-        UserQuota('ggroup', 0, 0)
+        UserQuota('ggroup', 0, 0, 0)
     )
 
 
 def test_non_existent_users_have_zero_quota(mysql_connection):
     assert (
         get_quota(mysql_connection, 'nonexist') ==
-        UserQuota('nonexist', 0, 0)
+        UserQuota('nonexist', 0, 0, 0)
     )
 
 

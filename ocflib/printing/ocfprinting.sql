@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `refunds` (
     `pages` int NOT NULL,
     `staffer` varchar(255) NOT NULL,
     `reason` varchar(510) NOT NULL,
+    `color` BOOLEAN NOT NULL,
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 
@@ -85,11 +86,27 @@ CREATE VIEW jobs_semester AS
     WHERE DATE(jobs.time) >= semester_start(CURDATE())
     GROUP BY user;
 
+DROP VIEW IF EXISTS jobs_color;
+CREATE VIEW jobs_color AS
+    SELECT user, SUM(pages) AS pages
+    FROM jobs
+    WHERE DATE(jobs.time) >= semester_start(CURDATE())
+    AND `queue` = 'admin-only'
+    GROUP BY user;
+
 DROP VIEW IF EXISTS refunds_semester;
 CREATE VIEW refunds_semester AS
     SELECT user, SUM(pages) AS pages
     FROM refunds
     WHERE DATE(refunds.time) >= semester_start(CURDATE())
+    GROUP BY user;
+
+DROP VIEW IF EXISTS refunds_color;
+CREATE VIEW refunds_color AS
+    SELECT user, SUM(pages) AS pages
+    FROM refunds
+    WHERE DATE(refunds.time) >= semester_start(CURDATE())
+    AND refunds.color = 1
     GROUP BY user;
 
 DROP VIEW IF EXISTS printed_semester;
@@ -114,15 +131,40 @@ CREATE VIEW `printed_semester` AS
 
     ORDER BY user;
 
+DROP VIEW IF EXISTS printed_color;
+CREATE VIEW `printed_color` AS
+    SELECT
+        jobs_color.user AS user,
+        COALESCE(jobs_color.pages, 0) - COALESCE(refunds_color.pages, 0) AS color
+    FROM jobs_color
+    LEFT OUTER JOIN refunds_color
+    ON jobs_color.user = refunds_color.user
+    GROUP BY jobs_color.user
+
+    UNION
+
+    SELECT
+        refunds_color.user AS user,
+        COALESCE(jobs_color.pages, 0) - COALESCE(refunds_color.pages, 0) AS color
+    FROM jobs_color
+    RIGHT OUTER JOIN refunds_color
+    ON jobs_color.user = refunds_color.user
+    GROUP BY refunds_color.user
+
+    ORDER BY user;
+
 DROP VIEW IF EXISTS printed;
 CREATE VIEW `printed` AS
     SELECT
         printed_semester.user AS user,
         COALESCE(printed_today.today, 0) AS today,
-        COALESCE(printed_semester.semester, 0) AS semester
+        COALESCE(printed_semester.semester, 0) AS semester,
+        COALESCE(printed_color.color, 0) AS color
     FROM printed_today
     RIGHT OUTER JOIN printed_semester
     ON printed_today.user = printed_semester.user
+    LEFT OUTER JOIN printed_color
+    ON printed_semester.user = printed_color.user
     ORDER BY user;
 
 DROP VIEW IF EXISTS public_jobs;
