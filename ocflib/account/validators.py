@@ -79,6 +79,7 @@ RESERVED_USERNAMES = frozenset((
     'faq',
     'ftp',
     'games',
+    'gcds',
     'geoclue',
     'getinvolved',
     'gettinginvolved',
