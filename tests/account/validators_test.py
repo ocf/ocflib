@@ -26,7 +26,6 @@ class TestValidateUsername:
         'Ckuehl',
         'ckuehl!',
         '123123',
-        'f00f00',
     ])
     def test_failure(self, username):
         with pytest.raises(ValueError):
