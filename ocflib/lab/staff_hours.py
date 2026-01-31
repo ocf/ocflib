@@ -8,7 +8,6 @@ from urllib.parse import urlencode
 import yaml
 
 from ocflib.account.search import user_attrs
-from ocflib.account.utils import is_in_group
 from ocflib.misc.mail import email_for_user
 
 
@@ -40,8 +39,6 @@ def get_staff_hours():
         staff_position_dict = {entry['username']: entry['position'] for entry in staff_hours['staff-positions']}
         if uid in staff_position_dict:
             return staff_position_dict[uid]
-        elif is_in_group(uid, 'ocfroot'):
-            return 'Technical Manager'
         else:
             return 'Staff Member'
 
