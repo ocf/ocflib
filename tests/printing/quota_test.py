@@ -8,17 +8,21 @@ import pytest
 from freezegun import freeze_time
 
 from ocflib.printing.quota import add_job
+from ocflib.printing.quota import add_hold
 from ocflib.printing.quota import add_refund
 from ocflib.printing.quota import daily_quota
 from ocflib.printing.quota import get_quota
 from ocflib.printing.quota import HAPPY_HOUR_QUOTA
+from ocflib.printing.quota import Hold
 from ocflib.printing.quota import Job
+from ocflib.printing.quota import release_hold
 from ocflib.printing.quota import Refund
 from ocflib.printing.quota import SEMESTERLY_QUOTA
 from ocflib.printing.quota import UserQuota
 from ocflib.printing.quota import WEEKDAY_QUOTA
 from ocflib.printing.quota import WEEKEND_QUOTA
 from ocflib.printing.quota import COLOR_QUOTA
+from ocflib.printing.quota import settle_hold
 
 
 FAKE_DAILY_QUOTA = 1000
@@ -45,6 +49,13 @@ TEST_REFUND = Refund(
     staffer='ckuehl',
     reason='just because',
     color=0,
+)
+TEST_HOLD = Hold(
+    job_id='1234',
+    user='mattmcal',
+    time=datetime.now(),
+    pages=3,
+    queue='double',
 )
 
 
@@ -268,6 +279,55 @@ def test_jobs_and_refunds_today(mysql_connection):
     add_refund(mysql_connection, TEST_REFUND._replace(pages=30, user='ckuehl'))
     assert_quota(mysql_connection, 'ckuehl', 33, 33)
     assert_quota(mysql_connection, 'mattmcal', -4, -4)
+
+
+def test_active_hold_reduces_quota(mysql_connection):
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
+    add_hold(mysql_connection, TEST_HOLD._replace(job_id='hold-1', pages=8, queue='double'))
+    assert_quota(mysql_connection, 'mattmcal', -8, -8)
+
+
+def test_release_hold_restores_quota(mysql_connection):
+    add_hold(mysql_connection, TEST_HOLD._replace(job_id='hold-2', pages=8, queue='double'))
+    assert_quota(mysql_connection, 'mattmcal', -8, -8)
+    release_hold(mysql_connection, 'hold-2')
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
+
+
+def test_settle_hold_removes_hold_impact(mysql_connection):
+    add_hold(mysql_connection, TEST_HOLD._replace(job_id='hold-3', pages=5, queue='double'))
+    assert_quota(mysql_connection, 'mattmcal', -5, -5)
+    settle_hold(mysql_connection, 'hold-3')
+    assert_quota(mysql_connection, 'mattmcal', 0, 0)
+
+
+def test_hold_upsert_is_idempotent(mysql_connection):
+    add_hold(mysql_connection, TEST_HOLD._replace(job_id='hold-4', pages=2, queue='double'))
+    add_hold(mysql_connection, TEST_HOLD._replace(job_id='hold-4', pages=9, queue='double'))
+    assert_quota(mysql_connection, 'mattmcal', -9, -9)
+
+
+def test_color_double_hold_reduces_color_quota(mysql_connection):
+    with mock.patch('ocflib.printing.quota.daily_quota', return_value=1000), \
+            mock.patch('ocflib.printing.quota.SEMESTERLY_QUOTA', 10000), \
+            mock.patch('ocflib.printing.quota.COLOR_QUOTA', 1000):
+        add_hold(
+            mysql_connection,
+            TEST_HOLD._replace(job_id='hold-5', pages=7, queue='color-double'),
+        )
+        assert get_quota(mysql_connection, 'mattmcal').color == 993
+
+
+def test_previous_day_hold_still_limits_daily_via_semester(mysql_connection):
+    with mock.patch('ocflib.printing.quota.daily_quota', return_value=1000), \
+            mock.patch('ocflib.printing.quota.SEMESTERLY_QUOTA', 10):
+        add_hold(
+            mysql_connection,
+            TEST_HOLD._replace(job_id='hold-6', pages=9, queue='double', time=YESTERDAY),
+        )
+        q = get_quota(mysql_connection, 'mattmcal')
+        assert q.semesterly == 1
+        assert q.daily == 1
 
 
 def test_several_jobs_refunds_previous_days_and_semesters(mysql_connection):

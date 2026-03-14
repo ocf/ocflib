@@ -56,6 +56,14 @@ Refund = namedtuple('Refund', (
     'color',
 ))
 
+Hold = namedtuple('Hold', (
+    'job_id',
+    'user',
+    'time',
+    'pages',
+    'queue',
+))
+
 
 def daily_quota(day=None):
     """Return the daily quota for a given day.
@@ -89,12 +97,27 @@ def get_quota(c, user):
     row = c.fetchone()
     if not row:
         row = {'today': 0, 'semester': 0, 'color': 0}
+    c.execute(
+        """
+        SELECT
+            COALESCE(SUM(CASE WHEN DATE(`time`) = CURDATE() THEN `pages` ELSE 0 END), 0) AS `today`,
+            COALESCE(SUM(CASE WHEN DATE(`time`) >= semester_start(CURDATE()) THEN `pages` ELSE 0 END), 0) AS `semester`,
+            COALESCE(SUM(CASE WHEN DATE(`time`) >= semester_start(CURDATE()) AND `queue` IN ('color-single', 'color-double') THEN `pages` ELSE 0 END), 0) AS `color`
+        FROM `job_holds`
+        WHERE `user` = %s AND `state` = 'active'
+        """,
+        (user,),
+    )
+    holds = c.fetchone() or {'today': 0, 'semester': 0, 'color': 0}
     semesterly = SEMESTERLY_QUOTA - int(row['semester'])
+    semesterly_with_holds = semesterly - int(holds['semester'])
+    daily_with_holds = daily_quota() - int(row['today']) - int(holds['today'])
+    color_with_holds = COLOR_QUOTA - int(row['color']) - int(holds['color'])
     return UserQuota(
         user=user,
-        daily=min(semesterly, daily_quota() - int(row['today'])),
-        semesterly=semesterly,
-        color=min(semesterly, COLOR_QUOTA - int(row['color'])),
+        daily=min(semesterly_with_holds, daily_with_holds),
+        semesterly=semesterly_with_holds,
+        color=min(semesterly_with_holds, color_with_holds),
     )
 
 
@@ -124,3 +147,36 @@ def add_job(c, job):
 def add_refund(c, refund):
     """Add a new refund to the database."""
     c.execute(*_namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
+
+
+def add_hold(c, hold):
+    """Create or refresh an active hold for a submitted print job."""
+    c.execute(
+        """
+        INSERT INTO job_holds (`job_id`, `user`, `time`, `pages`, `queue`, `state`)
+        VALUES (%s, %s, %s, %s, %s, 'active')
+        ON DUPLICATE KEY UPDATE
+            `user` = VALUES(`user`),
+            `time` = VALUES(`time`),
+            `pages` = VALUES(`pages`),
+            `queue` = VALUES(`queue`),
+            `state` = 'active'
+        """,
+        (hold.job_id, hold.user, hold.time, hold.pages, hold.queue),
+    )
+
+
+def release_hold(c, job_id):
+    """Mark a previously created hold as released (no quota charge)."""
+    c.execute(
+        "UPDATE job_holds SET `state` = 'released' WHERE `job_id` = %s AND `state` = 'active'",
+        (job_id,),
+    )
+
+
+def settle_hold(c, job_id):
+    """Mark a hold as settled after job completion and accounting."""
+    c.execute(
+        "UPDATE job_holds SET `state` = 'settled' WHERE `job_id` = %s AND `state` = 'active'",
+        (job_id,),
+    )

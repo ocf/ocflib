@@ -27,8 +27,21 @@ CREATE TABLE IF NOT EXISTS `refunds` (
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS `job_holds` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `job_id` varchar(255) NOT NULL,
+    `user` varchar(255) NOT NULL,
+    `time` datetime NOT NULL,
+    `pages` int unsigned NOT NULL,
+    `queue` varchar(255) NOT NULL,
+    `state` enum('active', 'released', 'settled') NOT NULL DEFAULT 'active',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `job_holds_job_id_uniq` (`job_id`)
+) ENGINE=InnoDB;
+
 CREATE INDEX `jobs_idx` ON `jobs` (`user`, `time`, `pages`);
 CREATE INDEX `refunds_idx` ON `refunds` (`user`, `time`, `pages`);
+CREATE INDEX `job_holds_user_state_time_idx` ON `job_holds` (`user`, `state`, `time`);
 
 DROP FUNCTION IF EXISTS semester_start;
 DELIMITER $$
@@ -91,7 +104,7 @@ CREATE VIEW jobs_color AS
     SELECT user, SUM(pages) AS pages
     FROM jobs
     WHERE DATE(jobs.time) >= semester_start(CURDATE())
-    AND `queue` = 'color-single'
+    AND `queue` IN ('color-single', 'color-double')
     GROUP BY user;
 
 DROP VIEW IF EXISTS refunds_semester;
