@@ -91,7 +91,7 @@ CREATE VIEW jobs_color AS
     SELECT user, SUM(pages) AS pages
     FROM jobs
     WHERE DATE(jobs.time) >= semester_start(CURDATE())
-    AND `queue` IN ('color-single', 'color-double')
+    AND `queue` IN ('color-single', 'color-double', 'epson')
     GROUP BY user;
 
 DROP VIEW IF EXISTS refunds_semester;
