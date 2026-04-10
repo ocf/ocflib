@@ -1,6 +1,6 @@
 packagePipeline(
     coverallsToken: 'coveralls_ocflib_token',
-    pypiRelease: true,
+    pypiRelease: false,
     dists: ['bullseye', 'bookworm'],
 )
 
