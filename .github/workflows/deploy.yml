@@ -25,9 +25,9 @@ jobs:
           poetry check --no-interaction
           poetry config virtualenvs.in-project true
           poetry install --no-interaction
-      # - name: Run tests
-      #   run: |
-      #     poetry run pytest
+      - name: Run tests
+        run: |
+          poetry run pytest
       - name: Build package 
         run: |
           poetry build --no-interaction
