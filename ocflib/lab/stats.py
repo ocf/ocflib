@@ -251,7 +251,7 @@ def humanize_bytes(n):
     Adapted from http://stackoverflow.com/a/1094933/1979001
     """
 
-    for unit in ['', 'KB', 'MB', 'GB', 'TB', 'PB']:
+    for unit in ['', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']:
         if n < 1024.0:
             return '{:3.2f} {}'.format(n, unit)
         n /= 1024.0
