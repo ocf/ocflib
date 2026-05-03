@@ -1,8 +1,8 @@
-import crypt
 import functools
 from collections import namedtuple
 
-from cached_property import cached_property
+from functools import cached_property
+from passlib.hash import sha512_crypt
 
 from ocflib.infra import mysql
 
@@ -88,4 +88,4 @@ def vhosts_for_user(user):
 
 def crypt_password(password):
     """Return hashed password, compatible with the vhost database."""
-    return crypt.crypt(password, salt=crypt.METHOD_SHA512)
+    return sha512_crypt.hash(password)

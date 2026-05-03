@@ -14,34 +14,14 @@ from ocflib.printing.printers import OID_TONER_MAX
 
 class TestSNMP:
 
-    @mock.patch('ocflib.printing.printers.cmdgen')
-    def test_snmp(self, cmdgen):
-        cmdgen.CommandGenerator.return_value.getCmd.return_value = (
-            None,
-            None,
-            None,
-            [[OID_TONER_CUR, 500]],
-        )
-
+    @mock.patch('ocflib.printing.printers.asyncio.run')
+    def test_snmp(self, mock_run):
+        mock_run.return_value = 500
         assert _snmp('pagefault', OID_TONER_CUR) == 500
-        cmdgen.CommandGenerator.return_value.getCmd.assert_called_with(
-            cmdgen.CommunityData('my-agent', 'public', 0),
-            cmdgen.UdpTransportTarget(('pagefault', 161)),
-            OID_TONER_CUR,
-        )
 
-    @mock.patch('ocflib.printing.printers.cmdgen')
-    @pytest.mark.parametrize('err_indication,err_status', [
-        ('it broke', None),
-        (None, 'it broke'),
-    ])
-    def test_errors(self, cmdgen, err_indication, err_status):
-        cmdgen.CommandGenerator.return_value.getCmd.return_value = (
-            err_indication,
-            err_status,
-            None,
-            [[OID_TONER_CUR, 500]],
-        )
+    @mock.patch('ocflib.printing.printers.asyncio.run')
+    def test_errors(self, mock_run):
+        mock_run.side_effect = Exception('it broke')
         with pytest.raises(IOError):
             _snmp('pagefault', OID_TONER_CUR)
 
