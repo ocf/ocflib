@@ -51,7 +51,7 @@ def test_get_staff_hours(mock_disk):
     assert get_staff_hours() == [
         Hour(
             day='Monday',
-            time='4:10PM - 5:00PM',
+            time='4:10pm–5:00pm',
             staff=[
                 Staffer(
                     user_name='nickimp',
@@ -73,7 +73,7 @@ def test_get_staff_hours(mock_disk):
         ),
         Hour(
             day='Tuesday',
-            time='3:10PM - 4:00PM',
+            time='3:10pm–4:00pm',
             staff=[
                 Staffer(
                     user_name='willh',
