@@ -76,7 +76,7 @@ def _parse_hour(hour):
     """
     time = (datetime.strptime(hour[0], '%H:%M'), datetime.strptime(hour[1], '%H:%M'))
     return (f'{time[0]:%-I:%M%p}–{time[1]:%-I:%M%p}'
-        if time[0].time.minute != 0 or time[1].time.minute != 0
+        if time[0].minute != 0 or time[1].minute != 0
             else f'{time[0]:%-I%P}–{time[1]:%-I%P}')
 
 
