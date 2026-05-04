@@ -74,8 +74,10 @@ def _parse_hour(hour):
     in 12-hour time, like '11:00AM - 1:00PM'.
     Needed for backwards compatibility with the old staff hours file.
     """
-    return '{} - {}'.format(datetime.strptime(hour[0], '%H:%M').strftime('%-I:%M%p'),
-                            datetime.strptime(hour[1], '%H:%M').strftime('%-I:%M%p'))
+    time = (datetime.strptime(hour[0], '%H:%M'), datetime.strptime(hour[1], '%H:%M'))
+    return (f'{time[0].strftime('%-I:%M%p')}–{time[1].strftime('%-I:%M%p')}'
+        if time[0].time.minute != 0 or time[1].time.minute != 0
+        else f'{time[0].strftime('%-I%P')}–{time[1].strftime('%-I%P')}')
 
 
 def _remove_middle_names(name):
