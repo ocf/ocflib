@@ -75,9 +75,9 @@ def _parse_hour(hour):
     Needed for backwards compatibility with the old staff hours file.
     """
     time = (datetime.strptime(hour[0], '%H:%M'), datetime.strptime(hour[1], '%H:%M'))
-    return (f'{time[0].strftime('%-I:%M%p')}–{time[1].strftime('%-I:%M%p')}'
+    return (f'{time[0]:%-I:%M%p}–{time[1]:%-I:%M%p}'
         if time[0].time.minute != 0 or time[1].time.minute != 0
-        else f'{time[0].strftime('%-I%P')}–{time[1].strftime('%-I%P')}')
+            else f'{time[0]:%-I%P')}–{time[1]:%-I%P')}')
 
 
 def _remove_middle_names(name):
