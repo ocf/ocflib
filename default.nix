@@ -18,11 +18,11 @@
 , pycryptodome
 , pygithub
 , pymysql
-, puresnmp
 , pyyaml
 , redis
 , requests
 , sqlalchemy
+, x690
 , dos2unix
 , pyasn1
 , zxcvbn
@@ -49,6 +49,17 @@ let
       inherit pname version;
       hash = "sha256-n6V1WDjuy7LSNMOqOQvYD706xraGkQm/wbSZ972JoTA=";
     };
+    doCheck = false;
+  };
+  puresnmp-pypi = buildPythonPackage rec {
+    pname = "puresnmp";
+    version = "2.0.1";
+    format = "setuptools";
+    src = fetchPypi {
+      inherit pname version;
+      sha256 = "08a147249a6ff92d3f463b77e21b9221ca7a836ff7401e0b8dfe47135ed4cf56";
+    };
+    propagatedBuildInputs = [ x690 ];
     doCheck = false;
   };
   ldap3 = buildPythonPackage rec {
@@ -97,7 +108,7 @@ buildPythonPackage {
     pycryptodome
     pygithub
     pymysql
-    puresnmp
+    puresnmp-pypi
     pyyaml
     redis
     requests
