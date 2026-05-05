@@ -37,7 +37,7 @@ from sqlalchemy import Integer
 from sqlalchemy import LargeBinary
 from sqlalchemy import String
 from sqlalchemy import Text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import exists
@@ -154,7 +154,7 @@ def get_tasks(celery_app, credentials=None):
         nonlocal Session
         if Session is None:
             Session = sessionmaker(
-                bind=create_engine(credentials.mysql_uri, poolclass=NullPool),
+                create_engine(credentials.mysql_uri, poolclass=NullPool),
             )
         session = Session()
         try:

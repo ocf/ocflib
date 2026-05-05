@@ -1,6 +1,7 @@
 """Information, stats, and control of printers."""
-from pysnmp.entity.rfc3413.oneliner import cmdgen
-from pysnmp.proto.rfc1905 import NoSuchObject
+import asyncio
+
+import puresnmp
 
 PRINTERS = ['logjam', 'pagefault', 'papercut']
 
@@ -14,28 +15,11 @@ OID_LIFETIME_PAGES_PRINTED = '1.3.6.1.2.1.43.10.2.1.4.1.1'
 
 
 def _snmp(host, oid):
-    err_indication, err_status, err_idx, response_kv = (
-        cmdgen.CommandGenerator().getCmd(
-            cmdgen.CommunityData('my-agent', 'public', 0),
-            cmdgen.UdpTransportTarget((host, 161)),
-            oid,
-        )
-    )
-
-    if err_indication:
-        raise IOError(
-            'Device {} returned error indication: {}'.format(host, err_indication),
-        )
-    elif err_status:
-        raise IOError(
-            'Device {} returned error status: {}'.format(host, err_status),
-        )
-    elif isinstance(response_kv[0][1], NoSuchObject):
-        raise IOError(
-            'Device {} returned error status: NoSuchObject()'.format(host),
-        )
-    else:
-        return response_kv[0][1]
+    try:
+        client = puresnmp.PyWrapper(puresnmp.Client(host, puresnmp.V2C('public')))
+        return asyncio.run(client.get(oid))
+    except Exception as e:
+        raise IOError('Device {} returned SNMP error: {}'.format(host, e)) from e
 
 
 def get_toner(printer):
