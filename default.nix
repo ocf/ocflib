@@ -13,14 +13,16 @@
 , attrs
 , dnspython
 , jinja2
+, passlib
 , pexpect
 , pycryptodome
 , pygithub
 , pymysql
+, puresnmp
 , pyyaml
 , redis
 , requests
-, sqlalchemy_1_4
+, sqlalchemy
 , dos2unix
 , pyasn1
 , zxcvbn
@@ -87,19 +89,19 @@ buildPythonPackage {
 
   propagatedBuildInputs = [
     attrs
-    cached-property-pypi
     dnspython
     jinja2
     ldap3
+    passlib
     pexpect
     pycryptodome
     pygithub
     pymysql
-    pysnmp-pypi
+    puresnmp
     pyyaml
     redis
     requests
-    sqlalchemy_1_4
+    sqlalchemy
     poetry-core
     zxcvbn
   ];
