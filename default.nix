@@ -6,6 +6,7 @@
 
 # build system
 , poetry-core
+, setuptools
 
 # system dependencies
 
@@ -59,6 +60,7 @@ let
       inherit pname version;
       sha256 = "08a147249a6ff92d3f463b77e21b9221ca7a836ff7401e0b8dfe47135ed4cf56";
     };
+    nativeBuildInputs = [ setuptools ];
     propagatedBuildInputs = [ x690 ];
     doCheck = false;
   };
