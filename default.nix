@@ -54,7 +54,7 @@ let
   puresnmp-pypi = buildPythonPackage rec {
     pname = "puresnmp";
     version = "2.0.1";
-    format = "setuptools";
+    format = "pyproject";
     src = fetchPypi {
       inherit pname version;
       sha256 = "08a147249a6ff92d3f463b77e21b9221ca7a836ff7401e0b8dfe47135ed4cf56";
