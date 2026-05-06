@@ -19,9 +19,9 @@ def _mysql_basedir():
     return os.path.dirname(os.path.dirname(resolved))
 
 
+MYSQLD = shutil.which('mysqld')
 MYSQL_BASEDIR = _mysql_basedir()
 MYSQL_INSTALL_DB = os.path.join(MYSQL_BASEDIR, 'bin', 'mysql_install_db')
-MYSQLD = os.path.join(MYSQL_BASEDIR, 'bin', 'mysqld')
 MYSQL_SHARE = os.path.join(MYSQL_BASEDIR, 'share', 'mysql')
 MYSQL_CLI = os.path.join(MYSQL_BASEDIR, 'bin', 'mysql')
 
