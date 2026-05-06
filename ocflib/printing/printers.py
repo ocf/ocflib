@@ -64,4 +64,4 @@ def get_status(printer):
     (SNMPv2-SMI::mib-2.43.16.5.1.2.1). Empty entries are omitted.
     """
     results = _snmp_walk(printer, OID_STATUS)
-    return [str(value) for _, value in results if value]
+    return [value.decode() if isinstance(value, bytes) else str(value) for _, value in results if value]
