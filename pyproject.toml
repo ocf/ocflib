@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ocflib"
-version = "2026.05.05"
+version = "2026.05.05-1"
 description = "libraries for account and server management"
 authors = ["Open Computing Facility <help@ocf.berkeley.edu>"]
 readme = "README.md"
