@@ -27,7 +27,11 @@ def _snmp(host, oid):
 def _snmp_walk(host, oid):
     try:
         client = puresnmp.PyWrapper(puresnmp.Client(host, puresnmp.V2C('public')))
-        return asyncio.run(client.walk(oid))
+
+        async def _collect():
+            return [item async for item in client.walk(oid)]
+
+        return asyncio.run(_collect())
     except Exception as e:
         raise IOError('Device {} returned SNMP error: {}'.format(host, e)) from e
 
