@@ -13,11 +13,21 @@ OID_MAINTKIT_CUR = '1.3.6.1.2.1.43.11.1.1.9.1.2'
 
 OID_LIFETIME_PAGES_PRINTED = '1.3.6.1.2.1.43.10.2.1.4.1.1'
 
+OID_STATUS = '1.3.6.1.2.1.43.16.5.1.2.1'
+
 
 def _snmp(host, oid):
     try:
         client = puresnmp.PyWrapper(puresnmp.Client(host, puresnmp.V2C('public')))
         return asyncio.run(client.get(oid))
+    except Exception as e:
+        raise IOError('Device {} returned SNMP error: {}'.format(host, e)) from e
+
+
+def _snmp_walk(host, oid):
+    try:
+        client = puresnmp.PyWrapper(puresnmp.Client(host, puresnmp.V2C('public')))
+        return asyncio.run(client.walk(oid))
     except Exception as e:
         raise IOError('Device {} returned SNMP error: {}'.format(host, e)) from e
 
@@ -41,3 +51,13 @@ def get_maintkit(printer):
 def get_lifetime_pages(printer):
     """Returns lifetime pages printed for the given printer."""
     return int(_snmp(printer, OID_LIFETIME_PAGES_PRINTED))
+
+
+def get_status(printer):
+    """Returns a list of non-empty status strings for the given printer.
+
+    Status messages are read from the printer's display/alert table
+    (SNMPv2-SMI::mib-2.43.16.5.1.2.1). Empty entries are omitted.
+    """
+    results = _snmp_walk(printer, OID_STATUS)
+    return [str(value) for _, value in results if value]
