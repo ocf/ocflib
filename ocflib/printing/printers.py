@@ -3,7 +3,7 @@ import asyncio
 
 import puresnmp
 
-PRINTERS = ['logjam', 'pagefault', 'papercut']
+PRINTERS = ['logjam', 'pagefault', 'papercut', 'fishpaper']
 
 OID_TONER_MAX = '1.3.6.1.2.1.43.11.1.1.8.1.1'
 OID_TONER_CUR = '1.3.6.1.2.1.43.11.1.1.9.1.1'
