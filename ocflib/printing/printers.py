@@ -15,6 +15,10 @@ OID_LIFETIME_PAGES_PRINTED = '1.3.6.1.2.1.43.10.2.1.4.1.1'
 
 OID_STATUS = '1.3.6.1.2.1.43.16.5.1.2.1'
 
+OID_TRAY_MAX = '1.3.6.1.2.1.43.8.2.1.9.1'
+OID_TRAY_CUR = '1.3.6.1.2.1.43.8.2.1.10.1'
+OID_TRAY_NAME = '1.3.6.1.2.1.43.8.2.1.13.1'
+
 
 def _snmp(host, oid):
     try:
@@ -55,6 +59,31 @@ def get_maintkit(printer):
 def get_lifetime_pages(printer):
     """Returns lifetime pages printed for the given printer."""
     return int(_snmp(printer, OID_LIFETIME_PAGES_PRINTED))
+
+
+def get_paper_trays(printer):
+    """Returns a list of (name, cur, max) tuples for each input tray.
+
+    cur and max are sheet counts. Tray 1 (manual/multipurpose feed) and trays
+    where the current level is not sensed by the printer (negative value) are
+    excluded.
+    """
+    def _decode(v):
+        return v.decode() if isinstance(v, bytes) else str(v)
+
+    names_raw = _snmp_walk(printer, OID_TRAY_NAME)
+    maxes_raw = _snmp_walk(printer, OID_TRAY_MAX)
+    curs_raw = _snmp_walk(printer, OID_TRAY_CUR)
+
+    trays = []
+    for (_, name), (_, max_val), (_, cur_val) in zip(names_raw, maxes_raw, curs_raw):
+        name = _decode(name)
+        max_val = int(max_val)
+        cur_val = int(cur_val)
+        if name == 'Tray 1' or max_val <= 0 or cur_val < 0:
+            continue
+        trays.append((name, cur_val, max_val))
+    return trays
 
 
 def get_status(printer):
