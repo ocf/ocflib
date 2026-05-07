@@ -3,6 +3,7 @@ not account creation (since it's too large)."""
 import shlex
 
 import pexpect
+import shutil
 
 import ocflib.account.search as search
 import ocflib.account.utils as utils
@@ -11,7 +12,7 @@ import ocflib.infra.ldap as ldap_ocf
 import ocflib.misc as misc
 import ocflib.misc.mail as mail
 
-KADMIN_PATH = '/usr/bin/kadmin'
+KADMIN_PATH = shutil.which('kadmin')
 
 
 def change_password_with_staffer(username, password, principal,
