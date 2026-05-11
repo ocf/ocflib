@@ -6,6 +6,7 @@
 
 # build system
 , poetry-core
+, setuptools
 
 # system dependencies
 
@@ -13,6 +14,7 @@
 , attrs
 , dnspython
 , jinja2
+, passlib
 , pexpect
 , pycryptodome
 , pygithub
@@ -20,7 +22,8 @@
 , pyyaml
 , redis
 , requests
-, sqlalchemy_1_4
+, sqlalchemy
+, x690
 , dos2unix
 , pyasn1
 , zxcvbn
@@ -47,6 +50,18 @@ let
       inherit pname version;
       hash = "sha256-n6V1WDjuy7LSNMOqOQvYD706xraGkQm/wbSZ972JoTA=";
     };
+    doCheck = false;
+  };
+  puresnmp-pypi = buildPythonPackage rec {
+    pname = "puresnmp";
+    version = "2.0.1";
+    format = "pyproject";
+    src = fetchPypi {
+      inherit pname version;
+      sha256 = "08a147249a6ff92d3f463b77e21b9221ca7a836ff7401e0b8dfe47135ed4cf56";
+    };
+    nativeBuildInputs = [ setuptools ];
+    propagatedBuildInputs = [ x690 ];
     doCheck = false;
   };
   ldap3 = buildPythonPackage rec {
@@ -87,19 +102,19 @@ buildPythonPackage {
 
   propagatedBuildInputs = [
     attrs
-    cached-property-pypi
     dnspython
     jinja2
     ldap3
+    passlib
     pexpect
     pycryptodome
     pygithub
     pymysql
-    pysnmp-pypi
+    puresnmp-pypi
     pyyaml
     redis
     requests
-    sqlalchemy_1_4
+    sqlalchemy
     poetry-core
     zxcvbn
   ];

@@ -22,7 +22,7 @@ from tests.fixtures_test import celery_app  # noqa
 def session(fake_credentials):
     engine = create_engine(fake_credentials.mysql_uri)
     Base.metadata.create_all(engine)
-    return sessionmaker(bind=engine)()
+    return sessionmaker(engine)()
 
 
 class TestUsernamePending:

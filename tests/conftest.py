@@ -1,5 +1,6 @@
 import os.path
 import random
+import shutil
 import string
 import time
 from collections import namedtuple
@@ -10,6 +11,19 @@ from subprocess import Popen
 
 import pymysql
 import pytest
+
+
+def _mysql_basedir():
+    mysqld = shutil.which('mysqld')
+    resolved = os.path.realpath(mysqld)
+    return os.path.dirname(os.path.dirname(resolved))
+
+
+MYSQLD = shutil.which('mysqld')
+MYSQL_BASEDIR = _mysql_basedir()
+MYSQL_INSTALL_DB = os.path.join(MYSQL_BASEDIR, 'bin', 'mysql_install_db')
+MYSQL_SHARE = os.path.join(MYSQL_BASEDIR, 'share', 'mysql')
+MYSQL_CLI = os.path.join(MYSQL_BASEDIR, 'bin', 'mysql')
 
 
 # To test functions that query UCB LDAP for people, we simply pick
@@ -33,17 +47,17 @@ def mysqld_socket(tmpdir_factory):
     data_dir.ensure_dir()
 
     check_call((
-        os.path.join('/usr', 'bin', 'mysql_install_db'),
+        MYSQL_INSTALL_DB,
         '--no-defaults',
         '--auth-root-authentication-method=normal',
-        '--basedir=/usr',
+        '--basedir=' + MYSQL_BASEDIR,
         '--datadir=' + data_dir.strpath,
     ))
     proc = Popen((
-        os.path.join('/usr', 'sbin', 'mysqld'),
+        MYSQLD,
         '--no-defaults',
         '--skip-networking',
-        '--lc-messages-dir', os.path.join('/usr', 'share', 'mysql'),
+        '--lc-messages-dir', MYSQL_SHARE,
         '--datadir', data_dir.strpath,
         '--socket', socket.strpath,
     ))
@@ -100,7 +114,7 @@ class TemporaryMySQLDatabase(namedtuple('TemporaryMySQLDatabase', (
         """
         mysql = Popen(
             (
-                os.path.join('/usr', 'bin', 'mysql'),
+                MYSQL_CLI,
                 '-h', 'localhost',
                 '-u', 'root',
                 '--password=',

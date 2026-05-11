@@ -1,7 +1,6 @@
-import crypt
-
 import mock
 import pkg_resources
+from passlib.hash import sha512_crypt
 import pytest
 
 import ocflib.vhost.mail
@@ -154,11 +153,12 @@ def test_crypt_password(password):
     assert crypted.startswith('$6$')
 
     # verify password against hash succeeds
-    assert crypt.crypt(password, crypted) == crypted
+    assert sha512_crypt.verify(password, crypted)
 
     # verify not-the-password against hash fails
     for not_password in ['', password + ' ', 'hunter3']:
-        assert crypt.crypt(password, crypt_password(not_password)) != crypted
+        if not_password != password:
+            assert not sha512_crypt.verify(not_password, crypted)
 
 
 def test_mail_forwarding_address_is_wildcard():

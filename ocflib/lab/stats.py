@@ -4,8 +4,7 @@ from collections import namedtuple
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
-
-from cached_property import cached_property
+from functools import cached_property
 
 from ocflib.infra import mysql
 from ocflib.infra.hosts import domain_from_hostname
