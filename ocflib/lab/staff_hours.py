@@ -71,8 +71,7 @@ def get_staff_hours():
 def _parse_hour(hour):
     """
     Converts a 2-element list of hours like ['11:00', '13:00'] to a string
-    in 12-hour time, like '11:00AM - 1:00PM'.
-    Needed for backwards compatibility with the old staff hours file.
+    in 12-hour time, like '11am–1pm'.
     """
     time = (datetime.strptime(hour[0], '%H:%M'), datetime.strptime(hour[1], '%H:%M'))
     return (f'{time[0]:%-I:%M%P}–{time[1]:%-I:%M%P}'
