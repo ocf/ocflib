@@ -37,6 +37,28 @@ class RtTicket(namedtuple('RtTicket', ('number', 'owner', 'subject', 'queue', 's
         )
 
     @classmethod
+    def get_newest(cls, connection, queue):
+        """Returns the newest created RT ticket in the given queue"""
+        resp = connection.get("https://rt.ocf.berkeley.edu/REST/1.0/search/ticket?query=Queue='{}'&orderby=-Created".format(queue))
+        assert resp.status_code == 200, resp.status_code
+        assert '200 Ok' in resp.text
+
+        lines = resp.text.splitlines()
+
+        def find(header):
+            for line in lines:
+                if line.startswith(header + ': '):
+                    return line.split(': ', 1)[1]
+
+        return cls(
+            number=num,
+            owner=find('Owner'),
+            subject=find('Subject'),
+            queue=find('Queue'),
+            status=find('Status'),
+        )
+
+    @classmethod
     def create(cls, connection, queue, requestor, subject, text, **kwargs):
         """Create an RT ticket and returns an instance of the result"""
         # RT prefixes multiline strings by a blank space
