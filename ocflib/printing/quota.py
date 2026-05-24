@@ -65,7 +65,7 @@ def daily_quota(day=None):
     if day is None:
         day = datetime.today()
 
-    if HAPPY_HOUR_START <= day and day < HAPPY_HOUR_END:
+    if HAPPY_HOUR_START <= day and day <= HAPPY_HOUR_END:
         return HAPPY_HOUR_QUOTA
     elif day.weekday() in {5, 6}:
         return WEEKEND_QUOTA
