@@ -296,19 +296,25 @@ def get_tasks(celery_app, credentials=None):
             request_row = session.query(StoredNewAccountRequest).filter(
                 StoredNewAccountRequest.user_name == user_name
             ).first()
-            session.delete(request_row)
-            session.commit()
+            if request_row:
+                session.delete(request_row)
+                session.commit()
             return request_row
 
     @celery_app.task
     def approve_request(user_name):
-        request = get_remove_row_by_user_name(user_name).to_request()
+        stored_request = get_remove_row_by_user_name(user_name)
+        if not stored_request:
+            raise ValueError('No pending request for user')
+        request = stored_request.to_request()
         create_account.delay(request)
         dispatch_event('ocflib.account_approved', request=request.to_dict())
 
     @celery_app.task
     def reject_request(user_name):
         stored_request = get_remove_row_by_user_name(user_name)
+        if not stored_request:
+            raise ValueError('No pending request for user')
         request = stored_request.to_request()
         send_rejected_mail(request, stored_request.reason)
         dispatch_event('ocflib.account_rejected', request=request.to_dict())
