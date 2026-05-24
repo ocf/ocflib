@@ -53,7 +53,7 @@ class TestPasswordMatches:
 
         assert child.expect.mock_calls == [
             mock.call.first('ckuehl@OCF.BERKELEY.EDU\'s Password:'),
-            mock.call.second(pexpect.EOF),
+            mock.call.second([pexpect.EOF, 'expired']),
         ]
         child.sendline.assert_called_with('hunter2')
         assert child.close.called
