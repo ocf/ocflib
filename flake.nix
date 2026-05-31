@@ -9,7 +9,11 @@
         "python310"
         "python311"
         "python312"
-        "python313"
+       	# adding python313 causes an insecure package error on evaluation of the
+       	# overlay due to:
+        # - pypy2.7-setuptools-44.0.0 due to CVE-2025-47273
+        # - pypy2.7-pip-20.3.4 due to CVE-2021-2836
+        #"python313"
         "python314"
       ];
 
