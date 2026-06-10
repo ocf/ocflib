@@ -1,5 +1,5 @@
 """Random account methods that don't fit anywhere else."""
-import grp
+import ldap3
 import os.path
 import re
 
@@ -7,6 +7,8 @@ import pexpect
 
 import ocflib.account.validators as validators
 import ocflib.account.search as search
+import ocflib.infra.ldap as ldap
+from ocflib.infra.ldap import OCF_LDAP_GROUP
 from ocflib.infra.ldap import OCF_LDAP_PEOPLE
 
 
@@ -84,8 +86,17 @@ def list_group(group):
 
     :param group: UNIX group to list.
     """
-    return grp.getgrnam(group).gr_mem
-
+    
+    with ldap.ldap_ocf() as c:
+        c.search(
+            OCF_LDAP_GROUP,
+            f'(cn={group})',
+            attributes=('memberUid',),
+            search_scope=ldap3.LEVEL,
+        )
+        if not c.response:
+            raise ValueError("Group doesn't exist")
+        return c.response[0]['attributes']['memberUid']
 
 def dn_for_username(username):
     return 'uid={user},{base_people}'.format(
