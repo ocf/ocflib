@@ -39,7 +39,7 @@ class TestChangePasswordWithStaffer:
             'super_hunter2837162',
         )
         mock_spawn.assert_called_with(
-            '/usr/bin/kadmin -p ckuehl/admin cpw ggroup',
+            '/run/current-system/sw/bin/kadmin -p ckuehl/admin cpw ggroup',
             timeout=10,
         )
         mock_spawn.return_value.sendline.assert_has_calls(
@@ -76,7 +76,7 @@ class TestChangePasswordWithKeytab:
             'create/admin',
         )
         mock_spawn.assert_called_with(
-            '/usr/bin/kadmin -K /some/keytab -p create/admin cpw ggroup',
+            '/run/current-system/sw/bin/kadmin -K /some/keytab -p create/admin cpw ggroup',
             timeout=10,
         )
         mock_spawn.return_value.sendline.assert_has_calls(
