@@ -47,10 +47,11 @@ Job = namedtuple('Job', (
     'filesize',
 ))
 
-Refund = namedtuple('Refund', (
+Payload = namedtuple('Payload', (
     'user',
     'time',
     'pages',
+    'action'
     'staffer',
     'reason',
     'color',
@@ -121,6 +122,6 @@ def add_job(c, job):
     c.execute(*_namedtuple_to_query('INSERT INTO jobs ({}) VALUES ({})', job))
 
 
-def add_refund(c, refund):
-    """Add a new refund to the database."""
-    c.execute(*_namedtuple_to_query('INSERT INTO refunds ({}) VALUES ({})', refund))
+def add_adjustment(c, payload):
+    """Add a new adjustment to the database (either refund or forward)."""
+    c.execute(*_namedtuple_to_query('INSERT INTO adjustments ({}) VALUES ({})', payload))
