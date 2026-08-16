@@ -16,14 +16,15 @@ jobs:
         uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
+      - name: Nix develop
+        run: nix run github:nicknovitski/nix-develop/9be7cfb4b10451d3390a75dc18ad0465bed4932a
       - name: Install dependencies
         run: |
-          nix develop -c poetry config virtualenvs.in-project true
-          nix develop -c poetry install
+          poetry config virtualenvs.in-project true
+          poetry install
       - name: Run tests
         run: |
-          nix develop -c poetry run pytest
+          poetry run pytest
       - name: Build package 
         run: |
-          nix develop -c poetry build
-
+          poetry build
