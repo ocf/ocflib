@@ -1,33 +1,34 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, fetchpatch
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  fetchpatch,
+  pythonOlder,
 
-# build system
-, poetry-core
-, setuptools
+  # build system
+  poetry-core,
+  setuptools,
 
-# system dependencies
+  # system dependencies
 
-# python dependencies
-, attrs
-, dnspython
-, jinja2
-, ldap3
-, passlib
-, pexpect
-, pycryptodome
-, pygithub
-, pymysql
-, pyyaml
-, redis
-, requests
-, sqlalchemy
-, x690
-, dos2unix
-, pyasn1
-, zxcvbn
+  # python dependencies
+  attrs,
+  dnspython,
+  jinja2,
+  ldap3,
+  passlib,
+  pexpect,
+  pycryptodome,
+  pygithub,
+  pymysql,
+  pyyaml,
+  redis,
+  requests,
+  sqlalchemy,
+  x690,
+  dos2unix,
+  pyasn1,
+  zxcvbn,
 }:
 
 let
@@ -99,7 +100,10 @@ buildPythonPackage {
   meta = with lib; {
     description = "libraries for account and server management";
     homepage = "https://github.com/ocf/ocflib";
-    license = [ licenses.mit licenses.gpl2Plus ];
+    license = [
+      licenses.mit
+      licenses.gpl2Plus
+    ];
     platforms = platforms.unix;
   };
 }
