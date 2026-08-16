@@ -14,23 +14,24 @@ jobs:
     if: github.repository == 'ocf/ocflib'
     name: Publish
     runs-on: ci-ocf-ocflib
+    permissions:
+      id-token: write
     steps:
       - name: Checkout branch
         uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
+      - name: Nix develop
+        uses: nicknovitski/nix-develop@9be7cfb4b10451d3390a75dc18ad0465bed4932a
       - name: Install dependencies
         run: |
-          nix develop -c poetry config virtualenvs.in-project true
-          nix develop -c poetry install
+          poetry config virtualenvs.in-project true
+          poetry install
       - name: Run tests
         run: |
-          nix develop -c poetry run pytest
+          poetry run pytest
       - name: Build package 
         run: |
-          nix develop -c poetry build
+          poetry build
       - name: Publish to PyPi
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          nix develop -c poetry publish --username __token__ --password $PYPI_TOKEN
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
