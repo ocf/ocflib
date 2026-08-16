@@ -10,7 +10,7 @@ jobs:
   deploy:
     if: github.repository == 'ocf/ocflib'
     name: Build & Test
-    runs-on: self-hosted
+    runs-on: ci-ocf-ocflib
     steps:
       - name: Checkout branch
         uses: actions/checkout@v5.0.0
@@ -18,14 +18,12 @@ jobs:
           fetch-depth: 0
       - name: Install dependencies
         run: |
-          poetry --version
-          poetry check --no-interaction
-          poetry config virtualenvs.in-project true
-          poetry install --no-interaction
+          nix develop -c poetry config virtualenvs.in-project true
+          nix develop -c poetry install
       - name: Run tests
         run: |
-          poetry run pytest
+          nix develop -c poetry run pytest
       - name: Build package 
         run: |
-          poetry build --no-interaction
+          nix develop -c poetry build
 
