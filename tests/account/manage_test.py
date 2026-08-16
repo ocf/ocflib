@@ -1,11 +1,13 @@
 import mock
 import pytest
+import shutil
 
 from ocflib.account.manage import _notify_password_change
 from ocflib.account.manage import change_password_with_keytab
 from ocflib.account.manage import change_password_with_staffer
 from ocflib.account.manage import modify_ldap_attributes
 
+KADMIN_PATH = shutil.which('kadmin')
 
 @pytest.yield_fixture
 def mock_spawn():
@@ -39,7 +41,7 @@ class TestChangePasswordWithStaffer:
             'super_hunter2837162',
         )
         mock_spawn.assert_called_with(
-            '/usr/bin/kadmin -p ckuehl/admin cpw ggroup',
+            f'{KADMIN_PATH} -p ckuehl/admin cpw ggroup',
             timeout=10,
         )
         mock_spawn.return_value.sendline.assert_has_calls(
@@ -76,7 +78,7 @@ class TestChangePasswordWithKeytab:
             'create/admin',
         )
         mock_spawn.assert_called_with(
-            '/usr/bin/kadmin -K /some/keytab -p create/admin cpw ggroup',
+            f'{KADMIN_PATH} -K /some/keytab -p create/admin cpw ggroup',
             timeout=10,
         )
         mock_spawn.return_value.sendline.assert_has_calls(
