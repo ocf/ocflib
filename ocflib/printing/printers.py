@@ -3,7 +3,9 @@ import asyncio
 
 import puresnmp
 
-PRINTERS = ['logjam', 'pagefault', 'papercut', 'fishpaper']
+BW_PRINTERS = ['logjam', 'papercut', 'pagefault']
+COLOR_PRINTERS = ['fishpaper']
+PRINTERS = BW_PRINTERS + COLOR_PRINTERS
 
 OID_TONER_MAX = '1.3.6.1.2.1.43.11.1.1.8.1.1'
 OID_TONER_CUR = '1.3.6.1.2.1.43.11.1.1.9.1.1'
