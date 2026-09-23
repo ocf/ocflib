@@ -61,6 +61,7 @@ class TestUserAttrs:
         assert user_attrs('doesnotexist') is None
 
 
+@pytest.mark.xfail(reason='ucb ldap no longer allows anonymous access, see #307')
 class TestUserAttrsUCB:
 
     def test_existing_user(self, test_uid=TEST_PERSON_CALNET_UID):

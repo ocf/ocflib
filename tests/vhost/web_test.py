@@ -83,6 +83,7 @@ class TestVirtualHosts:
     def test_has_vhost(self, user, should_have_vhost, mock_get_vhosts_db):
         assert has_vhost(user) == should_have_vhost
 
+    @pytest.mark.xfail(reason='ucb ldap no longer allows anonymous access, see #307')
     @pytest.mark.parametrize('user,should_be_eligible', [
         ('mattmcal', False),
         ('ggroup', True),
