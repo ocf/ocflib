@@ -20,7 +20,8 @@ OCF_LDAP_GROUP = 'ou=Group,dc=OCF,dc=Berkeley,dc=EDU'
 # university ldap
 UCB_LDAP = 'ldap.berkeley.edu'
 UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
-UCB_LDAP_PEOPLE = 'uid=ocf,ou=applications,dc=Berkeley,dc=EDU'
+UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
+UCB_LDAP_BIND = 'uid=ocf,ou=applications,dc=Berkeley,dc=EDU'
 UCB_LDAP_PASSWD_FILE = '/etc/ucbldap.passwd'
 
 
@@ -69,7 +70,7 @@ def ldap_ucb():
        with ldap_ucb() as c:
             c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    return ldap_connection(UCB_LDAP, UCB_LDAP_PEOPLE, UCB_LDAP_PASSWD_FILE)
+    return ldap_connection(UCB_LDAP, UCB_LDAP_BIND, UCB_LDAP_PASSWD_FILE)
 
 
 def _format_attr(key, values):
