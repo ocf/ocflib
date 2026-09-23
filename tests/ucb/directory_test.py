@@ -7,6 +7,7 @@ from tests.conftest import TEST_PERSON_CALNET_UID
 from tests.conftest import TEST_PERSON_NAME
 
 
+@pytest.mark.xfail(reason='ucb ldap no longer allows anonymous access, see #307')
 class TestNameByCalNetUID:
 
     @pytest.mark.parametrize('attrs,expected', [
@@ -31,6 +32,7 @@ class TestNameByCalNetUID:
         assert (name_by_calnet_uid(uid) or '').lower() == (expected or '').lower()
 
 
+@pytest.mark.xfail(reason='ucb ldap no longer allows anonymous access, see #307')
 class TestCalNetUIDsByName:
 
     @pytest.mark.parametrize('name,expected', [

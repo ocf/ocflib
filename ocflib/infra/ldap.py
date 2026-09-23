@@ -21,10 +21,12 @@ OCF_LDAP_GROUP = 'ou=Group,dc=OCF,dc=Berkeley,dc=EDU'
 UCB_LDAP = 'ldap.berkeley.edu'
 UCB_LDAP_URL = 'ldaps://' + UCB_LDAP
 UCB_LDAP_PEOPLE = 'ou=People,dc=Berkeley,dc=EDU'
+UCB_LDAP_BIND = 'uid=ocf,ou=applications,dc=Berkeley,dc=EDU'
+UCB_LDAP_PASSWD_FILE = '/etc/ucbldap.passwd'
 
 
 @contextmanager
-def ldap_connection(host):
+def ldap_connection(host, bind_dn=None, password_file=None):
     """Context manager that provides an ldap3 Connection.
 
     Example usage:
@@ -36,9 +38,16 @@ def ldap_connection(host):
     also defined.
 
     :param host: server hostname
+    :param bind_dn: DN to bind as, None for anonymous
+    :param password_file: bind password file
     """
+    bind_password = None
+    if password_file is not None:
+        with open(password_file) as f:
+            bind_password = f.read().strip()
+
     server = ldap3.Server(host, use_ssl=True)
-    with ldap3.Connection(server) as connection:
+    with ldap3.Connection(server, user=bind_dn, password=bind_password) as connection:
         yield connection
 
 
@@ -61,7 +70,7 @@ def ldap_ucb():
        with ldap_ucb() as c:
             c.search(UCB_LDAP_PEOPLE, '(uid=ckuehl)', attributes=['uidNumber'])
     """
-    return ldap_connection(UCB_LDAP)
+    return ldap_connection(UCB_LDAP, UCB_LDAP_BIND, UCB_LDAP_PASSWD_FILE)
 
 
 def _format_attr(key, values):

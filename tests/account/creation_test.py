@@ -243,6 +243,7 @@ class TestUsernameCheck:
             validate_username('ckuehl', 'Chris Kuehl')
 
 
+@pytest.mark.xfail(reason='ucb ldap no longer allows anonymous access, see #307')
 class TestAccountEligibility:
 
     @pytest.mark.parametrize('bad_uid', [
