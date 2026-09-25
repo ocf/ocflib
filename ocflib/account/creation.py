@@ -26,11 +26,7 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 _KNOWN_UID = 105749
 BAD_WORDS = frozenset((
-    'anal', 'anus', 'arse', 'ass', 'bastard', 'bitch', 'biatch', 'bloody', 'blowjob', 'bollock',
-    'bollok', 'boner', 'chink', 'clit', 'cock', 'coon', 'cunt', 'damn', 'dick', 'dildo', 'douche',
-    'dyke', 'fag', 'fellate', 'fellatio', 'felching', 'fuck', 'flange', 'hell', 'homo', 'jerk', 'jizz', 'kike',
-    'labia', 'muff', 'nigger', 'nigga', 'penis', 'piss', 'prick', 'pube', 'pussy', 'queer', 'scrotum',
-    'sex', 'shit', 'slut', 'smegma', 'terrorist', 'twat', 'vagina', 'wank', 'whore'
+    'beaner', 'bitch', 'chink', 'coon', 'cunt', 'dyke', 'fag', 'gook', 'gypsy', 'kike', 'nigger', 'nigga', 'pajeet', 'retard', 'tranny', 'whore'
 ))
 RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'berkeley', 'university'))
 
