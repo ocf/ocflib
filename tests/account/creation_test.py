@@ -215,7 +215,7 @@ class TestCreateDirectories:
 class TestUsernameCheck:
 
     @pytest.mark.parametrize('username', [
-        'shitup',
+        'axtestbannedwordxyz',
         'ucbcop',
         'suxocf',
     ])
