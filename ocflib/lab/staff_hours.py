@@ -68,20 +68,14 @@ def get_staff_hours():
     return staff_hour_list
 
 
-def _parse_hour(hour_list):
+def _parse_hour(hour):
     """
     Converts a 2-element list of hours like ['11:00', '13:00'] to a string
-    in 12-hour time, like '11am–1pm'.
+    in 12-hour time, like '11:00AM - 1:00PM'.
+    Needed for backwards compatibility with the old staff hours file.
     """
-    hour = {
-        'open': datetime.strptime(hour_list[0], '%H:%M'),
-        'close': datetime.strptime(hour_list[1], '%H:%M')
-    }
-    return (
-        f'{hour['open']:%-I:%M%P}–{hour['close']:%-I:%M%P}'
-        if hour['open'].minute != 0 or hour['close'].minute != 0
-        else f'{hour['open']:%-I%P}–{hour['close']:%-I%P}'
-    )
+    return '{} - {}'.format(datetime.strptime(hour[0], '%H:%M').strftime('%-I:%M%p'),
+                            datetime.strptime(hour[1], '%H:%M').strftime('%-I:%M%p'))
 
 
 def _remove_middle_names(name):
