@@ -26,7 +26,8 @@ from ocflib.printing.quota import SEMESTERLY_QUOTA
 
 _KNOWN_UID = 105749
 BAD_WORDS = frozenset((
-    'beaner', 'bitch', 'chink', 'coon', 'cunt', 'dyke', 'fag', 'gook', 'gypsy', 'kike', 'nigger', 'nigga', 'pajeet', 'retard', 'tranny', 'whore'
+    'beaner', 'bitch', 'chink', 'coon', 'cunt', 'dyke', 'fag', 'gook', 'gypsy', 'kike', 'nigger', 'nigga', 'pajeet', 'retard', 'tranny', 'whore',
+    'xtestbannedword',
 ))
 RESTRICTED_WORDS = frozenset(('ocf', 'ucb', 'berkeley', 'university'))
 
