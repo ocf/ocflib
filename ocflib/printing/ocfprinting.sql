@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `refunds` (
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 
-CREATE INDEX `jobs_idx` ON `jobs` (`user`, `time`, `pages`);
-CREATE INDEX `refunds_idx` ON `refunds` (`user`, `time`, `pages`);
+CREATE INDEX `jobs_idx` ON `jobs` (`time`, `user`, `pages`);
+CREATE INDEX `refunds_idx` ON `refunds` (`time`, `user`, `pages`);
 
 DROP FUNCTION IF EXISTS semester_start;
 DELIMITER $$
@@ -43,18 +43,16 @@ CREATE FUNCTION semester_start (d date) RETURNS date
     END$$
 DELIMITER ;
 
-DROP VIEW IF EXISTS jobs_today;
-CREATE VIEW jobs_today AS
+CREATE OR REPLACE VIEW jobs_today AS
     SELECT user, SUM(pages) AS pages
     FROM jobs
-    WHERE DATE(jobs.time) = CURDATE()
+    WHERE jobs.time >= CURDATE()
     GROUP BY user;
 
-DROP VIEW IF EXISTS refunds_today;
-CREATE VIEW refunds_today AS
+CREATE OR REPLACE VIEW refunds_today AS
     SELECT user, SUM(pages) AS pages
     FROM refunds
-    WHERE DATE(refunds.time) = CURDATE()
+    WHERE refunds.time >= CURDATE()
     GROUP BY user;
 
 DROP VIEW IF EXISTS printed_today;
@@ -79,34 +77,30 @@ CREATE VIEW `printed_today` AS
 
     ORDER BY user;
 
-DROP VIEW IF EXISTS jobs_semester;
-CREATE VIEW jobs_semester AS
+CREATE OR REPLACE VIEW jobs_semester AS
     SELECT user, SUM(pages) AS pages
     FROM jobs
-    WHERE DATE(jobs.time) >= semester_start(CURDATE())
+    WHERE jobs.time >= semester_start(CURDATE())
     GROUP BY user;
 
-DROP VIEW IF EXISTS jobs_color;
-CREATE VIEW jobs_color AS
+CREATE OR REPLACE VIEW jobs_color AS
     SELECT user, SUM(pages) AS pages
     FROM jobs
-    WHERE DATE(jobs.time) >= semester_start(CURDATE())
-    AND `queue` IN ('color-single', 'color-double', 'epson', 'OCF-Color', 'fishpaper')
+    WHERE jobs.time >= semester_start(CURDATE())
+      AND `queue` IN ('color-single', 'color-double', 'epson', 'OCF-Color', 'fishpaper')
     GROUP BY user;
 
-DROP VIEW IF EXISTS refunds_semester;
-CREATE VIEW refunds_semester AS
+CREATE OR REPLACE VIEW refunds_semester AS
     SELECT user, SUM(pages) AS pages
     FROM refunds
-    WHERE DATE(refunds.time) >= semester_start(CURDATE())
+    WHERE refunds.time >= semester_start(CURDATE())
     GROUP BY user;
 
-DROP VIEW IF EXISTS refunds_color;
-CREATE VIEW refunds_color AS
+CREATE OR REPLACE VIEW refunds_color AS
     SELECT user, SUM(pages) AS pages
     FROM refunds
-    WHERE DATE(refunds.time) >= semester_start(CURDATE())
-    AND refunds.color = 1
+    WHERE refunds.time >= semester_start(CURDATE())
+      AND refunds.color = 1
     GROUP BY user;
 
 DROP VIEW IF EXISTS printed_semester;
