@@ -350,7 +350,7 @@ def validate_username(username, check_exists=False):
     if not 3 <= len(username) <= 16:
         raise ValueError('Username must be between 3 and 16 characters.')
 
-    if not all(c.islower() for c in username):
+    if not all(c in string.ascii_lowercase for c in username):
         raise ValueError('Username must be all lowercase letters.')
 
     if check_exists and not search.user_exists(username):
